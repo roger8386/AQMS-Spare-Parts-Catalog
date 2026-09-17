@@ -20,7 +20,7 @@
       </div>
       <div>
         <div class="flex items-center gap-2"><h1 class="text-base md:text-lg font-bold tracking-tight">AQMS Technical Portal</h1><span class="bg-cyan-950 text-cyan-300 border border-cyan-700/50 text-[10px] font-bold px-2 py-0.5 rounded-full" id="headerBadge">366 Items</span></div>
-        <p class="text-xs text-slate-400">Spare Parts, Calendar, Folders & Playlists • Fixed Version</p>
+        <p class="text-xs text-slate-400">Spare Parts, Calendar, Documents & Gallery • Live System</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
@@ -407,7 +407,7 @@ window.savePartData = async function(e){
     } else {
       await addDoc(collection(db,"kytos_parts"), {pn,name,model,cat,rem:"Active Reference",img,createdAt:Date.now()});
     }
-    alert("✅ LIVE! Na-save at kita na ng buong team mo kahit incognito. Hindi mo na kailangan galawin ang code.");
+    alert("✅ Live! Saved successfully and visible to all team members instantly. No code update required.");
     if(typeof closePartModal === 'function') closePartModal();
   }catch(err){ alert("Error: "+err.message); }
 };
@@ -438,7 +438,7 @@ window.saveNewDocument = async function(e){
     if(['pdf'].includes(ext)) type='PDF'; else if(['xlsx','xls','csv'].includes(ext)) type='EXCEL'; else if(['docx','doc'].includes(ext)) type='WORD'; else if(['jpg','jpeg','png','webp'].includes(ext)) type='IMAGE'; else type=ext.toUpperCase();
   }
   await addDoc(collection(db,"kytos_docs"), {title,type,folder,fileName,url,description:desc,createdAt:Date.now()});
-  alert("✅ Document LIVE! Kita na ng team mo agad.");
+  alert("✅ Document published live! Visible to all team members instantly.");
   if(typeof closeAddDocModal === 'function') closeAddDocModal();
 };
 
@@ -451,7 +451,7 @@ window.saveNewGallery = async function(e){
   const youtube=document.getElementById('galleryYoutube').value.trim();
   const description=document.getElementById('galleryDesc').value.trim();
   await addDoc(collection(db,"kytos_gallery"), {date,location,playlist,title,youtube,description,createdAt:Date.now()});
-  alert("✅ Video LIVE! Kita na ng team mo.");
+  alert("✅ Video published live! Visible to all team members instantly.");
   if(typeof closeGalleryModal === 'function') closeGalleryModal();
 };
 
@@ -464,7 +464,7 @@ window.saveNewActivity = async function(e){
   const person=document.getElementById('addActLead').value.trim();
   const description=document.getElementById('addActDesc').value.trim();
   await addDoc(collection(db,"kytos_activities"), {startDate,endDate,title,type,person,description,createdAt:Date.now()});
-  alert("✅ Activity LIVE!");
+  alert("✅ Activity published live!");
   if(typeof closeActivityModal === 'function') closeActivityModal();
 };
 </script>

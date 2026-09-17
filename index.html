@@ -263,85 +263,57 @@ function closePartModal(){
 }
 async function savePartData(e){
   e.preventDefault();
-  const editId = document.getElementById('editPartId').value.trim();
-  const pn = document.getElementById('addPartNum').value.trim();
-  const name = document.getElementById('addPartName').value.trim();
-  const model = document.getElementById('addModel').value.trim() || 'GENERAL';
-  const cat = document.getElementById('addCategory').value;
-  const manualUrl = document.getElementById('addImageUrlInput').value.trim();
-  const img = manualUrl ? manualUrl : (currentPartPhoto || '');
-  if(!pn || !name){
-    alert('Part Number and Description required');
-    return;
-  }
-  console.log('Saving part, editId:', editId, 'pn:', pn);
-  if(editId){
-    const idx = parts.findIndex(p=>String(p.id)===String(editId));
-    console.log('Edit index found:', idx);
-    if(idx>-1){
-      parts[idx] = {...parts[idx], pn, name, model, cat, img};
+  const editId=document.getElementById('editPartId').value.trim();
+  const pn=document.getElementById('addPartNum').value.trim();
+  const name=document.getElementById('addPartName').value.trim();
+  const model=document.getElementById('addModel').value.trim()||'GENERAL';
+  const cat=document.getElementById('addCategory').value;
+  const manualUrl=document.getElementById('addImageUrlInput').value.trim();
+  const img=manualUrl?manualUrl:(currentPartPhoto||'');
+  if(!pn||!name){alert('Part Number and Description required');return;}
+  
+  if(window.firebaseAdd || window.firebaseUpdate){
+    if(editId && String(editId).length>=10){
+      if(window.firebaseUpdate) await window.firebaseUpdate('kytos_parts', editId, {pn, name, model, cat, img});
+    } else if(!editId){
+      if(window.firebaseAdd) await window.firebaseAdd('kytos_parts', {pn, name, model, cat, rem:'Active Reference', img});
     } else {
-      alert('ID not found for edit: '+editId);
-      return;
+      // Old ID - add as new Firebase doc
+      if(window.firebaseAdd) await window.firebaseAdd('kytos_parts', {pn, name, model, cat, rem:'Active Reference', img});
     }
-  } else {
-    const newId = Date.now().toString();
-    parts.unshift({id:newId, pn, name, model, cat, rem:'Active Reference', img});
   }
-  try{
-    localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
-  }catch(err){ alert('LocalStorage error: '+err.message); }
-  // Firebase sync
-  try{
-    if(window._db){
-      const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      if(editId && String(editId).length>=10){
-        await updateDoc(doc(window._db, "kytos_parts", String(editId)), {pn, name, model, cat, img});
-      } else if(!editId){
-        await addDoc(collection(window._db, "kytos_parts"), {pn, name, model, cat, rem:"Active Reference", img, createdAt:Date.now()});
-      }
-    }
-  }catch(e){ console.log('Firebase save skipped:', e); }
+  
+  if(editId){
+    const idx=parts.findIndex(p=>String(p.id)===String(editId));
+    if(idx>-1){ parts[idx]={...parts[idx], pn, name, model, cat, img}; }
+  } else {
+    parts.unshift({id:Date.now().toString(), pn, name, model, cat, rem:'Active Reference', img});
+  }
+  try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
   closePartModal();
   applyFilters();
-  updateLiveSyncTime();
-  alert(editId?'✅ Part updated! (Total: '+parts.length+')':'✅ Part added! (Total: '+parts.length+')');
+  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+  alert(editId?'✅ Part updated - makikita sa Incognito':'✅ Part added - makikita sa Incognito');
 }
 async function deletePartItem(id){
   if(!isAdmin){ alert('Admin only'); return; }
-  const item = parts.find(p=>String(p.id)===String(id));
-  if(!item){ alert('Part not found'); return; }
-  if(!confirm('Delete part '+item.pn+' - '+item.name+'?')) return;
-  console.log('Deleting id:', id, 'pn:', item.pn);
+  if(!confirm('Delete part ID '+id+'?')) return;
+  console.log('Deleting id:', id);
+  const before = parts.length;
   parts = parts.filter(p=>String(p.id)!==String(id));
+  console.log('Deleted, before:', before, 'after:', parts.length);
   localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
-  // Delete from Firebase - try by id, and also by searching for same PN
+  // Also delete from Firebase if connected
   try{
-    if(window._db){
-      const { collection, getDocs, query, where, doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      // Try direct id delete first
-      try{
-        await deleteDoc(doc(window._db, "kytos_parts", String(id)));
-        console.log('Deleted from Firebase by id');
-      }catch(e){
-        console.log('Direct id delete failed, trying by PN search:', e.message);
-        // Search by PN and delete matching docs
-        const q = query(collection(window._db, "kytos_parts"), where("pn", "==", item.pn));
-        const snap = await getDocs(q);
-        for(const d of snap.docs){
-          const data = d.data();
-          // Only delete if model also matches to avoid deleting wrong
-          if((data.model||'') === (item.model||'') || data.pn===item.pn){
-            await deleteDoc(doc(window._db, "kytos_parts", d.id));
-            console.log('Deleted from Firebase by PN search:', d.id);
-          }
-        }
-      }
+    if(window._db && String(id).length>=10){
+      const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      await deleteDoc(doc(window._db, "kytos_parts", String(id)));
+      console.log('Deleted from Firebase');
     }
-  }catch(e){ console.log('Firebase delete error (will still be deleted locally):', e); }
+  }catch(e){ console.log('Firebase delete skipped:', e); }
   applyFilters();
   updateLiveSyncTime();
-  alert('✅ Deleted: '+item.pn+' (Total: '+parts.length+' items) - Hindi na babalik');
+  alert('✅ Deleted (Total: '+parts.length+' items)');
 }
 
 function applyFilters(){
@@ -503,8 +475,46 @@ function changeMonth(delta){currentCalendarDate.setMonth(currentCalendarDate.get
 function openAddActivityModal(){document.getElementById('editActivityId').value=""; document.getElementById('activityModalTitle').innerText="Schedule Activity"; document.getElementById('activityForm').reset(); document.getElementById('activityModal').classList.remove('hidden');}
 function openEditActivityModal(id){ const act=activities.find(a=>String(a.id)===String(id)); if(!act){ alert('Activity not found: '+id); return; } document.getElementById('editActivityId').value=String(act.id); document.getElementById('activityModalTitle').innerText="Edit Activity Schedule"; document.getElementById('addActStart').value=act.startDate; document.getElementById('addActEnd').value=act.endDate; document.getElementById('addActTitle').value=act.title; document.getElementById('addActType').value=act.type; document.getElementById('addActLead').value=act.person||""; document.getElementById('addActDesc').value=act.description||""; document.getElementById('activityModal').classList.remove('hidden');}
 function closeActivityModal(){document.getElementById('activityModal').classList.add('hidden');}
-function saveNewActivity(e){e.preventDefault(); const editId=document.getElementById('editActivityId').value.trim(); const startDate=document.getElementById('addActStart').value; const endDate=document.getElementById('addActEnd').value; if(new Date(startDate)>new Date(endDate)){alert("Start date cannot be later than end date!"); return;} const title=document.getElementById('addActTitle').value.trim(); const type=document.getElementById('addActType').value; const person=document.getElementById('addActLead').value.trim(); const description=document.getElementById('addActDesc').value.trim(); if(editId){ const idx=activities.findIndex(a=>String(a.id)===String(editId)); if(idx>-1){ activities[idx]={...activities[idx], startDate,endDate,title,type,person,description}; } } else { activities.push({id:Date.now().toString(),startDate,endDate,title,type,person,description}); } localStorage.setItem('kytos_acts_fixed',JSON.stringify(activities)); closeActivityModal(); renderActivities(); alert(editId?'✅ Activity updated!':'✅ Activity added!');}
-function deleteActivityItem(id){if(!isAdmin){alert('Admin only');return;} if(!confirm("Delete activity?"))return; activities=activities.filter(a=>String(a.id)!==String(id)); localStorage.setItem('kytos_acts_fixed',JSON.stringify(activities)); renderActivities();}
+async function saveNewActivity(e){
+  e.preventDefault();
+  const editId=document.getElementById('editActivityId').value.trim();
+  const startDate=document.getElementById('addActStart').value;
+  const endDate=document.getElementById('addActEnd').value;
+  const title=document.getElementById('addActTitle').value.trim();
+  const type=document.getElementById('addActType').value;
+  const person=document.getElementById('addActLead').value.trim();
+  const description=document.getElementById('addActDesc').value.trim();
+  
+  if(window.firebaseAdd || window.firebaseUpdate){
+    if(editId && String(editId).length>=10){
+      if(window.firebaseUpdate) await window.firebaseUpdate('kytos_activities', editId, {startDate, endDate, title, type, person, description});
+    } else if(!editId){
+      if(window.firebaseAdd) await window.firebaseAdd('kytos_activities', {startDate, endDate, title, type, person, description});
+    }
+  }
+  
+  if(editId){
+    const idx=activities.findIndex(a=>String(a.id)===String(editId));
+    if(idx>-1){ activities[idx]={...activities[idx], startDate, endDate, title, type, person, description}; }
+  } else {
+    activities.push({id:Date.now().toString(), startDate, endDate, title, type, person, description});
+  }
+  try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+  closeActivityModal();
+  renderActivities();
+  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+  alert(editId?'✅ Activity updated - makikita sa Incognito':'✅ Activity added - makikita sa Incognito');
+}
+async function deleteActivityItem(id){
+  if(!isAdmin){alert('Admin only');return;}
+  if(!confirm('Delete activity?')) return;
+  if(window.firebaseDelete) await window.firebaseDelete('kytos_activities', String(id));
+  activities=activities.filter(a=>String(a.id)!==String(id));
+  try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+  renderActivities();
+  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+  alert('✅ Activity deleted - burado na sa Incognito');
+}
 function handleAdminButtonClick(){if(isAdmin){if(confirm("Log out of Admin mode?")){isAdmin=false; document.getElementById('adminStatusText').innerText="Admin"; document.getElementById('adminLockIcon').className="fa-solid fa-lock text-yellow-400"; document.getElementById('adminActionBtn').classList.add('hidden'); document.getElementById('adminActivityAction').classList.add('hidden'); document.getElementById('adminDocAction').classList.add('hidden'); document.getElementById('adminGalleryAction').classList.add('hidden'); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();}} else {document.getElementById('adminPassInput').value=''; document.getElementById('loginModal').classList.remove('hidden');}}
 function closeAdminModal(){document.getElementById('loginModal').classList.add('hidden');}
 function verifyAdminPass(){if(document.getElementById('adminPassInput').value==='admin123'){isAdmin=true; document.getElementById('adminStatusText').innerText="Admin (Unlocked)"; document.getElementById('adminLockIcon').className="fa-solid fa-lock-open text-emerald-400"; document.getElementById('adminActionBtn').classList.remove('hidden'); document.getElementById('adminActivityAction').classList.remove('hidden'); document.getElementById('adminDocAction').classList.remove('hidden'); document.getElementById('adminGalleryAction').classList.remove('hidden'); closeAdminModal(); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();} else {alert("Incorrect password!");}}
@@ -521,9 +531,11 @@ applyFilters(); setPartsViewMode(partsViewMode); setDocsViewMode(docsViewMode); 
 
 
 
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyACUvUCcoGriWQUUPS_nNARgN95wnBbFsU",
   authDomain: "kytos-aqms.firebaseapp.com",
@@ -533,224 +545,252 @@ const firebaseConfig = {
   appId: "1:358326782114:web:76205cfbcd035ac1a22ffb",
   measurementId: "G-RD6123H3DP"
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-window._db=db;
 
-onSnapshot(collection(db, "kytos_parts"), (snap)=>{
-  let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-  if(live.length>0){ parts=live.map(p=>({id:p.id, pn:p.pn, name:p.name, model:p.model, cat:p.cat, rem:p.rem||"Active Reference", img:p.img||""})); localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); if(typeof applyFilters==='function') applyFilters(); }
-});
-onSnapshot(collection(db, "kytos_docs"), (snap)=>{
-  let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()})); documents=live; localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs();
-});
-onSnapshot(collection(db, "kytos_gallery"), (snap)=>{
-  let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()})); galleryPosts=live; localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery();
-});
-onSnapshot(collection(db, "kytos_activities"), (snap)=>{
-  let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()})); activities=live; localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); if(typeof renderActivities==='function') renderActivities();
-});
-
-// Inject Drive link field into modal after page loads
-document.addEventListener('DOMContentLoaded', ()=>{
-  const titleInput = document.getElementById('addDocTitle');
-  if(titleInput){
-    const form = titleInput.closest('form');
-    if(form && !document.getElementById('addDocDriveLink')){
-      const driveDiv = document.createElement('div');
-      driveDiv.innerHTML = `<label class="font-bold text-cyan-700 block mb-1 text-xs">OR Google Drive Link (Recommended - Unlimited, No Upgrade Needed!)</label><input type="url" id="addDocDriveLink" placeholder="Paste Drive file link OR folder link here - https://drive.google.com/..." class="w-full p-2.5 border-2 border-cyan-200 bg-cyan-50/30 rounded-xl outline-none text-xs mb-1"><p class="text-[9px] text-slate-500 mb-2">For whole folders: Share folder → Anyone with link → Copy. Example: .../drive/folders/xxx</p>`;
-      // Insert before title input
-      titleInput.parentElement.parentElement.insertBefore(driveDiv, titleInput.parentElement);
-    }
-  }
-  // Ensure file handling for original modal (if it uses fileInput)
-  const fileInput = document.getElementById('fileInput') || document.getElementById('addDocFileInput');
-  if(fileInput){
-    fileInput.addEventListener('change', (e)=>{
-      const file = e.target.files[0];
-      if(file){ window.currentSelectedFile=file; const label=document.getElementById('selectedFileName'); if(label) label.innerText=file.name+" ("+(file.size/1024).toFixed(0)+"KB)"; }
-    });
-  }
-});
-
-function convertDriveLinkForPreview(url){
-  if(!url) return url;
-  let m=url.match(/\/file\/d\/([^\/]+)/);
-  if(m) return `https://drive.google.com/file/d/${m[1]}/preview`;
-  let fm=url.match(/\/folders\/([^\/?]+)/);
-  if(fm) return `https://drive.google.com/embeddedfolderview?id=${fm[1]}#grid`;
-  return url;
-}
-
-window.handleFileSelect = window.handleFileSelect || function(e){
-  const file=e.target.files[0]; if(!file) return; window.currentSelectedFile=file; const lbl=document.getElementById('selectedFileName'); if(lbl) lbl.innerText=file.name;
-};
-
-window.saveNewDocument = async function(e){
-  e.preventDefault();
-  const titleEl=document.getElementById('addDocTitle');
-  const title=titleEl ? titleEl.value.trim() : "";
-  const folderEl=document.getElementById('docFolderSelect');
-  const folder=folderEl ? folderEl.value : "Manuals";
-  const descEl=document.getElementById('addDocDesc');
-  const desc=descEl ? descEl.value.trim() : "";
-  const driveInput=document.getElementById('addDocDriveLink');
-  const driveLink=driveInput ? driveInput.value.trim() : "";
-  const file=window.currentSelectedFile;
-  let fileName="", url="", storagePath="", type="PDF";
-  if(driveLink){
-    url=driveLink; fileName=title+" (Drive)"; type=driveLink.includes('/folders/') ? "FOLDER" : "PDF"; storagePath="drive_link";
-  } else if(file){
-    if(file && file.size>90000000){ alert("File too large (>900KB).\n\nUse Google Drive link instead:\n1. Upload file to drive.google.com\n2. Right-click → Share → Anyone with link → Copy\n3. Paste in Drive Link field"); return; }
-    fileName=file.name; const ext=fileName.split('.').pop().toLowerCase(); if(['pdf'].includes(ext)) type='PDF'; else if(['xlsx','xls','csv'].includes(ext)) type='EXCEL'; else if(['docx','doc'].includes(ext)) type='WORD'; else if(['jpg','jpeg','png'].includes(ext)) type='IMAGE'; else type=ext.toUpperCase();
-    url=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=ev=>res(ev.target.result); r.onerror=rej; r.readAsDataURL(file); });
-    storagePath="firestore_small";
-  } else { alert("Please select a file OR paste a Google Drive link."); return; }
-  try{
-    const editId=document.getElementById('editDocId').value;
-    if(editId && String(editId).trim()!==""){ await updateDoc(doc(db,"kytos_docs", String(editId)), {title,type,folder,fileName,url,storagePath,description:desc}); alert("✅ Updated!"); }
-    else { await addDoc(collection(db,"kytos_docs"), {title,type,folder,fileName,url,storagePath,description:desc,createdAt:Date.now()}); alert(driveLink ? "✅ Drive link saved! Team can Preview/Download LIVE now!" : "✅ Document saved!"); }
-    if(typeof closeAddDocModal==='function') closeAddDocModal(); window.currentSelectedFile=null; const lbl=document.getElementById('selectedFileName'); if(lbl) lbl.innerText=""; if(driveInput) driveInput.value="";
-  }catch(err){ alert("Error: "+err.message); }
-};
-
-function dataUrlToBlob(dataUrl){ const parts=dataUrl.split(';base64,'); const contentType=parts[0].split(':')[1]; const raw=window.atob(parts[1]); const arr=new Uint8Array(raw.length); for(let i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i); return new Blob([arr],{type:contentType}); }
-
-window.previewFileById = function(id){
-  const docItem=documents.find(d=>String(d.id)===String(id)); if(!docItem||!docItem.url){ alert("No file"); return; }
-  document.getElementById('previewModalTitle').innerText=docItem.title; const body=document.getElementById('previewModalBody'); body.innerHTML=''; document.getElementById('previewDownloadBtn').onclick=()=>downloadFileById(docItem.id); document.getElementById('filePreviewModal').classList.remove('hidden');
-  if(docItem.url.startsWith('data:')){
-    const blob=dataUrlToBlob(docItem.url); const u=URL.createObjectURL(blob);
-    if(docItem.type==='PDF') body.innerHTML=`<iframe src="${u}#toolbar=1" class="w-full h-full rounded-xl border bg-white"></iframe>`; else if(docItem.type==='IMAGE') body.innerHTML=`<img src="${u}" class="max-h-full max-w-full object-contain">`; else body.innerHTML=`<div class="p-8 text-center">Ready for download</div>`;
-  } else {
-    const pu=convertDriveLinkForPreview(docItem.url);
-    if(docItem.url.includes('drive.google.com')){ if(docItem.url.includes('/folders/')){ body.innerHTML=`<iframe src="${pu}" class="w-full h-full rounded-xl border bg-white"></iframe><div class="text-center mt-2"><a href="${docItem.url}" target="_blank" class="text-cyan-600 font-bold text-xs underline">Open Full Folder in Google Drive</a></div>`; } else { body.innerHTML=`<iframe src="${pu}" class="w-full h-full rounded-xl border bg-white"></iframe>`; } }
-    else { body.innerHTML=`<iframe src="${docItem.url}" class="w-full h-full rounded-xl border"></iframe>`; }
-  }
-};
-window.downloadFileById = function(id){
-  const docItem=documents.find(d=>String(d.id)===String(id)); if(!docItem||!docItem.url){ alert("No file"); return; }
-  if(docItem.url.startsWith('data:')){ const blob=dataUrlToBlob(docItem.url); const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=docItem.fileName||docItem.title; document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a); URL.revokeObjectURL(u);},100); }
-  else { window.open(docItem.url, '_blank'); }
-};
-
-window.saveNewGallery = async function(e){
-  e.preventDefault();
-  const editId=document.getElementById('editGalleryId').value;
-  const date=document.getElementById('galleryDate').value;
-  const location=document.getElementById('galleryLocation').value.trim();
-  const playlist=document.getElementById('galleryPlaylistSelect').value;
-  const title=document.getElementById('galleryTitle').value.trim();
-  const youtube=document.getElementById('galleryYoutube').value.trim();
-  const description=document.getElementById('galleryDesc').value.trim();
-  try{ if(editId && String(editId).trim()!==""){ await updateDoc(doc(db,"kytos_gallery", String(editId)), {date,location,playlist,title,youtube,description}); alert("✅ Video updated!"); } else { await addDoc(collection(db,"kytos_gallery"), {date,location,playlist,title,youtube,description,createdAt:Date.now()}); alert("✅ Video LIVE!"); } closeGalleryModal(); }catch(err){ alert(err.message); }
-};
-window.deleteGallery = async function(id){ if(!confirm("Delete video?")) return; try{ if(String(id).length>10){ await deleteDoc(doc(db,"kytos_gallery", String(id))); } else { galleryPosts=galleryPosts.filter(p=>String(p.id)!==String(id)); localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); renderPlaylistsAndGallery(); } }catch(e){ alert(e.message); } };
-
-
-
-
-window.deletePartItem = async function(id){ if(!confirm("Delete part?")) return; try{ if(String(id).length>=10 && db){ await deleteDoc(doc(db,"kytos_parts",String(id))); } else { parts=parts.filter(p=>String(p.id)!==String(id)); localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); applyFilters(); } }catch(e){ alert(e.message); } };
-</script>
-
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyACUvUCcoGriWQUUPS_nNARgN95wnBbFsU",
-  authDomain: "kytos-aqms.firebaseapp.com",
-  projectId: "kytos-aqms",
-  storageBucket: "kytos-aqms.firebasestorage.app",
-  messagingSenderId: "358326782114",
-  appId: "1:358326782114:web:76205cfbcd035ac1a22ffb",
-  measurementId: "G-RD6123H3DP"
-};
+let app, db;
 try{
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  window._db=db;
-  console.log('Firebase connected');
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  window._db = db;
+  console.log('Firebase REAL TIME connected - for Incognito viewing');
+  
+  // Show live indicator
+  const ind = document.getElementById('liveSyncIndicator');
+  if(ind){
+    ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync</span><span class="text-[9px] text-slate-300 ml-1" id="lastSyncTime"></span>`;
+  }
 
+  // REAL TIME - Firebase is source for incognito
   onSnapshot(collection(db, "kytos_parts"), (snap)=>{
     let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-    if(live.length>0){
+    if(live.length>0 && live.length>=50){
+      // Only overwrite if Firebase has substantial data (not empty)
+      const isIncognito = (()=>{ try{ localStorage.setItem('test','1'); localStorage.removeItem('test'); return false; }catch(e){ return true; } })();
       const savedLocal = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null');
-      // If user has local deletions/edits (local exists and is smaller or different), DON'T overwrite
-      // Only overwrite on first load when no local data exists
-      if(!savedLocal || savedLocal.length===0){
-        parts=live.map(p=>({id:p.id, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""}));
-        try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
-        if(typeof applyFilters==='function') applyFilters();
-        console.log('Parts initial sync from Firebase:', live.length);
-      } else {
-        // Check for NEW items in Firebase that don't exist locally (additions only)
-        const localIds = new Set(savedLocal.map(p=>String(p.id)));
-        const localPns = new Set(savedLocal.map(p=>p.pn));
-        const newFromFirebase = live.filter(p=> !localIds.has(String(p.id)) && !localPns.has(p.pn||p.partNumber));
-        if(newFromFirebase.length>0){
-          console.log('New items from Firebase:', newFromFirebase.length);
-          // Add only new items
-          newFromFirebase.forEach(p=>{
-            const newItem={id:p.id, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""};
-            if(!parts.find(x=>x.pn===newItem.pn)){
-              parts.push(newItem);
-            }
-          });
+      // In incognito or when Firebase has more, use Firebase (real-time view)
+      if(isIncognito || !savedLocal || live.length!==savedLocal.length){
+        // For incognito, always use Firebase
+        if(isIncognito || live.length>=300){
+          parts = live.map(p=>({id:p.id, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""}));
           try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
           if(typeof applyFilters==='function') applyFilters();
+          console.log('Parts REAL TIME from Firebase:', live.length, isIncognito?'(Incognito mode)':'');
         }
-        console.log('Parts sync skipped - respecting local deletions/edits. Firebase:', live.length, 'Local:', parts.length);
       }
-      updateLiveSyncTime();
     }
+    const el=document.getElementById('lastSyncTime');
+    if(el) el.innerText='• '+new Date().toLocaleTimeString()+' ('+snap.size+')';
+    const badge=document.getElementById('headerBadge');
+    if(badge) badge.innerText=parts.length+' Items';
+  });
+
+  onSnapshot(collection(db, "kytos_activities"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    // Calendar is critical for user - always sync from Firebase if Firebase has data
+    if(snap.size>0){
+      activities = live.map(a=>({id:a.id, startDate:a.startDate, endDate:a.endDate, title:a.title, type:a.type, person:a.person, description:a.description}));
+      try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+      if(typeof renderActivities==='function') renderActivities();
+      console.log('Activities REAL TIME sync:', live.length);
+    }
+    const el=document.getElementById('lastSyncTime');
+    if(el) el.innerText='• '+new Date().toLocaleTimeString();
   });
 
   onSnapshot(collection(db, "kytos_docs"), (snap)=>{
     let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
     if(live.length>0){
-      const savedLocal = JSON.parse(localStorage.getItem('kytos_docs_fixed')||'null');
-      if(!savedLocal || savedLocal.length===0){
-        documents=live;
-        try{ localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); }catch(e){}
-        if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs();
-        console.log('Docs initial sync:', live.length);
-      } else {
-        console.log('Docs sync skipped - respecting local. Firebase:', live.length, 'Local:', documents.length);
-      }
-      updateLiveSyncTime();
+      documents = live;
+      try{ localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); }catch(e){}
+      if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs();
     }
   });
 
   onSnapshot(collection(db, "kytos_gallery"), (snap)=>{
     let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
     if(live.length>0){
-      const savedLocal = JSON.parse(localStorage.getItem('kytos_gallery_fixed')||'null');
-      if(!savedLocal || savedLocal.length===0){
-        galleryPosts=live;
-        try{ localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); }catch(e){}
-        if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery();
-        console.log('Gallery initial sync:', live.length);
-      } else {
-        // Only add new, don't overwrite deletions
-        console.log('Gallery sync skipped - respecting local. Firebase:', live.length, 'Local:', galleryPosts.length);
-      }
-      updateLiveSyncTime();
+      galleryPosts = live;
+      try{ localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); }catch(e){}
+      if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery();
     }
+  });
+
+  window.firebaseAdd = async (col, data)=>{
+    try{
+      const ref = await addDoc(collection(db, col), {...data, createdAt:Date.now()});
+      console.log('Added to Firebase', col, ref.id);
+      return ref.id;
+    }catch(e){ console.error('Firebase add failed', col, e); return null; }
+  };
+  window.firebaseUpdate = async (col, id, data)=>{
+    try{
+      await updateDoc(doc(db, col, id), data);
+      console.log('Updated in Firebase', col, id);
+      return true;
+    }catch(e){ console.error('Firebase update failed', e); return false; }
+  };
+  window.firebaseDelete = async (col, id, fallbackPn=null)=>{
+    try{
+      await deleteDoc(doc(db, col, id));
+      console.log('Deleted from Firebase', col, id);
+      return true;
+    }catch(e){
+      if(fallbackPn && col==='kytos_parts'){
+        try{
+          const q = query(collection(db, col), where("pn", "==", fallbackPn));
+          const snap = await getDocs(q);
+          for(const d of snap.docs){
+            await deleteDoc(doc(db, col, d.id));
+            console.log('Deleted by PN', d.id);
+          }
+          return true;
+        }catch(e2){ console.error('PN delete failed', e2); }
+      }
+      return false;
+    }
+  };
+
+}catch(e){
+  console.error('Firebase not connected', e);
+}
+
+function updateLiveSyncTime(){
+  const el=document.getElementById('lastSyncTime');
+  if(el) el.innerText='• '+new Date().toLocaleTimeString();
+}
+window.updateLiveSyncTime = updateLiveSyncTime;
+</script>
+
+
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyACUvUCcoGriWQUUPS_nNARgN95wnBbFsU",
+  authDomain: "kytos-aqms.firebaseapp.com",
+  projectId: "kytos-aqms",
+  storageBucket: "kytos-aqms.firebasestorage.app",
+  messagingSenderId: "358326782114",
+  appId: "1:358326782114:web:76205cfbcd035ac1a22ffb",
+  measurementId: "G-RD6123H3DP"
+};
+
+let app, db;
+try{
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  window._db = db;
+  console.log('Firebase REAL TIME connected - for Incognito viewing');
+  
+  // Show live indicator
+  const ind = document.getElementById('liveSyncIndicator');
+  if(ind){
+    ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync</span><span class="text-[9px] text-slate-300 ml-1" id="lastSyncTime"></span>`;
+  }
+
+  // REAL TIME - Firebase is source for incognito
+  onSnapshot(collection(db, "kytos_parts"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0 && live.length>=50){
+      // Only overwrite if Firebase has substantial data (not empty)
+      const isIncognito = (()=>{ try{ localStorage.setItem('test','1'); localStorage.removeItem('test'); return false; }catch(e){ return true; } })();
+      const savedLocal = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null');
+      // In incognito or when Firebase has more, use Firebase (real-time view)
+      if(isIncognito || !savedLocal || live.length!==savedLocal.length){
+        // For incognito, always use Firebase
+        if(isIncognito || live.length>=300){
+          parts = live.map(p=>({id:p.id, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""}));
+          try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+          if(typeof applyFilters==='function') applyFilters();
+          console.log('Parts REAL TIME from Firebase:', live.length, isIncognito?'(Incognito mode)':'');
+        }
+      }
+    }
+    const el=document.getElementById('lastSyncTime');
+    if(el) el.innerText='• '+new Date().toLocaleTimeString()+' ('+snap.size+')';
+    const badge=document.getElementById('headerBadge');
+    if(badge) badge.innerText=parts.length+' Items';
   });
 
   onSnapshot(collection(db, "kytos_activities"), (snap)=>{
     let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-    if(live.length>0){
-      activities=live;
+    // Calendar is critical for user - always sync from Firebase if Firebase has data
+    if(snap.size>0){
+      activities = live.map(a=>({id:a.id, startDate:a.startDate, endDate:a.endDate, title:a.title, type:a.type, person:a.person, description:a.description}));
       try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
       if(typeof renderActivities==='function') renderActivities();
+      console.log('Activities REAL TIME sync:', live.length);
+    }
+    const el=document.getElementById('lastSyncTime');
+    if(el) el.innerText='• '+new Date().toLocaleTimeString();
+  });
+
+  onSnapshot(collection(db, "kytos_docs"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){
+      documents = live;
+      try{ localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); }catch(e){}
+      if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs();
     }
   });
+
+  onSnapshot(collection(db, "kytos_gallery"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){
+      galleryPosts = live;
+      try{ localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); }catch(e){}
+      if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery();
+    }
+  });
+
+  window.firebaseAdd = async (col, data)=>{
+    try{
+      const ref = await addDoc(collection(db, col), {...data, createdAt:Date.now()});
+      console.log('Added to Firebase', col, ref.id);
+      return ref.id;
+    }catch(e){ console.error('Firebase add failed', col, e); return null; }
+  };
+  window.firebaseUpdate = async (col, id, data)=>{
+    try{
+      await updateDoc(doc(db, col, id), data);
+      console.log('Updated in Firebase', col, id);
+      return true;
+    }catch(e){ console.error('Firebase update failed', e); return false; }
+  };
+  window.firebaseDelete = async (col, id, fallbackPn=null)=>{
+    try{
+      await deleteDoc(doc(db, col, id));
+      console.log('Deleted from Firebase', col, id);
+      return true;
+    }catch(e){
+      if(fallbackPn && col==='kytos_parts'){
+        try{
+          const q = query(collection(db, col), where("pn", "==", fallbackPn));
+          const snap = await getDocs(q);
+          for(const d of snap.docs){
+            await deleteDoc(doc(db, col, d.id));
+            console.log('Deleted by PN', d.id);
+          }
+          return true;
+        }catch(e2){ console.error('PN delete failed', e2); }
+      }
+      return false;
+    }
+  };
+
 }catch(e){
-  console.log('Firebase not connected, using localStorage only', e);
+  console.error('Firebase not connected', e);
 }
+
+function updateLiveSyncTime(){
+  const el=document.getElementById('lastSyncTime');
+  if(el) el.innerText='• '+new Date().toLocaleTimeString();
+}
+window.updateLiveSyncTime = updateLiveSyncTime;
 </script>
+
 
 </body>
 </html>

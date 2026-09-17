@@ -96,6 +96,30 @@
     </div>
   </div>
 
+  
+<div id="homeSlideshow" class="relative rounded-xl overflow-hidden bg-slate-800 h-72 border border-slate-700 shadow-lg mt-6">
+  <div class="slide active absolute inset-0" data-slide="0">
+    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=900" class="w-full h-full object-cover" alt="Activity">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 p-4"><h4 class="text-white font-bold text-base">Spare Parts Replacement - Jubail</h4><p class="text-[11px] text-slate-200">Pump kits, filters, sensors • AQMS Station • Team activity</p></div>
+  </div>
+  <div class="slide hidden absolute inset-0" data-slide="1">
+    <img src="https://images.unsplash.com/photo-1513828583688-c52646db42da?w=900" class="w-full h-full object-cover" alt="Activity">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 p-4"><h4 class="text-white font-bold text-base">AQMS Station Maintenance</h4><p class="text-[11px] text-slate-200">Thermo Scientific analyzers • Calibration & PM</p></div>
+  </div>
+  <div class="slide hidden absolute inset-0" data-slide="2">
+    <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900" class="w-full h-full object-cover" alt="Activity">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 p-4"><h4 class="text-white font-bold text-base">Field Activities & Training</h4><p class="text-[11px] text-slate-200">Service Team on site • YouTube trainings</p></div>
+  </div>
+  <button onclick="changeHomeSlide(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white backdrop-blur"><i class="fa-solid fa-chevron-left text-[12px]"></i></button>
+  <button onclick="changeHomeSlide(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white backdrop-blur"><i class="fa-solid fa-chevron-right text-[12px]"></i></button>
+  <div id="slideDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2"><span class="w-2.5 h-2.5 rounded-full bg-white shadow"></span><span class="w-2.5 h-2.5 rounded-full bg-white/40"></span><span class="w-2.5 h-2.5 rounded-full bg-white/40"></span></div>
+  <div class="absolute top-3 left-3 bg-black/60 text-white text-[9px] px-2 py-1 rounded-full backdrop-blur"><i class="fa-solid fa-images mr-1"></i> Activity Image Preview</div>
+</div>
+
+
   <!-- Stats -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm text-center"><div class="text-2xl font-black text-cyan-700" id="homePartsCount">366</div><div class="text-xs text-slate-500 font-bold uppercase">Spare Parts</div></div>
@@ -121,7 +145,10 @@
     <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
       <h3 class="font-bold text-slate-800 mb-4"><i class="fa-solid fa-users text-cyan-600 mr-2"></i>Service Engineers <span class="home-edit-btn" onclick="editHomeTeam()"><i class="fa-solid fa-pen mr-1"></i>Edit Team</span></h3>
       
-      
+      <!-- Engineers removed -->
+      </div>
+    </div>
+  </div>
       </div>
     </div>
       <p class="text-[10px] text-slate-400 mt-3">Edit team names in Admin → You can customize this list later.</p>
@@ -281,25 +308,27 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 
 <div id="adminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:white;padding:20px;border-radius:12px;width:300px;box-shadow:0 10px 30px rgba(0,0,0,0.3)">
-    <h3 style="font-weight:bold;margin-bottom:12px">Admin Login</h3>
-    <input id="adminPassInput" type="password" placeholder="Enter password" style="width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:8px;margin-bottom:12px" />
+  <div style="background:white;padding:24px;border-radius:16px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+    <h3 style="font-weight:800;font-size:16px;margin-bottom:16px;display:flex;align-items:center;gap:8px"><i class="fa-solid fa-lock" style="color:#0e7490"></i> Admin Login</h3>
+    <input id="adminPassInput" type="password" placeholder="Enter admin password" style="width:100%;padding:10px 14px;border:2px solid #e5e7eb;border-radius:10px;margin-bottom:16px;font-size:14px" />
     <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="closeAdminModal()" style="padding:6px 12px;border-radius:8px;background:#e5e7eb">Cancel</button>
-      <button onclick="submitAdminPass()" style="padding:6px 12px;border-radius:8px;background:#0e7490;color:white">Login</button>
+      <button onclick="closeAdminModal()" style="padding:8px 16px;border-radius:10px;background:#f3f4f6;font-weight:600">Cancel</button>
+      <button onclick="submitAdminPass()" style="padding:8px 16px;border-radius:10px;background:#0e7490;color:white;font-weight:700">Login</button>
     </div>
-    <p style="font-size:10px;color:#6b7280;margin-top:8px">Password: admin123 (hidden when typing • • •)</p>
   </div>
 </div>
 <script>
-window.openAdminModal=function(){ document.getElementById('adminModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('adminPassInput').focus(); };
+// Admin login - hidden password, no hint
+window.openAdminModal=function(){ document.getElementById('adminModal').style.display='flex'; document.getElementById('adminPassInput').value=''; setTimeout(()=>document.getElementById('adminPassInput').focus(),100); };
 window.closeAdminModal=function(){ document.getElementById('adminModal').style.display='none'; };
-window.submitAdminPass=function(){ const p=document.getElementById('adminPassInput').value; if(!p) return; if(p==='admin123'){ localStorage.setItem('kytos_admin','true'); document.body.classList.add('admin-mode'); closeAdminModal(); alert('Admin ON'); location.reload(); } else { alert('Wrong password'); } };
-document.addEventListener('keydown',e=>{ if(e.key==='Enter' && document.getElementById('adminModal').style.display==='flex') submitAdminPass(); });
+window.submitAdminPass=function(){ const p=document.getElementById('adminPassInput').value; if(p==='admin123'){ localStorage.setItem('kytos_admin','true'); document.body.classList.add('admin-mode'); closeAdminModal(); if(typeof updateAdminUI==='function') updateAdminUI(); alert('Admin mode ON'); } else { alert('Wrong password'); document.getElementById('adminPassInput').value=''; } };
+document.addEventListener('keydown',e=>{ if(e.key==='Enter' && document.getElementById('adminModal').style.display==='flex') submitAdminPass(); if(e.key==='Escape') closeAdminModal(); });
 let homeSlideIdx=0;
 window.changeHomeSlide=function(d){ const s=document.querySelectorAll('#homeSlideshow .slide'); const dots=document.querySelectorAll('#slideDots span'); if(!s.length) return; s[homeSlideIdx].classList.add('hidden'); s[homeSlideIdx].classList.remove('active'); if(dots[homeSlideIdx]) dots[homeSlideIdx].className='w-2.5 h-2.5 rounded-full bg-white/40'; homeSlideIdx=(homeSlideIdx+d+s.length)%s.length; s[homeSlideIdx].classList.remove('hidden'); s[homeSlideIdx].classList.add('active'); if(dots[homeSlideIdx]) dots[homeSlideIdx].className='w-2.5 h-2.5 rounded-full bg-white shadow'; };
-setInterval(()=>{ if(typeof changeHomeSlide==='function') changeHomeSlide(1); },4000);
+setInterval(()=>changeHomeSlide(1),5000);
+// Restore original tab switching and admin UI functions if they exist
 </script>
 
+<script>window.switchTab=function(t){ document.querySelectorAll("[id^=tab]").forEach(b=>b.classList.remove("bg-cyan-600","text-white")); const btn=document.getElementById("tab"+t.charAt(0).toUpperCase()+t.slice(1)+"Btn"); if(btn) btn.classList.add("bg-cyan-600","text-white"); document.querySelectorAll(".tab-content").forEach(c=>c.style.display="none"); const target=document.getElementById(t+"Tab")||document.getElementById(t+"-tab"); if(target) target.style.display="block"; };</script>
 </body>
 </html>

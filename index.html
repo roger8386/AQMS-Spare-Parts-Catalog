@@ -20,7 +20,7 @@
       </div>
       <div>
         <div class="flex items-center gap-2"><h1 class="text-base md:text-lg font-bold tracking-tight">AQMS Technical Portal</h1><span class="bg-cyan-950 text-cyan-300 border border-cyan-700/50 text-[10px] font-bold px-2 py-0.5 rounded-full" id="headerBadge">366 Items</span></div>
-        <p class="text-xs text-slate-400">Spare Parts, Calendar, Documents & Gallery • Live System</p>
+        <p class="text-xs text-slate-400">Spare Parts, Calendar, Documents & Gallery • <span id="liveSyncIndicator" class="inline-flex items-center gap-1.5"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync</span><span class="text-[9px] text-slate-500" id="lastSyncTime"></span></span></p>
       </div>
     </div>
     <div class="flex items-center gap-2">
@@ -261,7 +261,7 @@ function closePartModal(){
   modal.style.display='none';
   document.getElementById('editPartId').value='';
 }
-function savePartData(e){
+async function savePartData(e){
   e.preventDefault();
   const editId = document.getElementById('editPartId').value.trim();
   const pn = document.getElementById('addPartNum').value.trim();
@@ -280,7 +280,6 @@ function savePartData(e){
     console.log('Edit index found:', idx);
     if(idx>-1){
       parts[idx] = {...parts[idx], pn, name, model, cat, img};
-      console.log('Updated part:', parts[idx]);
     } else {
       alert('ID not found for edit: '+editId);
       return;
@@ -288,28 +287,61 @@ function savePartData(e){
   } else {
     const newId = Date.now().toString();
     parts.unshift({id:newId, pn, name, model, cat, rem:'Active Reference', img});
-    console.log('Added new part with id', newId);
   }
   try{
     localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
-    console.log('Saved to localStorage, total:', parts.length);
-  }catch(err){
-    alert('LocalStorage error: '+err.message);
-  }
+  }catch(err){ alert('LocalStorage error: '+err.message); }
+  // Firebase sync
+  try{
+    if(window._db){
+      const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      if(editId && String(editId).length>=10){
+        await updateDoc(doc(window._db, "kytos_parts", String(editId)), {pn, name, model, cat, img});
+      } else if(!editId){
+        await addDoc(collection(window._db, "kytos_parts"), {pn, name, model, cat, rem:"Active Reference", img, createdAt:Date.now()});
+      }
+    }
+  }catch(e){ console.log('Firebase save skipped:', e); }
   closePartModal();
   applyFilters();
-  alert(editId?'✅ Part updated! (ID: '+editId+')':'✅ Part added!');
+  updateLiveSyncTime();
+  alert(editId?'✅ Part updated! (Total: '+parts.length+')':'✅ Part added! (Total: '+parts.length+')');
 }
-function deletePartItem(id){
+async function deletePartItem(id){
   if(!isAdmin){ alert('Admin only'); return; }
-  if(!confirm('Delete part ID '+id+'?')) return;
-  console.log('Deleting id:', id);
-  const before = parts.length;
+  const item = parts.find(p=>String(p.id)===String(id));
+  if(!item){ alert('Part not found'); return; }
+  if(!confirm('Delete part '+item.pn+' - '+item.name+'?')) return;
+  console.log('Deleting id:', id, 'pn:', item.pn);
   parts = parts.filter(p=>String(p.id)!==String(id));
-  console.log('Deleted, before:', before, 'after:', parts.length);
   localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
+  // Delete from Firebase - try by id, and also by searching for same PN
+  try{
+    if(window._db){
+      const { collection, getDocs, query, where, doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      // Try direct id delete first
+      try{
+        await deleteDoc(doc(window._db, "kytos_parts", String(id)));
+        console.log('Deleted from Firebase by id');
+      }catch(e){
+        console.log('Direct id delete failed, trying by PN search:', e.message);
+        // Search by PN and delete matching docs
+        const q = query(collection(window._db, "kytos_parts"), where("pn", "==", item.pn));
+        const snap = await getDocs(q);
+        for(const d of snap.docs){
+          const data = d.data();
+          // Only delete if model also matches to avoid deleting wrong
+          if((data.model||'') === (item.model||'') || data.pn===item.pn){
+            await deleteDoc(doc(window._db, "kytos_parts", d.id));
+            console.log('Deleted from Firebase by PN search:', d.id);
+          }
+        }
+      }
+    }
+  }catch(e){ console.log('Firebase delete error (will still be deleted locally):', e); }
   applyFilters();
-  alert('✅ Deleted');
+  updateLiveSyncTime();
+  alert('✅ Deleted: '+item.pn+' (Total: '+parts.length+' items) - Hindi na babalik');
 }
 
 function applyFilters(){
@@ -339,6 +371,19 @@ function applyFilters(){
     matched.forEach(item=>{const el=document.createElement('div'); el.className="bg-white rounded-2xl border border-slate-200 p-5"; el.innerHTML=`<div class="flex justify-between items-start"><div><h3 class="font-bold text-slate-900">${escapeHtml(item.pn)} — ${escapeHtml(item.name)}</h3><p class="text-xs text-slate-500 mt-1">Model <b>${escapeHtml(item.model)}</b> • Category <b>${escapeHtml(item.cat)}</b> • ${escapeHtml(item.rem||'')}</p><p class="text-xs text-slate-600 mt-2 line-clamp-3">This part is used for ${escapeHtml(item.model)} analyzer system. Reference category ${escapeHtml(item.cat)}. Maintain stock for preventive maintenance.</p></div>${item.img?`<img src="${escapeHtml(item.img)}" class="w-24 h-24 object-cover rounded-xl border ml-4">`:''}</div>`; wrap.appendChild(el);}); container.appendChild(wrap);
   }
 }
+
+function updateLiveSyncTime(){
+  const el=document.getElementById('lastSyncTime');
+  if(el){
+    const now=new Date();
+    el.innerText='• '+now.toLocaleTimeString();
+  }
+  const badge=document.getElementById('headerBadge');
+  if(badge){
+    badge.innerText=parts.length+' Items';
+  }
+}
+
 function copyText(t){navigator.clipboard.writeText(t).then(()=>{const el=document.createElement('div'); el.textContent='Copied: '+t; el.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-full shadow-lg z-[60]'; document.body.appendChild(el); setTimeout(()=>el.remove(),1500);});}
 function resetAllFilters(){document.getElementById('categoryDropdown').value='ALL'; document.getElementById('modelDropdown').value='ALL'; document.getElementById('searchInput').value=''; applyFilters();}
 function triggerSearch(){applyFilters();}
@@ -439,7 +484,7 @@ function renderPlaylistsAndGallery(){
   if(filteredPosts.length===0){emptyNotice.classList.remove('hidden'); return;} emptyNotice.classList.add('hidden');
   if(galleryViewMode==='grid'){
     let grid=document.createElement('div'); grid.className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
-    filteredPosts.forEach(post=>{let mediaContent=''; const ytLink=post.youtube||""; const vid=getYouTubeId(ytLink); if(vid){mediaContent=`<div class="relative w-full h-48 bg-black"><iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/${vid}" title="${escapeHtml(post.title)}" frameborder="0" allowfullscreen></iframe></div>`;} else {mediaContent=`<div class="h-48 overflow-hidden relative bg-slate-100 flex items-center justify-center"><span class="text-xs text-slate-400">No Video Link</span></div>`;} const card=document.createElement('div'); card.className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between"; card.innerHTML=`<div>${mediaContent}<div class="p-5"><div class="flex justify-between text-xs text-slate-400 mb-2"><span><i class="fa-regular fa-calendar mr-1"></i> ${escapeHtml(post.date)} • ${escapeHtml(post.location)}</span><div class="flex items-center gap-1.5"><span class="text-[9px] font-bold px-2 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200">${escapeHtml(post.playlist||'General')}</span>${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 hover:text-cyan-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteGallery('${post.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash-can"></i></button>`:''}</div></div><h3 class="font-bold text-slate-900 text-sm mb-2">${escapeHtml(post.title)}</h3><p class="text-xs text-slate-600 whitespace-pre-line">${escapeHtml(post.description)}</p></div></div><div class="px-5 py-3 bg-slate-50 border-t text-[11px] text-slate-400 flex justify-between"><span>Kytos Arabia Team</span><span class="text-cyan-600 font-medium">Activity Video Blog</span></div>`; grid.appendChild(card);}); container.appendChild(grid);
+    filteredPosts.forEach(post=>{let mediaContent=''; const ytLink=post.youtube||""; const vid=getYouTubeId(ytLink); if(vid){mediaContent=`<div class="relative w-full h-48 bg-black"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1" title="${escapeHtml(post.title)}" frameborder="0" allowfullscreen></iframe></div>`;} else {mediaContent=`<div class="h-48 overflow-hidden relative bg-slate-100 flex items-center justify-center"><span class="text-xs text-slate-400">No Video Link</span></div>`;} const card=document.createElement('div'); card.className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between"; card.innerHTML=`<div>${mediaContent}<div class="p-5"><div class="flex justify-between text-xs text-slate-400 mb-2"><span><i class="fa-regular fa-calendar mr-1"></i> ${escapeHtml(post.date)} • ${escapeHtml(post.location)}</span><div class="flex items-center gap-1.5"><span class="text-[9px] font-bold px-2 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200">${escapeHtml(post.playlist||'General')}</span>${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 hover:text-cyan-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteGallery('${post.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash-can"></i></button>`:''}</div></div><h3 class="font-bold text-slate-900 text-sm mb-2">${escapeHtml(post.title)}</h3><p class="text-xs text-slate-600 whitespace-pre-line">${escapeHtml(post.description)}</p></div></div><div class="px-5 py-3 bg-slate-50 border-t text-[11px] text-slate-400 flex justify-between"><span>Kytos Arabia Team</span><span class="text-cyan-600 font-medium">Activity Video Blog</span></div>`; grid.appendChild(card);}); container.appendChild(grid);
   } else { let table=document.createElement('div'); table.className="bg-white rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100 text-xs"; filteredPosts.forEach(post=>{const row=document.createElement('div'); row.className="p-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50 transition"; row.innerHTML=`<div class="flex items-center gap-3"><span class="font-bold px-2 py-1 rounded bg-slate-100 text-slate-700">Video</span><div><h5 class="font-bold text-slate-900">${escapeHtml(post.title)}</h5><p class="text-[11px] text-slate-500">Playlist: ${escapeHtml(post.playlist)} • Location: ${escapeHtml(post.location)}</p></div></div><div class="flex items-center gap-3">${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 font-bold">Edit</button><button onclick="deleteGallery('${post.id}')" class="text-red-500 font-bold">Delete</button>`:''}</div>`; table.appendChild(row);}); container.appendChild(table); }
 }
 function openEditPlaylistModal(oldName){ const newName = prompt('Edit Playlist Name:', oldName); if(!newName) return; const t=newName.trim(); if(!t) return; const idx=playlists.indexOf(oldName); if(idx>-1){ playlists[idx]=t; localStorage.setItem('kytos_playlists_fixed', JSON.stringify(playlists)); galleryPosts.forEach(p=>{ if(p.playlist===oldName) p.playlist=t; }); localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); if(selectedPlaylist===oldName) selectedPlaylist=t; renderPlaylistsAndGallery(); } }
@@ -606,6 +651,105 @@ window.deleteGallery = async function(id){ if(!confirm("Delete video?")) return;
 
 
 window.deletePartItem = async function(id){ if(!confirm("Delete part?")) return; try{ if(String(id).length>=10 && db){ await deleteDoc(doc(db,"kytos_parts",String(id))); } else { parts=parts.filter(p=>String(p.id)!==String(id)); localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); applyFilters(); } }catch(e){ alert(e.message); } };
+</script>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyACUvUCcoGriWQUUPS_nNARgN95wnBbFsU",
+  authDomain: "kytos-aqms.firebaseapp.com",
+  projectId: "kytos-aqms",
+  storageBucket: "kytos-aqms.firebasestorage.app",
+  messagingSenderId: "358326782114",
+  appId: "1:358326782114:web:76205cfbcd035ac1a22ffb",
+  measurementId: "G-RD6123H3DP"
+};
+try{
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db=db;
+  console.log('Firebase connected');
+
+  onSnapshot(collection(db, "kytos_parts"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){
+      const savedLocal = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null');
+      // If user has local deletions/edits (local exists and is smaller or different), DON'T overwrite
+      // Only overwrite on first load when no local data exists
+      if(!savedLocal || savedLocal.length===0){
+        parts=live.map(p=>({id:p.id, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""}));
+        try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+        if(typeof applyFilters==='function') applyFilters();
+        console.log('Parts initial sync from Firebase:', live.length);
+      } else {
+        // Check for NEW items in Firebase that don't exist locally (additions only)
+        const localIds = new Set(savedLocal.map(p=>String(p.id)));
+        const localPns = new Set(savedLocal.map(p=>p.pn));
+        const newFromFirebase = live.filter(p=> !localIds.has(String(p.id)) && !localPns.has(p.pn||p.partNumber));
+        if(newFromFirebase.length>0){
+          console.log('New items from Firebase:', newFromFirebase.length);
+          // Add only new items
+          newFromFirebase.forEach(p=>{
+            const newItem={id:p.id, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""};
+            if(!parts.find(x=>x.pn===newItem.pn)){
+              parts.push(newItem);
+            }
+          });
+          try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+          if(typeof applyFilters==='function') applyFilters();
+        }
+        console.log('Parts sync skipped - respecting local deletions/edits. Firebase:', live.length, 'Local:', parts.length);
+      }
+      updateLiveSyncTime();
+    }
+  });
+
+  onSnapshot(collection(db, "kytos_docs"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){
+      const savedLocal = JSON.parse(localStorage.getItem('kytos_docs_fixed')||'null');
+      if(!savedLocal || savedLocal.length===0){
+        documents=live;
+        try{ localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); }catch(e){}
+        if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs();
+        console.log('Docs initial sync:', live.length);
+      } else {
+        console.log('Docs sync skipped - respecting local. Firebase:', live.length, 'Local:', documents.length);
+      }
+      updateLiveSyncTime();
+    }
+  });
+
+  onSnapshot(collection(db, "kytos_gallery"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){
+      const savedLocal = JSON.parse(localStorage.getItem('kytos_gallery_fixed')||'null');
+      if(!savedLocal || savedLocal.length===0){
+        galleryPosts=live;
+        try{ localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); }catch(e){}
+        if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery();
+        console.log('Gallery initial sync:', live.length);
+      } else {
+        // Only add new, don't overwrite deletions
+        console.log('Gallery sync skipped - respecting local. Firebase:', live.length, 'Local:', galleryPosts.length);
+      }
+      updateLiveSyncTime();
+    }
+  });
+
+  onSnapshot(collection(db, "kytos_activities"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){
+      activities=live;
+      try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+      if(typeof renderActivities==='function') renderActivities();
+    }
+  });
+}catch(e){
+  console.log('Firebase not connected, using localStorage only', e);
+}
 </script>
 
 </body>

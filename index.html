@@ -80,17 +80,7 @@
 <div id="playlistModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 class="text-base font-bold text-slate-800">Create New Playlist</h3><button onclick="closeAddPlaylistModal()" class="text-slate-400 text-xl">&times;</button></div><form onsubmit="saveNewPlaylist(event)" class="space-y-3 text-xs"><div><label class="font-bold text-slate-700 block mb-1">Playlist Name *</label><input type="text" id="newPlaylistName" required placeholder="e.g. CEMS Maintenance" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500"></div><div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAddPlaylistModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Create Playlist</button></div></form></div></div>
 <div id="partModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="partModalTitle" class="text-base font-bold text-slate-800">Add New Spare Part</h3><button onclick="closePartModal()" class="text-slate-400 text-xl">&times;</button></div><form id="partForm" onsubmit="savePartData(event)" class="space-y-3 text-xs"><input type="hidden" id="editPartId"><div><label class="font-bold text-slate-600 block mb-1">Part Number *</label><input type="text" id="addPartNum" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Description *</label><input type="text" id="addPartName" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Model</label><input type="text" id="addModel" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Category</label><select id="addCategory" class="w-full p-2.5 border rounded-lg bg-white"><option value="Filters & Consumables">Filters & Consumables</option><option value="Fittings, O-Rings & Tubings">Fittings, O-Rings & Tubings</option><option value="General Spares & Hardware">General Spares & Hardware</option><option value="PCBs, Power & Fuses">PCBs, Power & Fuses</option><option value="Pumps & Motors">Pumps & Motors</option><option value="Sensors, Detectors & Optical">Sensors, Detectors & Optical</option><option value="Valves & Solenoids">Valves & Solenoids</option></select></div></div><div><label class="font-bold text-slate-700 block mb-1">Attach Image</label><div onclick="document.getElementById('partPhotoInput').click()" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-xl p-3 text-center cursor-pointer transition"><i class="fa-solid fa-camera text-xl text-cyan-600 mb-1"></i><p id="partPhotoDisplay" class="font-bold text-slate-700 text-xs">Click to browse file from device</p></div><input type="file" id="partPhotoInput" accept="image/*" class="hidden"><input type="text" id="addImageUrlInput" placeholder="or paste web image link: https://..." class="w-full mt-2 p-2 border rounded-lg text-xs bg-slate-50 outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Part</button></div></form></div></div>
 <div id="activityModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="activityModalTitle" class="text-base font-bold text-slate-800">Schedule Activity</h3><button onclick="closeActivityModal()" class="text-slate-400 text-xl">&times;</button></div><form id="activityForm" onsubmit="saveNewActivity(event)" class="space-y-3 text-xs"><input type="hidden" id="editActivityId"><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Start Date *</label><input type="date" id="addActStart" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">End Date *</label><input type="date" id="addActEnd" required class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Activity Title *</label><input type="text" id="addActTitle" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Type</label><select id="addActType" class="w-full p-2.5 border rounded-lg bg-white"><option value="PM">Preventive Maint. (PM)</option><option value="Calibration">Calibration</option><option value="Troubleshooting">Troubleshooting</option><option value="Audit">Audit / CGA</option></select></div><div><label class="font-bold text-slate-600 block mb-1">Lead Tech</label><input type="text" id="addActLead" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Remarks</label><textarea id="addActDesc" rows="2" class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeActivityModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Activity</button></div></form></div></div>
-<div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div>
-<form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-3 text-xs">
-<input type="hidden" id="editDocId">
-<div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"><option>Manuals</option><option>Forms & Sheets</option><option>SOPs</option><option>Calibration</option><option>General</option></select></div>
-<div><label class="font-bold text-slate-600 block mb-1">File Upload (Small files <900KB - Spark free)</label><div id="dropZone" class="border-2 border-dashed border-cyan-300 bg-cyan-50/30 rounded-xl p-6 text-center cursor-pointer hover:bg-cyan-50 transition" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-cloud-arrow-up text-cyan-600 text-xl mb-1"></i><p class="text-xs font-bold text-slate-700">Drag & drop file or click to browse</p><p id="selectedFileName" class="text-[10px] text-cyan-700 mt-1 font-mono"></p><input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(event)"></div></div>
-<div><label class="font-bold text-cyan-700 block mb-1">OR Google Drive Link (Recommended - Unlimited, Free!) <span class="text-[10px] font-normal text-slate-500">- Works for large manuals & whole folders</span></label><input type="url" id="addDocDriveLink" placeholder="Paste Drive file link (https://drive.google.com/file/d/.../view) OR folder link (https://drive.google.com/drive/folders/...)" class="w-full p-2.5 border-2 border-cyan-200 bg-cyan-50/30 rounded-xl outline-none"><p class="text-[9px] text-slate-500 mt-1">Tip: In Drive → Right-click file/folder → Share → Anyone with link → Copy link. For folders, whole folder will be viewable.</p></div>
-<div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div>
-<div><label class="font-bold text-slate-600 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div>
-<div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div>
-</form>
-</div></div>
+<div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div><form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-4 text-xs"><input type="hidden" id="editDocId"><div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div><label class="font-bold text-slate-700 block mb-1.5">File Upload *</label><div id="dropZone" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-2xl p-4 text-center cursor-pointer transition"><i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-600 mb-1"></i><p class="font-bold text-slate-700 text-xs" id="fileNameDisplay">Drag & drop file or click to browse</p></div><input type="file" id="fileInput" class="hidden"></div><div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div><div><label class="font-bold text-slate-700 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div></form></div></div>
 <div id="galleryModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="galleryModalTitle" class="text-base font-bold text-slate-800">Upload YouTube Video / Blog</h3><button onclick="closeGalleryModal()" class="text-slate-400 text-xl">&times;</button></div><form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs"><input type="hidden" id="editGalleryId"><div><label class="font-bold text-slate-700 block mb-1">Select Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Video" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">YouTube Link *</label><input type="text" id="galleryYoutube" required placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Story / Details *</label><textarea id="galleryDesc" rows="3" required class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Publish Video</button></div></form></div></div>
 <div id="partImageModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-xl w-full p-4 shadow-2xl relative"><div class="flex justify-between items-center mb-2 pb-2 border-b"><h3 id="partImageModalTitle" class="text-xs font-bold text-slate-800">Part Image Preview</h3><button onclick="closePartImageModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button></div><div class="w-full h-80 flex items-center justify-center bg-slate-100 rounded-xl overflow-hidden"><img id="partImageModalImg" src="" alt="Part Preview" class="max-h-full max-w-full object-contain"></div></div></div>
 <div id="filePreviewModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50"><div class="bg-white rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden"><div class="flex justify-between items-center px-5 py-3 border-b bg-slate-50"><div class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-cyan-600 text-base"></i><h3 id="previewModalTitle" class="text-xs sm:text-sm font-bold text-slate-800 truncate max-w-md">Document Preview</h3></div><div class="flex items-center gap-2"><button id="previewDownloadBtn" class="bg-cyan-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-cyan-700 flex items-center gap-1 shadow"><i class="fa-solid fa-download"></i> Download</button><button onclick="closePreviewModal()" class="p-1.5 px-2.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 text-sm font-bold">&times;</button></div></div><div id="previewModalBody" class="flex-1 bg-slate-100 p-2 flex items-center justify-center overflow-hidden"></div></div></div>
@@ -289,7 +279,7 @@ function openAddFolderModal(){document.getElementById('folderModal').classList.r
 function closeAddFolderModal(){document.getElementById('folderModal').classList.add('hidden');}
 function saveNewFolder(e){e.preventDefault(); const name=document.getElementById('newFolderName').value.trim(); if(name && !folders.includes(name)){folders.push(name); localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));} closeAddFolderModal(); renderFoldersAndDocs();}
 function openAddDocModal(){currentSelectedFile=null; document.getElementById('editDocId').value=""; document.getElementById('docModalTitle').innerText="Add Technical Document"; document.getElementById('fileNameDisplay').innerText="Drag & drop file or click to browse"; document.getElementById('docForm').reset(); const select=document.getElementById('docFolderSelect'); select.innerHTML=''; folders.filter(f=>f!=="All Documents").forEach(f=>{select.innerHTML+=`<option value="${escapeHtml(f)}" ${currentFolder===f?'selected':''}>${escapeHtml(f)}</option>`;}); document.getElementById('docModal').classList.remove('hidden');}
-function openEditDocModal(id){const doc=documents.find(d=>String(d.id)===String(id)); if(!doc)return; currentSelectedFile=null; document.getElementById('editDocId').value=doc.id; document.getElementById('docModalTitle').innerText="Edit Document"; document.getElementById('addDocTitle').value=doc.title; document.getElementById('addDocDesc').value=doc.description||""; document.getElementById('fileNameDisplay').innerHTML=`<span class="text-cyan-700 font-bold">${escapeHtml(doc.fileName)} (Click to replace)</span>`; const select=document.getElementById('docFolderSelect'); select.innerHTML=''; folders.filter(f=>f!=="All Documents").forEach(f=>{select.innerHTML+=`<option value="${escapeHtml(f)}" ${doc.folder===f?'selected':''}>${escapeHtml(f)}</option>`;}); document.getElementById('docModal').classList.remove('hidden');}
+function openEditDocModal(id){const doc=documents.find(d=>d.id===id); if(!doc)return; currentSelectedFile=null; document.getElementById('editDocId').value=doc.id; document.getElementById('docModalTitle').innerText="Edit Document"; document.getElementById('addDocTitle').value=doc.title; document.getElementById('addDocDesc').value=doc.description||""; document.getElementById('fileNameDisplay').innerHTML=`<span class="text-cyan-700 font-bold">${escapeHtml(doc.fileName)} (Click to replace)</span>`; const select=document.getElementById('docFolderSelect'); select.innerHTML=''; folders.filter(f=>f!=="All Documents").forEach(f=>{select.innerHTML+=`<option value="${escapeHtml(f)}" ${doc.folder===f?'selected':''}>${escapeHtml(f)}</option>`;}); document.getElementById('docModal').classList.remove('hidden');}
 function closeAddDocModal(){document.getElementById('docModal').classList.add('hidden');}
 function saveNewDocument(e){e.preventDefault(); const editId=document.getElementById('editDocId').value; const title=document.getElementById('addDocTitle').value.trim(); const folder=document.getElementById('docFolderSelect').value; const desc=document.getElementById('addDocDesc').value.trim(); function detectFileType(name){const ext=name.split('.').pop().toLowerCase(); if(['pdf'].includes(ext)) return 'PDF'; if(['xlsx','xls','csv'].includes(ext)) return 'EXCEL'; if(['docx','doc'].includes(ext)) return 'WORD'; if(['jpg','jpeg','png','webp'].includes(ext)) return 'IMAGE'; return ext.toUpperCase()||'FILE';}
   if(editId){const idx=documents.findIndex(d=>d.id==editId); if(idx!==-1){documents[idx].title=title; documents[idx].folder=folder; documents[idx].description=desc; if(currentSelectedFile){const reader=new FileReader(); reader.onload=function(event){documents[idx].fileName=currentSelectedFile.name; documents[idx].type=detectFileType(currentSelectedFile.name); documents[idx].url=event.target.result; localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents)); closeAddDocModal(); renderFoldersAndDocs();}; reader.readAsDataURL(currentSelectedFile); return;} localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents)); closeAddDocModal(); renderFoldersAndDocs();} return;}
@@ -352,11 +342,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 window._db=db;
-console.log("Firebase LIVE connected - Drive link mode");
 
 onSnapshot(collection(db, "kytos_parts"), (snap)=>{
   let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-  if(live.length>0){ parts=live.map(p=>({id:p.id, pn:p.pn, name:p.name, model:p.model, cat:p.cat, rem:p.rem||"Active Reference", img:p.img||""})); localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); if(typeof applyFilters==='function') applyFilters(); const b=document.getElementById('headerBadge'); if(b) b.innerText="LIVE SYNC • "+live.length+" Items"; }
+  if(live.length>0){ parts=live.map(p=>({id:p.id, pn:p.pn, name:p.name, model:p.model, cat:p.cat, rem:p.rem||"Active Reference", img:p.img||""})); localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); if(typeof applyFilters==='function') applyFilters(); }
 });
 onSnapshot(collection(db, "kytos_docs"), (snap)=>{
   let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()})); documents=live; localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs();
@@ -368,89 +357,67 @@ onSnapshot(collection(db, "kytos_activities"), (snap)=>{
   let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()})); activities=live; localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); if(typeof renderActivities==='function') renderActivities();
 });
 
-window.handleFileSelect = function(e){
-  const file=e.target.files[0];
-  if(!file) return;
-  window.currentSelectedFile=file;
-  document.getElementById('selectedFileName').innerText=file.name+" ("+(file.size/1024).toFixed(0)+" KB)";
-};
+// Inject Drive link field into modal after page loads
+document.addEventListener('DOMContentLoaded', ()=>{
+  const titleInput = document.getElementById('addDocTitle');
+  if(titleInput){
+    const form = titleInput.closest('form');
+    if(form && !document.getElementById('addDocDriveLink')){
+      const driveDiv = document.createElement('div');
+      driveDiv.innerHTML = `<label class="font-bold text-cyan-700 block mb-1 text-xs">OR Google Drive Link (Recommended - Unlimited, No Upgrade Needed!)</label><input type="url" id="addDocDriveLink" placeholder="Paste Drive file link OR folder link here - https://drive.google.com/..." class="w-full p-2.5 border-2 border-cyan-200 bg-cyan-50/30 rounded-xl outline-none text-xs mb-1"><p class="text-[9px] text-slate-500 mb-2">For whole folders: Share folder → Anyone with link → Copy. Example: .../drive/folders/xxx</p>`;
+      // Insert before title input
+      titleInput.parentElement.parentElement.insertBefore(driveDiv, titleInput.parentElement);
+    }
+  }
+  // Ensure file handling for original modal (if it uses fileInput)
+  const fileInput = document.getElementById('fileInput') || document.getElementById('addDocFileInput');
+  if(fileInput){
+    fileInput.addEventListener('change', (e)=>{
+      const file = e.target.files[0];
+      if(file){ window.currentSelectedFile=file; const label=document.getElementById('selectedFileName'); if(label) label.innerText=file.name+" ("+(file.size/1024).toFixed(0)+"KB)"; }
+    });
+  }
+});
 
 function convertDriveLinkForPreview(url){
   if(!url) return url;
-  let fileMatch=url.match(/\/file\/d\/([^\/]+)/);
-  if(fileMatch){ return `https://drive.google.com/file/d/${fileMatch[1]}/preview`; }
-  let folderMatch=url.match(/\/folders\/([^\/?]+)/);
-  if(folderMatch){ return `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#grid`; }
+  let m=url.match(/\/file\/d\/([^\/]+)/);
+  if(m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+  let fm=url.match(/\/folders\/([^\/?]+)/);
+  if(fm) return `https://drive.google.com/embeddedfolderview?id=${fm[1]}#grid`;
   return url;
 }
 
+window.handleFileSelect = window.handleFileSelect || function(e){
+  const file=e.target.files[0]; if(!file) return; window.currentSelectedFile=file; const lbl=document.getElementById('selectedFileName'); if(lbl) lbl.innerText=file.name;
+};
+
 window.saveNewDocument = async function(e){
   e.preventDefault();
-  const title=document.getElementById('addDocTitle').value.trim();
-  const folder=document.getElementById('docFolderSelect').value;
-  const desc=document.getElementById('addDocDesc').value.trim();
-  const driveLink=document.getElementById('addDocDriveLink').value.trim();
+  const titleEl=document.getElementById('addDocTitle');
+  const title=titleEl ? titleEl.value.trim() : "";
+  const folderEl=document.getElementById('docFolderSelect');
+  const folder=folderEl ? folderEl.value : "Manuals";
+  const descEl=document.getElementById('addDocDesc');
+  const desc=descEl ? descEl.value.trim() : "";
+  const driveInput=document.getElementById('addDocDriveLink');
+  const driveLink=driveInput ? driveInput.value.trim() : "";
   const file=window.currentSelectedFile;
   let fileName="", url="", storagePath="", type="PDF";
   if(driveLink){
-    url=driveLink;
-    fileName = driveLink.includes('/folders/') ? title+" (Drive Folder)" : title+" (Drive File)";
-    type = driveLink.includes('/folders/') ? "FOLDER" : "PDF";
-    if(title.toLowerCase().includes('excel')||title.toLowerCase().includes('xls')) type='EXCEL';
-    storagePath="drive_link";
+    url=driveLink; fileName=title+" (Drive)"; type=driveLink.includes('/folders/') ? "FOLDER" : "PDF"; storagePath="drive_link";
   } else if(file){
-    if(file.size>900000){ alert("File too large for Spark free (>900KB).\n\nPlease upload to Google Drive and paste link in 'Google Drive Link' field - unlimited and free!"); return; }
-    fileName=file.name;
-    const ext=fileName.split('.').pop().toLowerCase();
-    if(['pdf'].includes(ext)) type='PDF'; else if(['xlsx','xls','csv'].includes(ext)) type='EXCEL'; else if(['docx','doc'].includes(ext)) type='WORD'; else if(['jpg','jpeg','png'].includes(ext)) type='IMAGE'; else type=ext.toUpperCase();
-    url=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=rej; r.readAsDataURL(file); });
+    if(file.size>900000){ alert("File too large for free plan (>900KB).\n\nUse Google Drive link instead:\n1. Upload file to drive.google.com\n2. Right-click → Share → Anyone with link → Copy\n3. Paste in Drive Link field"); return; }
+    fileName=file.name; const ext=fileName.split('.').pop().toLowerCase(); if(['pdf'].includes(ext)) type='PDF'; else if(['xlsx','xls','csv'].includes(ext)) type='EXCEL'; else if(['docx','doc'].includes(ext)) type='WORD'; else if(['jpg','jpeg','png'].includes(ext)) type='IMAGE'; else type=ext.toUpperCase();
+    url=await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=ev=>res(ev.target.result); r.onerror=rej; r.readAsDataURL(file); });
     storagePath="firestore_small";
-  } else { alert("Please select a file OR paste a Google Drive link (file or whole folder)."); return; }
+  } else { alert("Please select a file OR paste a Google Drive link."); return; }
   try{
     const editId=document.getElementById('editDocId').value;
-    if(editId && String(editId).length>10){ await updateDoc(doc(db,"kytos_docs", String(editId)), {title,type,folder,fileName,url,storagePath,description:desc}); alert("✅ Document updated!"); }
-    else { await addDoc(collection(db,"kytos_docs"), {title,type,folder,fileName,url,storagePath,description:desc,createdAt:Date.now()}); alert(driveLink ? "✅ Drive link saved! Whole team can Preview/Download now - LIVE!" : "✅ Document saved!"); }
-    closeAddDocModal(); window.currentSelectedFile=null; document.getElementById('selectedFileName').innerText=""; document.getElementById('addDocDriveLink').value="";
+    if(editId && String(editId).length>10){ await updateDoc(doc(db,"kytos_docs", String(editId)), {title,type,folder,fileName,url,storagePath,description:desc}); alert("✅ Updated!"); }
+    else { await addDoc(collection(db,"kytos_docs"), {title,type,folder,fileName,url,storagePath,description:desc,createdAt:Date.now()}); alert(driveLink ? "✅ Drive link saved! Team can Preview/Download LIVE now!" : "✅ Document saved!"); }
+    if(typeof closeAddDocModal==='function') closeAddDocModal(); window.currentSelectedFile=null; const lbl=document.getElementById('selectedFileName'); if(lbl) lbl.innerText=""; if(driveInput) driveInput.value="";
   }catch(err){ alert("Error: "+err.message); }
-};
-
-window.saveNewGallery = async function(e){
-  e.preventDefault();
-  const editId=document.getElementById('editGalleryId').value;
-  const date=document.getElementById('galleryDate').value;
-  const location=document.getElementById('galleryLocation').value.trim();
-  const playlist=document.getElementById('galleryPlaylistSelect').value;
-  const title=document.getElementById('galleryTitle').value.trim();
-  const youtube=document.getElementById('galleryYoutube').value.trim();
-  const description=document.getElementById('galleryDesc').value.trim();
-  try{
-    if(editId && String(editId).length>10){ await updateDoc(doc(db,"kytos_gallery", String(editId)), {date,location,playlist,title,youtube,description}); alert("✅ Video updated!"); }
-    else { await addDoc(collection(db,"kytos_gallery"), {date,location,playlist,title,youtube,description,createdAt:Date.now()}); alert("✅ Video published LIVE!"); }
-    closeGalleryModal();
-  }catch(err){ alert(err.message); }
-};
-
-window.deleteGallery = async function(id){
-  if(!confirm("Delete this video?")) return;
-  try{ if(String(id).length>10){ await deleteDoc(doc(db,"kytos_gallery", String(id))); } else { galleryPosts=galleryPosts.filter(p=>String(p.id)!==String(id)); localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); renderPlaylistsAndGallery(); } }catch(e){ alert(e.message); }
-};
-window.openEditGalleryModal = function(id){
-  const post=galleryPosts.find(p=>String(p.id)===String(id)); if(!post){ alert("Not found"); return; }
-  document.getElementById('editGalleryId').value=String(post.id);
-  document.getElementById('galleryModalTitle').innerText="Edit Video / Blog Post";
-  document.getElementById('galleryDate').value=post.date||""; document.getElementById('galleryLocation').value=post.location||"";
-  document.getElementById('galleryPlaylistSelect').value=post.playlist||"General"; document.getElementById('galleryTitle').value=post.title||"";
-  document.getElementById('galleryYoutube').value=post.youtube||""; document.getElementById('galleryDesc').value=post.description||"";
-  document.getElementById('galleryModal').classList.remove('hidden');
-};
-
-window.deleteDocument = async function(id){
-  if(!confirm("Delete this document?")) return;
-  try{ if(String(id).length>10){ await deleteDoc(doc(db,"kytos_docs", String(id))); } else { documents=documents.filter(d=>String(d.id)!==String(id)); localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); renderFoldersAndDocs(); } }catch(e){ alert(e.message); }
-};
-window.openEditDocModal = function(id){
-  const d=documents.find(x=>String(x.id)===String(id)); if(!d){ alert("Not found"); return; }
-  document.getElementById('editDocId').value=String(d.id); document.getElementById('docFolderSelect').value=d.folder||"Manuals"; document.getElementById('addDocTitle').value=d.title||""; document.getElementById('addDocDesc').value=d.description||""; document.getElementById('addDocDriveLink').value=d.url && d.url.includes('drive.google.com') ? d.url : ""; document.getElementById('addDocModal').classList.remove('hidden');
 };
 
 function dataUrlToBlob(dataUrl){ const parts=dataUrl.split(';base64,'); const contentType=parts[0].split(':')[1]; const raw=window.atob(parts[1]); const arr=new Uint8Array(raw.length); for(let i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i); return new Blob([arr],{type:contentType}); }
@@ -463,12 +430,8 @@ window.previewFileById = function(id){
     if(docItem.type==='PDF') body.innerHTML=`<iframe src="${u}#toolbar=1" class="w-full h-full rounded-xl border bg-white"></iframe>`; else if(docItem.type==='IMAGE') body.innerHTML=`<img src="${u}" class="max-h-full max-w-full object-contain">`; else body.innerHTML=`<div class="p-8 text-center">Ready for download</div>`;
   } else {
     const pu=convertDriveLinkForPreview(docItem.url);
-    if(docItem.url.includes('drive.google.com')){
-      if(docItem.url.includes('/folders/')){ body.innerHTML=`<iframe src="${pu}" class="w-full h-full rounded-xl border bg-white"></iframe><div class="text-center mt-2"><a href="${docItem.url}" target="_blank" class="text-cyan-600 font-bold text-xs">Open Folder in Google Drive</a></div>`; }
-      else { body.innerHTML=`<iframe src="${pu}" class="w-full h-full rounded-xl border bg-white"></iframe>`; }
-    } else {
-      body.innerHTML=`<iframe src="${docItem.url}" class="w-full h-full rounded-xl border"></iframe>`;
-    }
+    if(docItem.url.includes('drive.google.com')){ if(docItem.url.includes('/folders/')){ body.innerHTML=`<iframe src="${pu}" class="w-full h-full rounded-xl border bg-white"></iframe><div class="text-center mt-2"><a href="${docItem.url}" target="_blank" class="text-cyan-600 font-bold text-xs underline">Open Full Folder in Google Drive</a></div>`; } else { body.innerHTML=`<iframe src="${pu}" class="w-full h-full rounded-xl border bg-white"></iframe>`; } }
+    else { body.innerHTML=`<iframe src="${docItem.url}" class="w-full h-full rounded-xl border"></iframe>`; }
   }
 };
 window.downloadFileById = function(id){
@@ -477,15 +440,23 @@ window.downloadFileById = function(id){
   else { window.open(docItem.url, '_blank'); }
 };
 
-window.savePartData = async function(e){
+window.saveNewGallery = async function(e){
   e.preventDefault();
-  const pn=document.getElementById('addPartNum').value.trim(); const name=document.getElementById('addPartName').value.trim(); const model=document.getElementById('addModel').value.trim()||'GENERAL'; const cat=document.getElementById('addCategory').value; const img=document.getElementById('addImageUrlInput').value.trim()||(window.currentPartPhoto||""); const editId=document.getElementById('editPartId').value;
-  try{ if(editId && editId.length>15){ await updateDoc(doc(db,"kytos_parts",editId), {pn,name,model,cat,img}); } else { await addDoc(collection(db,"kytos_parts"), {pn,name,model,cat,rem:"Active Reference",img,createdAt:Date.now()}); } alert("✅ Live! Saved."); closePartModal(); }catch(err){ alert(err.message); }
+  const editId=document.getElementById('editGalleryId').value;
+  const date=document.getElementById('galleryDate').value;
+  const location=document.getElementById('galleryLocation').value.trim();
+  const playlist=document.getElementById('galleryPlaylistSelect').value;
+  const title=document.getElementById('galleryTitle').value.trim();
+  const youtube=document.getElementById('galleryYoutube').value.trim();
+  const description=document.getElementById('galleryDesc').value.trim();
+  try{ if(editId && String(editId).length>10){ await updateDoc(doc(db,"kytos_gallery", String(editId)), {date,location,playlist,title,youtube,description}); alert("✅ Video updated!"); } else { await addDoc(collection(db,"kytos_gallery"), {date,location,playlist,title,youtube,description,createdAt:Date.now()}); alert("✅ Video LIVE!"); } closeGalleryModal(); }catch(err){ alert(err.message); }
 };
-window.deletePartItem = async function(id){
-  if(!confirm("Delete part?")) return;
-  try{ if(String(id).length>10){ await deleteDoc(doc(db,"kytos_parts",String(id))); } else { parts=parts.filter(p=>String(p.id)!==String(id)); localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); applyFilters(); } }catch(e){ alert(e.message); }
-};
+window.deleteGallery = async function(id){ if(!confirm("Delete video?")) return; try{ if(String(id).length>10){ await deleteDoc(doc(db,"kytos_gallery", String(id))); } else { galleryPosts=galleryPosts.filter(p=>String(p.id)!==String(id)); localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); renderPlaylistsAndGallery(); } }catch(e){ alert(e.message); } };
+window.openEditGalleryModal = function(id){ const post=galleryPosts.find(p=>String(p.id)===String(id)); if(!post){ alert("Not found"); return; } document.getElementById('editGalleryId').value=String(post.id); document.getElementById('galleryModalTitle').innerText="Edit Video / Blog Post"; document.getElementById('galleryDate').value=post.date||""; document.getElementById('galleryLocation').value=post.location||""; document.getElementById('galleryPlaylistSelect').value=post.playlist||"General"; document.getElementById('galleryTitle').value=post.title||""; document.getElementById('galleryYoutube').value=post.youtube||""; document.getElementById('galleryDesc').value=post.description||""; document.getElementById('galleryModal').classList.remove('hidden'); };
+window.deleteDocument = async function(id){ if(!confirm("Delete document?")) return; try{ if(String(id).length>10){ await deleteDoc(doc(db,"kytos_docs", String(id))); } else { documents=documents.filter(d=>String(d.id)!==String(id)); localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); renderFoldersAndDocs(); } }catch(e){ alert(e.message); } };
+window.openEditDocModal = function(id){ const d=documents.find(x=>String(x.id)===String(id)); if(!d){ alert("Not found"); return; } document.getElementById('editDocId').value=String(d.id); document.getElementById('docFolderSelect').value=d.folder||"Manuals"; document.getElementById('addDocTitle').value=d.title||""; document.getElementById('addDocDesc').value=d.description||""; const driveInput=document.getElementById('addDocDriveLink'); if(driveInput && d.url && d.url.includes('drive.google.com')) driveInput.value=d.url; document.getElementById('addDocModal').classList.remove('hidden'); };
+window.savePartData = async function(e){ e.preventDefault(); const pn=document.getElementById('addPartNum').value.trim(); const name=document.getElementById('addPartName').value.trim(); const model=document.getElementById('addModel').value.trim()||'GENERAL'; const cat=document.getElementById('addCategory').value; const img=document.getElementById('addImageUrlInput').value.trim()||(window.currentPartPhoto||""); const editId=document.getElementById('editPartId').value; try{ if(editId && editId.length>15){ await updateDoc(doc(db,"kytos_parts",editId), {pn,name,model,cat,img}); } else { await addDoc(collection(db,"kytos_parts"), {pn,name,model,cat,rem:"Active Reference",img,createdAt:Date.now()}); } alert("✅ Live! Saved."); closePartModal(); }catch(err){ alert(err.message); } };
+window.deletePartItem = async function(id){ if(!confirm("Delete part?")) return; try{ if(String(id).length>10){ await deleteDoc(doc(db,"kytos_parts",String(id))); } else { parts=parts.filter(p=>String(p.id)!==String(id)); localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); applyFilters(); } }catch(e){ alert(e.message); } };
 </script>
 
 </body>

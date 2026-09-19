@@ -108,7 +108,9 @@
       .home-slide-copy h2{font-size:1.45rem}
     }
 
-  </style>
+  
+    .home-batch-slot{border:1px solid #e2e8f0;border-radius:16px;padding:12px;background:#f8fafc}.home-batch-slot.has-image{background:#fff;border-color:#bae6fd}.home-batch-preview{height:130px;border-radius:12px;overflow:hidden;background:#e2e8f0;display:flex;align-items:center;justify-content:center}.home-batch-preview img{width:100%;height:100%;object-fit:cover}.home-batch-slot input,.home-batch-slot select{font-size:12px}.home-shortcut-row{border:1px solid #e2e8f0;border-radius:14px;padding:10px;background:#f8fafc}.home-shortcut-row.mark-delete{opacity:.55;background:#fef2f2;border-color:#fecaca}
+</style>
 </head>
 <body class="portal-shell text-slate-800 min-h-screen">
 <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md border-b border-slate-800">
@@ -314,69 +316,51 @@
 <!-- MODALS (same structure as original but with click-outside) -->
 
 <div id="homeEditorModal" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center p-4 z-50 overflow-y-auto">
-  <div class="bg-white rounded-2xl max-w-5xl w-full p-6 shadow-2xl my-8">
-    <div class="flex justify-between items-center mb-5 pb-3 border-b">
+  <div class="bg-white rounded-2xl max-w-6xl w-full p-6 shadow-2xl my-8">
+    <div class="flex justify-between items-start gap-4 mb-5 pb-4 border-b">
       <div>
         <h3 class="text-base font-black text-slate-800">Edit Home Page</h3>
-        <p class="text-xs text-slate-500 mt-1">Manage the slideshow, portal purpose, and shortcuts. Changes sync to the team.</p>
+        <p class="text-xs text-slate-500 mt-1">Manage up to 10 activity photos, portal purpose, and shortcuts. Make all changes first, then use one Save All button.</p>
       </div>
       <button onclick="closeHomeEditor()" class="text-slate-400 text-xl">&times;</button>
     </div>
 
-    <form onsubmit="saveHomePurpose(event)" class="mb-6">
+    <div class="mb-5">
       <label class="text-xs font-bold text-slate-700 block mb-1">Portal Purpose</label>
       <textarea id="homePurposeInput" rows="3" class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Describe the purpose of this portal..."></textarea>
-      <div class="flex justify-end mt-2"><button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-save mr-1"></i> Save Purpose</button></div>
-    </form>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <section class="border rounded-2xl p-4">
-        <div class="flex items-center justify-between mb-3">
-          <div><h4 class="font-black text-sm text-slate-800">Activity Slideshow</h4><p class="text-[10px] text-slate-500">Add photos from your device or a shared Google Drive image.</p></div>
-          <button type="button" onclick="resetHomeSlideForm()" class="text-xs text-slate-500 hover:text-slate-900">New</button>
+    <section class="border rounded-2xl p-4 mb-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+        <div>
+          <h4 class="font-black text-sm text-slate-800">Activity Slideshow <span class="text-cyan-600">(Maximum 10)</span></h4>
+          <p class="text-[10px] text-slate-500">Each slot can use an image from your PC or a shared Google Drive image link. Empty slots are ignored.</p>
         </div>
-        <form onsubmit="saveHomeSlide(event)" class="space-y-3 text-xs">
-          <input type="hidden" id="homeSlideEditId">
-          <input type="text" id="homeSlideTitle" class="w-full p-2.5 border rounded-xl" placeholder="Slide title *" required>
-          <input type="text" id="homeSlideSubtitle" class="w-full p-2.5 border rounded-xl" placeholder="Short caption / activity description">
-          <input type="url" id="homeSlideImageUrl" class="w-full p-2.5 border rounded-xl" placeholder="Google Drive image link or direct image URL">
-          <div class="flex items-center gap-2">
-            <input type="file" id="homeSlideFile" accept="image/*" class="hidden">
-            <button type="button" onclick="document.getElementById('homeSlideFile').click()" class="px-3 py-2 rounded-xl bg-slate-100 font-bold"><i class="fa-solid fa-image mr-1"></i> Choose Image</button>
-            <span id="homeSlideFileName" class="text-[10px] text-slate-400 truncate"></span>
-          </div>
-          <div class="flex justify-end gap-2">
-            <button type="button" onclick="resetHomeSlideForm()" class="px-3 py-2 rounded-xl bg-slate-100">Clear</button>
-            <button type="submit" class="px-4 py-2 rounded-xl bg-cyan-600 text-white font-bold">Save Slide</button>
-          </div>
-        </form>
-        <div id="homeSlidesAdminList" class="home-admin-grid mt-4 space-y-2"></div>
-      </section>
+        <span id="homeSlideCountBadge" class="inline-flex items-center px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-700 text-[10px] font-black">0 / 10 images</span>
+      </div>
+      <div id="homeBatchSlides" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
+    </section>
 
-      <section class="border rounded-2xl p-4">
-        <div class="flex items-center justify-between mb-3">
-          <div><h4 class="font-black text-sm text-slate-800">Shortcuts</h4><p class="text-[10px] text-slate-500">Create quick links to portal sections or external resources.</p></div>
-          <button type="button" onclick="resetHomeShortcutForm()" class="text-xs text-slate-500 hover:text-slate-900">New</button>
+    <section class="border rounded-2xl p-4 mb-5">
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div>
+          <h4 class="font-black text-sm text-slate-800">Quick Access Shortcuts</h4>
+          <p class="text-[10px] text-slate-500">Edit shortcut rows directly. Add or remove rows, then save everything together.</p>
         </div>
-        <form onsubmit="saveHomeShortcut(event)" class="space-y-3 text-xs">
-          <input type="hidden" id="homeShortcutEditId">
-          <input type="text" id="homeShortcutLabel" class="w-full p-2.5 border rounded-xl" placeholder="Shortcut name *" required>
-          <div class="grid grid-cols-2 gap-2">
-            <input type="text" id="homeShortcutIcon" class="w-full p-2.5 border rounded-xl" placeholder="Font Awesome icon e.g. fa-boxes-stacked">
-            <select id="homeShortcutTarget" class="w-full p-2.5 border rounded-xl bg-white">
-              <option value="parts">Spare Parts</option><option value="activities">Calendar</option><option value="documents">Documents</option><option value="gallery">Gallery</option><option value="home">Home</option><option value="external">External Link</option>
-            </select>
-          </div>
-          <input type="url" id="homeShortcutUrl" class="w-full p-2.5 border rounded-xl hidden" placeholder="https://example.com">
-          <div class="flex justify-end gap-2">
-            <button type="button" onclick="resetHomeShortcutForm()" class="px-3 py-2 rounded-xl bg-slate-100">Clear</button>
-            <button type="submit" class="px-4 py-2 rounded-xl bg-cyan-600 text-white font-bold">Save Shortcut</button>
-          </div>
-        </form>
-        <div id="homeShortcutsAdminList" class="home-admin-grid mt-4 space-y-2"></div>
-      </section>
+        <button type="button" onclick="addHomeShortcutDraft()" class="px-3 py-2 rounded-xl bg-slate-100 text-xs font-bold hover:bg-slate-200"><i class="fa-solid fa-plus mr-1"></i>Add Shortcut</button>
+      </div>
+      <div id="homeBatchShortcuts" class="space-y-2"></div>
+    </section>
+
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t pt-4">
+      <div class="text-[10px] text-slate-500"><i class="fa-solid fa-cloud-arrow-up mr-1 text-cyan-600"></i>One save updates the Home page and syncs changes to the team.</div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeHomeEditor()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-sm font-bold">Cancel</button>
+        <button type="button" onclick="saveAllHomeChanges()" id="saveAllHomeBtn" class="px-5 py-2.5 rounded-xl bg-cyan-600 text-white text-sm font-black shadow-sm hover:bg-cyan-700"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>Save All Changes</button>
+      </div>
     </div>
   </div>
+</div>
 </div>
 <div id="loginModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><h3 class="text-base font-bold text-slate-800 mb-1">Admin Access</h3><p class="text-xs text-slate-500 mb-4">Enter password to unlock management controls:</p><input type="password" id="adminPassInput" placeholder="Enter password..." class="w-full px-3 py-2.5 border rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-cyan-500"><div class="flex justify-end gap-2 text-xs"><button onclick="closeAdminModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button onclick="verifyAdminPass()" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Unlock Admin</button></div></div></div>
 <div id="folderModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 class="text-base font-bold text-slate-800">Create New Folder</h3><button onclick="closeAddFolderModal()" class="text-slate-400 text-xl">&times;</button></div><form onsubmit="saveNewFolder(event)" class="space-y-3 text-xs"><div><label class="font-bold text-slate-700 block mb-1">Folder Name *</label><input type="text" id="newFolderName" required placeholder="e.g. Thermo Manuals" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500"></div><div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAddFolderModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Create Folder</button></div></form></div></div>
@@ -1840,6 +1824,136 @@ function updateLiveSyncTime(){
   const el=document.getElementById('lastSyncTime');if(el)el.innerText='• '+new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})+' '+new Date().toLocaleTimeString()+' • Live';
 }
 window.updateLiveSyncTime=updateLiveSyncTime;
+
+
+/* === HOME BATCH EDITOR: up to 10 images + one Save All button === */
+let homeBatchFiles = {};
+let homeBatchShortcuts = [];
+function openHomeEditor(){
+  if(!isAdmin){alert('Admin access is required.');return;}
+  const modal=document.getElementById('homeEditorModal'); if(!modal)return;
+  document.getElementById('homePurposeInput').value=homeSettings.purpose||'';
+  homeBatchFiles={};
+  homeBatchShortcuts=(homeShortcuts||[]).map(s=>({...s}));
+  renderHomeBatchEditor();
+  modal.classList.remove('hidden');
+}
+function renderHomeBatchEditor(){
+  const box=document.getElementById('homeBatchSlides'); if(!box)return;
+  const slides=Array.isArray(homeSlides)?homeSlides.slice(0,10):[];
+  let html='';
+  for(let i=0;i<10;i++){
+    const s=slides[i]||{};
+    const src=s.imageUrl||'';
+    html+=`<div class="home-batch-slot ${src?'has-image':''}" data-slot="${i}">
+      <div class="flex items-center justify-between mb-2"><div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Image ${i+1}</div>
+      <label class="inline-flex items-center gap-1 text-[10px] text-red-600 font-bold cursor-pointer"><input type="checkbox" id="homeRemove_${i}" class="rounded" ${s.id?'':'disabled'}> Remove</label></div>
+      <div class="home-batch-preview mb-2" id="homePreview_${i}">${src?`<img src="${escapeHtml(normalizePartImageUrl(src))}" alt="">`:'<span class="text-[10px] text-slate-400"><i class="fa-solid fa-image text-lg block text-center mb-1"></i>No image selected</span>'}</div>
+      <input type="hidden" id="homeSlotId_${i}" value="${escapeHtml(s.id||'')}">
+      <input type="text" id="homeTitle_${i}" value="${escapeHtml(s.title||'')}" class="w-full p-2 border rounded-lg mb-2 bg-white" placeholder="Activity title">
+      <input type="text" id="homeSubtitle_${i}" value="${escapeHtml(s.subtitle||'')}" class="w-full p-2 border rounded-lg mb-2 bg-white" placeholder="Short caption / activity description">
+      <input type="url" id="homeUrl_${i}" value="${escapeHtml(s.imageUrl||'')}" class="w-full p-2 border rounded-lg bg-white" placeholder="Google Drive image link or direct image URL">
+      <div class="flex items-center gap-2 mt-2"><input type="file" id="homeFile_${i}" accept="image/*" class="hidden" onchange="selectHomeBatchFile(${i},this.files[0])"><button type="button" onclick="document.getElementById('homeFile_${i}').click()" class="px-3 py-1.5 rounded-lg bg-white border text-[10px] font-bold"><i class="fa-solid fa-upload mr-1"></i>Upload from PC</button><span id="homeFileName_${i}" class="text-[10px] text-slate-400 truncate">${src?'Existing image':'No file selected'}</span></div>
+    </div>`;
+  }
+  box.innerHTML=html;
+  const badge=document.getElementById('homeSlideCountBadge'); if(badge)badge.textContent=`${slides.filter(s=>s&&s.imageUrl).length} / 10 images`;
+  renderHomeBatchShortcuts();
+}
+function selectHomeBatchFile(index,file){
+  if(!file)return;
+  homeBatchFiles[index]=file;
+  const n=document.getElementById('homeFileName_'+index);if(n)n.textContent=file.name;
+  const preview=document.getElementById('homePreview_'+index);
+  if(preview){const url=URL.createObjectURL(file);preview.innerHTML=`<img src="${url}" alt="Selected image">`;preview.closest('.home-batch-slot')?.classList.add('has-image');}
+  const remove=document.getElementById('homeRemove_'+index);if(remove)remove.checked=false;
+}
+function renderHomeBatchShortcuts(){
+  const box=document.getElementById('homeBatchShortcuts');if(!box)return;
+  if(!homeBatchShortcuts.length){box.innerHTML='<div class="text-xs text-slate-400 text-center py-4">No shortcuts. Click Add Shortcut to create one.</div>';return;}
+  box.innerHTML=homeBatchShortcuts.map((s,i)=>`<div class="home-shortcut-row" id="homeShortcutRow_${i}">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
+      <input type="hidden" id="homeShortcutId_${i}" value="${escapeHtml(s.id||'')}">
+      <input type="text" id="homeShortcutLabel_${i}" value="${escapeHtml(s.label||'')}" class="md:col-span-3 p-2 border rounded-lg bg-white" placeholder="Shortcut name">
+      <input type="text" id="homeShortcutIcon_${i}" value="${escapeHtml(s.icon||'fa-link')}" class="md:col-span-2 p-2 border rounded-lg bg-white" placeholder="fa-link">
+      <select id="homeShortcutTarget_${i}" class="md:col-span-2 p-2 border rounded-lg bg-white" onchange="toggleBatchShortcutUrl(${i})"><option value="parts" ${s.target==='parts'?'selected':''}>Spare Parts</option><option value="activities" ${s.target==='activities'?'selected':''}>Calendar</option><option value="documents" ${s.target==='documents'?'selected':''}>Documents</option><option value="gallery" ${s.target==='gallery'?'selected':''}>Gallery</option><option value="home" ${s.target==='home'?'selected':''}>Home</option><option value="external" ${s.target==='external'?'selected':''}>External Link</option></select>
+      <input type="url" id="homeShortcutUrl_${i}" value="${escapeHtml(s.url||'')}" class="md:col-span-4 p-2 border rounded-lg bg-white ${s.target==='external'?'':'hidden'}" placeholder="https://example.com">
+      <label class="md:col-span-1 inline-flex items-center justify-center gap-1 text-[10px] text-red-600 font-bold cursor-pointer"><input type="checkbox" id="homeShortcutDelete_${i}" onchange="toggleBatchShortcutDelete(${i})"> Delete</label>
+    </div>
+  </div>`).join('');
+}
+function addHomeShortcutDraft(){
+  if(homeBatchShortcuts.length>=20){alert('Maximum 20 shortcuts.');return;}
+  homeBatchShortcuts.push({id:'',label:'',icon:'fa-link',target:'parts',url:''});renderHomeBatchShortcuts();
+}
+function toggleBatchShortcutUrl(i){const t=document.getElementById('homeShortcutTarget_'+i),u=document.getElementById('homeShortcutUrl_'+i);if(t&&u)u.classList.toggle('hidden',t.value!=='external');}
+function toggleBatchShortcutDelete(i){const row=document.getElementById('homeShortcutRow_'+i),cb=document.getElementById('homeShortcutDelete_'+i);if(row&&cb)row.classList.toggle('mark-delete',cb.checked);}
+async function saveAllHomeChanges(){
+  if(!isAdmin)return;
+  const btn=document.getElementById('saveAllHomeBtn');if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-1"></i>Saving...';}
+  try{
+    homeSettings.purpose=document.getElementById('homePurposeInput').value.trim();
+    localStorage.setItem('kytos_home_settings',JSON.stringify(homeSettings));
+    if(window.firebaseSetNamed) await window.firebaseSetNamed('kytos_home_settings','main',{purpose:homeSettings.purpose});
+
+    const existing=Array.isArray(homeSlides)?homeSlides.slice():[];
+    const next=[];
+    for(let i=0;i<10;i++){
+      const id=(document.getElementById('homeSlotId_'+i)?.value||'').trim();
+      const title=(document.getElementById('homeTitle_'+i)?.value||'').trim();
+      const subtitle=(document.getElementById('homeSubtitle_'+i)?.value||'').trim();
+      let imageUrl=(document.getElementById('homeUrl_'+i)?.value||'').trim();
+      const remove=!!document.getElementById('homeRemove_'+i)?.checked;
+      const old=existing.find(x=>String(x.id)===String(id));
+      if(remove){if(id&&window.firebaseDelete)await window.firebaseDelete('kytos_home_slides',String(id));continue;}
+      if(homeBatchFiles[i]){
+        if(!window.firebaseUploadFile)throw new Error('Shared image storage is not available.');
+        imageUrl=await window.firebaseUploadFile(homeBatchFiles[i],'home-slides');
+      }
+      if(!imageUrl && old)imageUrl=old.imageUrl||'';
+      if(!imageUrl){continue;}
+      if(!title){alert(`Please enter a title for Image ${i+1}.`);throw new Error('A slide title is required.');}
+      const data={title,subtitle,imageUrl};
+      if(id){
+        const idx=existing.findIndex(x=>String(x.id)===String(id));
+        if(idx>=0)homeSlides[idx]={...existing[idx],...data,updatedAt:Date.now()};
+        if(window.firebaseUpdate)await window.firebaseUpdate('kytos_home_slides',String(id),data);
+        next.push(homeSlides.find(x=>String(x.id)===String(id))||{id,...data});
+      }else{
+        const localId='home_'+Date.now()+'_'+i; const localObj={id:localId,...data,createdAt:Date.now()+i}; next.push(localObj);
+        if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_home_slides',data);if(fid)localObj.id=fid;}
+      }
+    }
+    // Enforce the 10-image maximum: remove any older slides beyond slot 10.
+    const keptIds=new Set(homeSlides.map(x=>String(x.id)));
+    for(const old of existing){
+      if(!keptIds.has(String(old.id)) && !next.some(x=>String(x.id)===String(old.id)) && window.firebaseDelete){
+        await window.firebaseDelete('kytos_home_slides',String(old.id));
+      }
+    }
+    homeSlides=next.slice(0,10);
+    localStorage.setItem('kytos_home_slides',JSON.stringify(homeSlides));
+
+    const currentIds=new Set();
+    const savedShortcuts=[];
+    for(let i=0;i<homeBatchShortcuts.length;i++){
+      const row=homeBatchShortcuts[i];
+      const id=(document.getElementById('homeShortcutId_'+i)?.value||'').trim();
+      const del=!!document.getElementById('homeShortcutDelete_'+i)?.checked;
+      const data={label:(document.getElementById('homeShortcutLabel_'+i)?.value||'').trim(),icon:(document.getElementById('homeShortcutIcon_'+i)?.value||'fa-link').trim(),target:document.getElementById('homeShortcutTarget_'+i)?.value||'parts',url:(document.getElementById('homeShortcutUrl_'+i)?.value||'').trim()};
+      if(del){if(id&&window.firebaseDelete)await window.firebaseDelete('kytos_home_shortcuts',String(id));continue;}
+      if(!data.label)continue;
+      if(data.target==='external'&&!data.url)throw new Error(`Shortcut "${data.label}" needs an external URL.`);
+      if(id){currentIds.add(String(id));const idx=homeShortcuts.findIndex(x=>String(x.id)===String(id));if(idx>=0)homeShortcuts[idx]={...homeShortcuts[idx],...data};if(window.firebaseUpdate)await window.firebaseUpdate('kytos_home_shortcuts',String(id),data);savedShortcuts.push(idx>=0?homeShortcuts[idx]:{id,...data});}
+      else{const obj={id:'shortcut_'+Date.now()+'_'+i,...data};if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_home_shortcuts',data);if(fid)obj.id=fid;}homeShortcuts.push(obj);savedShortcuts.push(obj);currentIds.add(String(obj.id));}
+    }
+    homeShortcuts=savedShortcuts;
+    localStorage.setItem('kytos_home_shortcuts',JSON.stringify(homeShortcuts));
+    homeBatchFiles={};homeSlideIndex=0;renderHome();renderHomeAdminLists();renderHomeBatchEditor();
+    alert('All Home changes have been saved and synced.');
+  }catch(err){console.error(err);alert('Unable to save Home changes: '+err.message);}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up mr-1"></i>Save All Changes';}}
+}
 </script>
 
 </body>

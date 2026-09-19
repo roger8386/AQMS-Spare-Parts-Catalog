@@ -66,27 +66,19 @@
 
 <main id="activitiesView" class="hidden max-w-7xl mx-auto px-4 py-6">
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
-  <div class="flex flex-wrap justify-between items-start gap-4">
-    <div>
-      <h2 class="text-base font-bold text-slate-800">Maintenance & Site Activities Schedule</h2>
-      <p class="text-xs text-slate-500 mt-1">Preventive maintenance, audits, and calibration schedules.</p>
-    </div>
-    <div id="adminActivityAction" class="hidden">
-      <button onclick="openAddActivityModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-plus mr-1"></i> Add Activity</button>
-    </div>
-  </div>
+  <div class="flex flex-wrap justify-between items-start gap-4"><div><h2 class="text-base font-bold text-slate-800">Maintenance & Site Activities Schedule</h2><p class="text-xs text-slate-500 mt-1">Preventive maintenance, audits, and calibration schedules.</p></div><div id="adminActivityAction" class="hidden"><button onclick="openAddActivityModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-plus mr-1"></i> Add Activity</button></div></div>
   <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
-    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Calendar:</span>
+    <span class="text-[10px] font-bold text-slate-400 uppercase">Calendar:</span>
     <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
       <button id="calViewMonthBtn" onclick="window.switchCalendarView('month')" class="px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow">Month</button>
-      <button id="calViewWeekBtn" onclick="window.switchCalendarView('week')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">Week</button>
-      <button id="calViewListBtn" onclick="window.switchCalendarView('list')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">List</button>
+      <button id="calViewWeekBtn" onclick="window.switchCalendarView('week')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium">Week</button>
+      <button id="calViewListBtn" onclick="window.switchCalendarView('list')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium">List</button>
     </div>
-    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-2">Activities:</span>
+    <span class="text-[10px] font-bold text-slate-400 uppercase ml-2">Activities:</span>
     <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
       <button id="actViewCardBtn" onclick="window.switchActivityView('card')" class="px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow">Cards</button>
-      <button id="actViewTableBtn" onclick="window.switchActivityView('table')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">Table</button>
-      <button id="actViewTimelineBtn" onclick="window.switchActivityView('timeline')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">Timeline</button>
+      <button id="actViewTableBtn" onclick="window.switchActivityView('table')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium">Table</button>
+      <button id="actViewTimelineBtn" onclick="window.switchActivityView('timeline')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium">Timeline</button>
     </div>
   </div>
 </div>
@@ -111,7 +103,24 @@
 <div id="activityModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="activityModalTitle" class="text-base font-bold text-slate-800">Schedule Activity</h3><button onclick="closeActivityModal()" class="text-slate-400 text-xl">&times;</button></div><form id="activityForm" onsubmit="saveNewActivity(event)" class="space-y-3 text-xs"><input type="hidden" id="editActivityId"><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Start Date *</label><input type="date" id="addActStart" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">End Date *</label><input type="date" id="addActEnd" required class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Activity Title *</label><input type="text" id="addActTitle" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Type</label><select id="addActType" class="w-full p-2.5 border rounded-lg bg-white"><option value="PM">Preventive Maint. (PM)</option><option value="Calibration">Calibration</option><option value="Troubleshooting">Troubleshooting</option><option value="Audit">Audit / CGA</option></select></div><div><label class="font-bold text-slate-600 block mb-1">Lead Tech</label><input type="text" id="addActLead" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Remarks</label><textarea id="addActDesc" rows="2" class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeActivityModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Activity</button></div></form></div></div>
 <div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div><form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-4 text-xs"><input type="hidden" id="editDocId"><div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div><label class="font-bold text-slate-700 block mb-1.5">File Upload *</label><div id="dropZone" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-2xl p-4 text-center cursor-pointer transition"><i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-600 mb-1"></i><p class="font-bold text-slate-700 text-xs" id="fileNameDisplay">Drag & drop file or click to browse</p></div><input type="file" id="fileInput" class="hidden"></div><div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div><div><label class="font-bold text-slate-700 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div></form></div></div>
 <div id="galleryModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="galleryModalTitle" class="text-base font-bold text-slate-800">Upload YouTube Video / Blog</h3><button onclick="closeGalleryModal()" class="text-slate-400 text-xl">&times;</button></div><form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs"><input type="hidden" id="editGalleryId"><div><label class="font-bold text-slate-700 block mb-1">Select Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Video" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">YouTube Link *</label><input type="text" id="galleryYoutube" required placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Story / Details *</label><textarea id="galleryDesc" rows="3" required class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Publish Video</button></div></form></div></div>
-<div id="partImageModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-xl w-full p-4 shadow-2xl relative"><div class="flex justify-between items-center mb-2 pb-2 border-b"><h3 id="partImageModalTitle" class="text-xs font-bold text-slate-800">Part Image Preview</h3><button onclick="closePartImageModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button></div><div class="w-full h-80 flex items-center justify-center bg-slate-100 rounded-xl overflow-hidden"><img id="partImageModalImg" src="" alt="Part Preview" class="max-h-full max-w-full object-contain"></div></div></div>
+<div id="partImageModal" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+    <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+      <h3 id="partImageModalTitle" class="font-bold text-sm truncate pr-4"></h3>
+      <div class="flex items-center gap-2">
+        <button onclick="zoomPartImage(0.2)" class="w-8 h-8 rounded-lg bg-white border hover:bg-slate-50 flex items-center justify-center" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus text-xs"></i></button>
+        <button onclick="zoomPartImage(-0.2)" class="w-8 h-8 rounded-lg bg-white border hover:bg-slate-50 flex items-center justify-center" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus text-xs"></i></button>
+        <button onclick="rotatePartImage()" class="w-8 h-8 rounded-lg bg-white border hover:bg-slate-50 flex items-center justify-center" title="Rotate"><i class="fa-solid fa-rotate text-xs"></i></button>
+        <button onclick="resetPartImage()" class="w-8 h-8 rounded-lg bg-white border hover:bg-slate-50 flex items-center justify-center" title="Reset"><i class="fa-solid fa-expand text-xs"></i></button>
+        <button onclick="downloadPartImage()" class="w-8 h-8 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 flex items-center justify-center" title="Download"><i class="fa-solid fa-download text-xs"></i></button>
+        <button onclick="closePartImageModal()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center ml-2"><i class="fa-solid fa-xmark text-xs"></i></button>
+      </div>
+    </div>
+    <div class="flex-1 overflow-auto bg-slate-100 flex items-center justify-center p-4">
+      <img id="partImageModalImg" class="max-w-full max-h-[70vh] object-contain rounded-xl shadow-lg transition-transform duration-200" style="transform:scale(1)">
+    </div>
+  </div>
+</div>
 <div id="filePreviewModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50"><div class="bg-white rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden"><div class="flex justify-between items-center px-5 py-3 border-b bg-slate-50"><div class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-cyan-600 text-base"></i><h3 id="previewModalTitle" class="text-xs sm:text-sm font-bold text-slate-800 truncate max-w-md">Document Preview</h3></div><div class="flex items-center gap-2"><button id="previewDownloadBtn" class="bg-cyan-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-cyan-700 flex items-center gap-1 shadow"><i class="fa-solid fa-download"></i> Download</button><button onclick="closePreviewModal()" class="p-1.5 px-2.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 text-sm font-bold">&times;</button></div></div><div id="previewModalBody" class="flex-1 bg-slate-100 p-2 flex items-center justify-center overflow-hidden"></div></div></div>
 
 <script>
@@ -230,7 +239,13 @@ function getYouTubeId(url){
   }catch(e){}
   return null;
 }
-let parts = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null') || rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
+let _localParts = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null');
+let parts = (_localParts && _localParts.length>=300) ? _localParts : rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
+if(parts.length<300 && rawData.length>=366){
+  parts = rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
+  try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+}
+
 let activities = JSON.parse(localStorage.getItem('kytos_acts_fixed')||'null') || [
 {id:"act_kaust",startDate:"2026-09-20",endDate:"2026-09-23",title:"KAUST MONTHLY MAINTENANCE",type:"PM",person:"Service Team",description:"Monthly maintenance at KAUST site"},
 {id:1,startDate:"2026-09-20",endDate:"2026-09-23",title:"4-Days Annual Preventive Maintenance",type:"PM",person:"Service Team",description:"Comprehensive testing."},
@@ -409,7 +424,56 @@ function updateLiveSyncTime(){
 function copyText(t){navigator.clipboard.writeText(t).then(()=>{const el=document.createElement('div'); el.textContent='Copied: '+t; el.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-full shadow-lg z-[60]'; document.body.appendChild(el); setTimeout(()=>el.remove(),1500);});}
 function resetAllFilters(){document.getElementById('categoryDropdown').value='ALL'; document.getElementById('modelDropdown').value='ALL'; document.getElementById('searchInput').value=''; applyFilters();}
 function triggerSearch(){applyFilters();}
-function openPartImagePreview(title,imgSrc){document.getElementById('partImageModalTitle').innerText=title; document.getElementById('partImageModalImg').src=imgSrc; document.getElementById('partImageModal').classList.remove('hidden');}
+function openPartImagePreview(title,imgSrc){
+  document.getElementById('partImageModalTitle').innerText=title;
+  const imgEl = document.getElementById('partImageModalImg');
+  imgEl.src=imgSrc;
+  imgEl.style.transform='scale(1)';
+  imgEl.dataset.scale='1';
+  imgEl.dataset.rotate='0';
+  document.getElementById('partImageModal').classList.remove('hidden');
+}
+function closePartImageModal(){ document.getElementById('partImageModal').classList.add('hidden'); }
+function zoomPartImage(delta){
+  const imgEl = document.getElementById('partImageModalImg');
+  let scale = parseFloat(imgEl.dataset.scale||'1');
+  scale = Math.max(0.5, Math.min(3, scale+delta));
+  imgEl.dataset.scale=scale;
+  imgEl.style.transform=`scale(${scale}) rotate(${imgEl.dataset.rotate||0}deg)`;
+}
+function rotatePartImage(){
+  const imgEl = document.getElementById('partImageModalImg');
+  let rot = parseInt(imgEl.dataset.rotate||'0')+90;
+  imgEl.dataset.rotate=rot%360;
+  imgEl.style.transform=`scale(${imgEl.dataset.scale||1}) rotate(${rot}deg)`;
+}
+function resetPartImage(){
+  const imgEl = document.getElementById('partImageModalImg');
+  imgEl.dataset.scale='1'; imgEl.dataset.rotate='0';
+  imgEl.style.transform='scale(1) rotate(0deg)';
+}
+function copySparePartDetails(pn, name, model, cat){
+  const text = `Part Number: ${pn}\nName: ${name}\nModel: ${model}\nCategory: ${cat}`;
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.createElement('div');
+    el.textContent='✅ Copied: '+pn;
+    el.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-4 py-2 rounded-full shadow-lg z-[70]';
+    document.body.appendChild(el); setTimeout(()=>el.remove(),2000);
+  });
+}
+function downloadPartImage(){
+  const imgEl = document.getElementById('partImageModalImg');
+  const a=document.createElement('a');
+  a.href=imgEl.src; a.download='spare-part.jpg';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function extractDriveId(url){
+  if(!url) return null;
+  const patterns = [/\/d\/([^\/\?]+)/, /id=([^&]+)/, /\/file\/d\/([^\/]+)/];
+  for(let p of patterns){ const m=url.match(p); if(m) return m[1]; }
+  return null;
+}
+
 function closePartImageModal(){document.getElementById('partImageModal').classList.add('hidden');}
 document.getElementById('searchInput').addEventListener('input', debounce(()=>applyFilters(),300));
 document.getElementById('categoryDropdown').addEventListener('change', ()=>applyFilters());
@@ -435,7 +499,30 @@ function renderFoldersAndDocs(){
   } else { let table=document.createElement('div'); table.className="bg-white rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100 text-xs"; filteredDocs.forEach(doc=>{const row=document.createElement('div'); row.className="p-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50 transition"; row.innerHTML=`<div class="flex items-center gap-3"><span class="font-bold px-2 py-1 rounded bg-slate-100 text-slate-700">${escapeHtml(doc.type)}</span><div><h5 class="font-bold text-slate-900">${escapeHtml(doc.title)}</h5><p class="text-[11px] text-slate-500">Folder: ${escapeHtml(doc.folder)}</p></div></div><div class="flex items-center gap-3"><button onclick="previewFileById('${doc.id}')" class="text-cyan-700 font-bold">Preview</button><button onclick="downloadFileById('${doc.id}')" class="text-slate-700 font-bold">Download</button>${isAdmin?`<button onclick="openEditDocModal('${doc.id}')" class="text-cyan-600 font-bold">Edit</button><button onclick="deleteDocument('${doc.id}')" class="text-red-500 font-bold">Delete</button>`:''}</div>`; table.appendChild(row);}); container.appendChild(table); }
 }
 function dataUrlToBlob(dataUrl){const parts=dataUrl.split(';base64,'); const contentType=parts[0].split(':')[1]; const raw=window.atob(parts[1]); const uInt8Array=new Uint8Array(raw.length); for(let i=0;i<raw.length;++i) uInt8Array[i]=raw.charCodeAt(i); return new Blob([uInt8Array],{type:contentType});}
-function previewFileById(id){const doc=documents.find(d=>d.id===id); if(!doc||!doc.url||doc.url==='#'){alert("No file attached.");return;} document.getElementById('previewModalTitle').innerText=doc.title; const body=document.getElementById('previewModalBody'); body.innerHTML=''; document.getElementById('previewDownloadBtn').onclick=()=>downloadFileById(doc.id); if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl); activePreviewBlobUrl=null;} if(doc.url.startsWith('data:')){const blob=dataUrlToBlob(doc.url); activePreviewBlobUrl=URL.createObjectURL(blob); if(doc.type==='PDF') body.innerHTML=`<iframe src="${activePreviewBlobUrl}#toolbar=1" class="w-full h-full rounded-xl border bg-white"></iframe>`; else if(doc.type==='IMAGE') body.innerHTML=`<img src="${activePreviewBlobUrl}" class="max-h-full max-w-full object-contain rounded-xl shadow">`; else body.innerHTML=`<div class="text-center p-8 bg-white rounded-2xl border max-w-md shadow-sm"><i class="fa-solid fa-file-excel text-5xl text-emerald-500 mb-3"></i><h4 class="font-bold text-sm mb-1">${escapeHtml(doc.fileName)}</h4><button onclick="downloadFileById('${doc.id}')" class="mt-3 bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs">Download File</button></div>`;} else {body.innerHTML=`<iframe src="${doc.url}" class="w-full h-full rounded-xl border bg-white"></iframe>`;} document.getElementById('filePreviewModal').classList.remove('hidden');}
+function previewFileById(id){
+  const doc=documents.find(d=>d.id===id);
+  if(!doc||!doc.url||doc.url==='#'){alert("No file attached.");return;}
+  document.getElementById('previewModalTitle').innerText=doc.title;
+  const body=document.getElementById('previewModalBody');
+  body.innerHTML='';
+  document.getElementById('previewDownloadBtn').onclick=()=>downloadFileById(doc.id);
+  if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl); activePreviewBlobUrl=null;}
+  if(doc.url.startsWith('data:')){
+    const blob=dataUrlToBlob(doc.url);
+    activePreviewBlobUrl=URL.createObjectURL(blob);
+    if(doc.type==='PDF') body.innerHTML=`<iframe src="${activePreviewBlobUrl}#toolbar=1" class="w-full h-full rounded-xl border bg-white"></iframe>`;
+    else if(doc.type==='IMAGE') body.innerHTML=`<img src="${activePreviewBlobUrl}" class="max-h-full max-w-full object-contain rounded-xl shadow">`;
+    else body.innerHTML=`<div class="text-center p-8 bg-white rounded-2xl border max-w-md shadow-sm"><h4 class="font-bold text-sm mb-1">${escapeHtml(doc.fileName)}</h4><button onclick="downloadFileById('${doc.id}')" class="mt-3 bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs">Download File</button></div>`;
+  } else {
+    const driveId = extractDriveId(doc.url);
+    if(driveId){
+      body.innerHTML=`<div class="w-full h-full flex flex-col"><div class="bg-amber-50 border border-amber-200 p-3 rounded-xl mb-3 text-xs"><i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Google Drive - If 403, set sharing to Anyone with link. <a href="https://drive.google.com/file/d/${driveId}/view" target="_blank" class="text-cyan-600 underline font-bold">Open in Drive</a></div><iframe src="https://drive.google.com/file/d/${driveId}/preview" class="w-full flex-1 rounded-xl border bg-white"></iframe></div>`;
+    } else {
+      body.innerHTML=`<iframe src="${doc.url}" class="w-full h-full rounded-xl border bg-white"></iframe>`;
+    }
+  }
+  document.getElementById('filePreviewModal').classList.remove('hidden');
+}
 function closePreviewModal(){document.getElementById('filePreviewModal').classList.add('hidden'); if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl); activePreviewBlobUrl=null;}}
 function downloadFileById(id){const doc=documents.find(d=>d.id===id); if(!doc||!doc.url)return; const a=document.createElement('a'); a.href=doc.url; a.download=doc.fileName||doc.title; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
 function openAddFolderModal(){document.getElementById('folderModal').classList.remove('hidden');}
@@ -632,20 +719,17 @@ try{
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   window._db = db;
-  console.log('🔥 LIVE FOR TEAM - Every update online team sees');
   const ind = document.getElementById('liveSyncIndicator');
-  if(ind){
-    ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync - Team View (LIVE)</span><span class="text-[9px] text-slate-300 ml-1" id="lastSyncTime"></span>`;
-  }
-  onSnapshot(collection(db, "kytos_parts"), (snap)=>{
-    if(snap.size>=10){
+  if(ind){ ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync - Firebase Live (All Updates Saved)</span><span class="text-[9px] text-slate-300 ml-1" id="lastSyncTime"></span>`; }
+  onSnapshot(collection(db, "kytos_parts"), async (snap)=>{
+    if(snap.size>=300){
       let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
       parts = live.map(p=>({id:p.id||p.pn, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""}));
       try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
       if(typeof applyFilters==='function') applyFilters();
     }
     const el=document.getElementById('lastSyncTime');
-    if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Live:'+snap.size;
+    if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Live:'+snap.size+' (Firebase Live)';
   });
   onSnapshot(collection(db, "kytos_activities"), (snap)=>{
     let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
@@ -663,27 +747,11 @@ try{
     let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
     if(live.length>0){ galleryPosts=live; try{ localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); }catch(e){} if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery(); }
   });
-  window.firebaseAdd = async (col, data)=>{
-    try{ const ref = await addDoc(collection(db, col), {...data, createdAt:Date.now()}); return ref.id; }catch(e){ console.error(e); return null; }
-  };
-  window.firebaseUpdate = async (col, id, data)=>{
-    try{ await updateDoc(doc(db, col, id), data); return true; }catch(e){ return false; }
-  };
-  window.firebaseDelete = async (col, id, fallbackPn=null)=>{
-    try{ await deleteDoc(doc(db, col, id)); return true; }catch(e){
-      if(fallbackPn && col==='kytos_parts'){
-        try{
-          const q = query(collection(db, col), where("pn", "==", fallbackPn));
-          const snap = await getDocs(q);
-          for(const d of snap.docs){ await deleteDoc(doc(db, col, d.id)); }
-          return true;
-        }catch(e2){}
-      }
-      return false;
-    }
-  };
+  window.firebaseAdd = async (col, data)=>{ try{ const ref = await addDoc(collection(db, col), {...data, createdAt:Date.now()}); return ref.id; }catch(e){ return null; } };
+  window.firebaseUpdate = async (col, id, data)=>{ try{ await updateDoc(doc(db, col, id), data); return true; }catch(e){ return false; } };
+  window.firebaseDelete = async (col, id, fallbackPn=null)=>{ try{ await deleteDoc(doc(db, col, id)); return true; }catch(e){ if(fallbackPn && col==='kytos_parts'){ try{ const q = query(collection(db, col), where("pn", "==", fallbackPn)); const snap = await getDocs(q); for(const d of snap.docs){ await deleteDoc(doc(db, col, d.id)); } return true; }catch(e2){} } return false; } };
 }catch(e){ console.error('Firebase failed', e); }
-function updateLiveSyncTime(){ const el=document.getElementById('lastSyncTime'); if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Live Team'; }
+function updateLiveSyncTime(){ const el=document.getElementById('lastSyncTime'); if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Firebase Live'; }
 window.updateLiveSyncTime = updateLiveSyncTime;
 </script>
 

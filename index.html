@@ -1954,6 +1954,18 @@ async function saveAllHomeChanges(){
   }catch(err){console.error(err);alert('Unable to save Home changes: '+err.message);}
   finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up mr-1"></i>Save All Changes';}}
 }
+
+// Expose the Home batch editor functions to the HTML inline buttons.
+// This script is a module, so its functions are not global unless explicitly exported.
+window.openHomeEditor = openHomeEditor;
+window.renderHomeBatchEditor = renderHomeBatchEditor;
+window.selectHomeBatchFile = selectHomeBatchFile;
+window.renderHomeBatchShortcuts = renderHomeBatchShortcuts;
+window.addHomeShortcutDraft = addHomeShortcutDraft;
+window.toggleBatchShortcutUrl = toggleBatchShortcutUrl;
+window.toggleBatchShortcutDelete = toggleBatchShortcutDelete;
+window.saveAllHomeChanges = saveAllHomeChanges;
+
 </script>
 
 </body>

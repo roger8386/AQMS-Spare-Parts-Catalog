@@ -3,15 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kytos Arabia - AQMS Technical Portal (Fixed)</title>
+  <title>Kytos Arabia — AQMS Technical Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root{--aqms-cyan:#0891b2;--aqms-dark:#0f172a;--aqms-border:#e2e8f0}
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  </style>
+    ::selection{background:#a5f3fc;color:#0f172a}
+    button,select,input{transition:all .18s ease}
+    button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(6,182,212,.22);outline-offset:1px}
+    .portal-shell{background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 55%,#eef2f7 100%)}
+    .glass-panel{background:rgba(255,255,255,.92);backdrop-filter:blur(10px)}
+    .stat-card{position:relative;overflow:hidden}
+    .stat-card:after{content:"";position:absolute;right:-24px;bottom:-32px;width:90px;height:90px;border-radius:999px;background:rgba(6,182,212,.07)}
+    .catalog-card{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+    .catalog-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.08);border-color:#cbd5e1}
+    .tab-btn{white-space:nowrap}
+    .soft-scroll{scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+    .soft-scroll::-webkit-scrollbar{height:7px;width:7px}
+    .soft-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+    .soft-scroll::-webkit-scrollbar-track{background:transparent}
+    @media (max-width:768px){
+      .mobile-scroll-tabs{width:100%;overflow-x:auto;flex-wrap:nowrap!important}
+      .mobile-scroll-tabs button{flex:0 0 auto}
+    }
+    @media print{
+      header,.no-print,#activitiesView,#documentsView,#galleryView{display:none!important}
+      body{background:#fff!important}
+      #partsView{max-width:none!important;padding:0!important}
+      .catalog-card{break-inside:avoid}
+    }
+  
+    /* Enhanced media/catalog presentation */
+    .part-grid-image{height:320px}
+    .part-grid-image img{object-fit:contain!important;background:#f8fafc;padding:14px}
+    .media-empty{min-height:320px}
+    .editable-row{position:relative}
+    .admin-edit-badge{font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+    .view-mode-panel{min-height:120px}
+    @media (max-width:1024px){.part-grid-image{height:280px}.media-empty{min-height:280px}}
+    @media (max-width:640px){.part-grid-image{height:240px}.media-empty{min-height:240px}}
+</style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen">
+<body class="portal-shell text-slate-800 min-h-screen">
 <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md border-b border-slate-800">
   <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
     <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('parts')">
@@ -29,11 +66,11 @@
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <div class="flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-wrap">
-        <button id="tabPartsBtn" onclick="switchTab('parts')" class="px-3 py-1.5 rounded-md bg-cyan-600 text-white font-medium"><i class="fa-solid fa-boxes-stacked mr-1"></i> Spare Parts</button>
-        <button id="tabActivitiesBtn" onclick="switchTab('activities')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-calendar-days mr-1"></i> Calendar</button>
-        <button id="tabDocsBtn" onclick="switchTab('documents')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-folder-tree mr-1"></i> Documents</button>
-        <button id="tabGalleryBtn" onclick="switchTab('gallery')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-photo-film mr-1"></i> Gallery</button>
+      <div class="mobile-scroll-tabs soft-scroll flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-wrap">
+        <button id="tabPartsBtn" onclick="switchTab('parts')" class="tab-btn px-3 py-1.5 rounded-md bg-cyan-600 text-white font-medium"><i class="fa-solid fa-boxes-stacked mr-1"></i> Spare Parts</button>
+        <button id="tabActivitiesBtn" onclick="switchTab('activities')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-calendar-days mr-1"></i> Calendar</button>
+        <button id="tabDocsBtn" onclick="switchTab('documents')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-folder-tree mr-1"></i> Documents</button>
+        <button id="tabGalleryBtn" onclick="switchTab('gallery')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-photo-film mr-1"></i> Gallery</button>
       </div>
       <button id="adminLoginBtn" onclick="handleAdminButtonClick()" class="text-xs px-3 py-1.5 rounded-full border border-slate-700 bg-slate-800 text-slate-300 hover:border-cyan-500 hover:text-white transition flex items-center gap-1.5"><i id="adminLockIcon" class="fa-solid fa-lock text-yellow-400"></i><span id="adminStatusText">Admin</span></button>
     </div>
@@ -41,7 +78,24 @@
 </header>
 
 <main id="partsView" class="max-w-7xl mx-auto px-4 py-6">
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
+  <section class="mb-6 rounded-3xl overflow-hidden bg-slate-900 text-white shadow-lg border border-slate-800 relative">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(6,182,212,.18),transparent_35%),radial-gradient(circle_at_10%_100%,rgba(14,165,233,.12),transparent_30%)]"></div>
+    <div class="relative p-6 md:p-7 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+      <div>
+        <div class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[.18em] font-bold text-cyan-300 mb-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,.12)]"></span>
+          Technical Reference System
+        </div>
+        <h2 class="text-2xl md:text-3xl font-black tracking-tight">AQMS Spare Parts Catalog</h2>
+        <p class="mt-2 text-xs md:text-sm text-slate-300 max-w-2xl">Find part numbers, descriptions, compatible models and reference images from one searchable catalog.</p>
+      </div>
+      <div class="flex items-center gap-2 text-[10px] font-bold text-slate-300">
+        <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> Reference Data</span>
+        <span class="px-3 py-2 rounded-xl bg-white/5 border border-white/10"><i class="fa-solid fa-bolt text-cyan-300 mr-1"></i> Live Search</span>
+      </div>
+    </div>
+  </section>
+  <div class="glass-panel p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 no-print">
     <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100"><h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-sliders text-cyan-600"></i> Search & Filter Controls</h2><button onclick="resetAllFilters()" class="text-xs text-cyan-600 hover:underline font-semibold flex items-center gap-1"><i class="fa-solid fa-rotate-left text-[10px]"></i> Reset Filters</button></div>
     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
       <div class="md:col-span-3"><label class="block text-xs font-bold text-slate-700 mb-1">1. Filter by Category</label><select id="categoryDropdown" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-cyan-500 outline-none cursor-pointer"><option value="ALL">All Categories</option><option value="Filters & Consumables">Filters & Consumables</option><option value="Fittings, O-Rings & Tubings">Fittings, O-Rings & Tubings</option><option value="General Spares & Hardware">General Spares & Hardware</option><option value="PCBs, Power & Fuses">PCBs, Power & Fuses</option><option value="Pumps & Motors">Pumps & Motors</option><option value="Sensors, Detectors & Optical">Sensors, Detectors & Optical</option><option value="Valves & Solenoids">Valves & Solenoids</option></select></div>
@@ -49,9 +103,43 @@
       <div class="md:col-span-4 relative"><label class="block text-xs font-bold text-slate-700 mb-1">3. Search Part # / Keyword (Live)</label><div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i><input type="text" id="searchInput" autocomplete="off" placeholder="Type Part #, Description, Model..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none"></div></div>
       <div class="md:col-span-2"><button onclick="triggerSearch()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs shadow transition"><i class="fa-solid fa-magnifying-glass"></i> Search</button></div>
     </div>
+    <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-2 text-[10px] text-slate-500">
+        <span class="inline-flex items-center gap-1.5 font-bold uppercase tracking-wide"><i class="fa-solid fa-circle-info text-cyan-600"></i> Search tip</span>
+        <span>Search supports Part #, description, or model.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label for="sortDropdown" class="text-[10px] font-bold text-slate-500 uppercase">Sort</label>
+        <select id="sortDropdown" onchange="applyFilters()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700">
+          <option value="default">Catalog Order</option>
+          <option value="pnAsc">Part # A–Z</option>
+          <option value="pnDesc">Part # Z–A</option>
+          <option value="nameAsc">Description A–Z</option>
+          <option value="modelAsc">Model A–Z</option>
+        </select>
+      </div>
+    </div>
   </div>
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6" aria-label="Catalog summary">
+    <div class="stat-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Parts</span><span class="h-8 w-8 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked text-xs"></i></span></div>
+      <div id="statTotalParts" class="mt-3 text-xl font-black text-slate-800">0</div><div class="text-[10px] text-slate-400 mt-0.5">Catalog records</div>
+    </div>
+    <div class="stat-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Models</span><span class="h-8 w-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-microchip text-xs"></i></span></div>
+      <div id="statModels" class="mt-3 text-xl font-black text-slate-800">0</div><div class="text-[10px] text-slate-400 mt-0.5">Unique models</div>
+    </div>
+    <div class="stat-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Categories</span><span class="h-8 w-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-layer-group text-xs"></i></span></div>
+      <div id="statCategories" class="mt-3 text-xl font-black text-slate-800">0</div><div class="text-[10px] text-slate-400 mt-0.5">Part categories</div>
+    </div>
+    <div class="stat-card bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="flex items-center justify-between"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">With Images</span><span class="h-8 w-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-image text-xs"></i></span></div>
+      <div id="statImages" class="mt-3 text-xl font-black text-slate-800">0</div><div class="text-[10px] text-slate-400 mt-0.5">Image references</div>
+    </div>
+  </section>
+  <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-slate-100">
       <div><h3 id="currentHeaderTitle" class="text-sm font-bold text-slate-800">Master Spare Parts Catalog</h3><p id="currentHeaderSub" class="text-xs text-slate-400">Complete master spare parts catalog reference.</p></div>
       <div class="flex items-center gap-3 flex-wrap">
         <div class="flex bg-slate-100 p-1 rounded-xl text-xs gap-1"><button onclick="setPartsViewMode('grid')" id="pModeGrid" class="px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700"><i class="fa-solid fa-table-cells-large"></i> Grid</button><button onclick="setPartsViewMode('details')" id="pModeDetails" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-circle-info"></i> Details</button><button onclick="setPartsViewMode('list')" id="pModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list"></i> List</button><button onclick="setPartsViewMode('content')" id="pModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-newspaper"></i> Content</button></div>
@@ -60,7 +148,12 @@
       </div>
     </div>
     <div id="partsCardsContainer"></div>
-    <div id="emptyResultNotice" class="hidden text-center py-16"><i class="fa-solid fa-box-open text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">No matching spare parts found</h4></div>
+    <div id="emptyResultNotice" class="hidden text-center py-16">
+      <div class="mx-auto h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3"><i class="fa-solid fa-box-open text-2xl text-slate-300"></i></div>
+      <h4 class="text-sm font-bold text-slate-700">No matching spare parts found</h4>
+      <p class="text-xs text-slate-400 mt-1">Try another keyword, model or category.</p>
+      <button onclick="resetAllFilters()" class="mt-4 text-xs font-bold text-cyan-700 hover:text-cyan-800 bg-cyan-50 border border-cyan-200 px-3 py-2 rounded-lg"><i class="fa-solid fa-rotate-left mr-1"></i> Reset filters</button>
+    </div>
   </div>
 </main>
 
@@ -82,7 +175,7 @@
     </div>
   </div>
 </div>
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1"><div class="flex justify-between items-center mb-4"><h3 id="calendarMonthYear" class="font-bold text-sm text-slate-800"></h3><div class="flex space-x-1"><button onclick="changeMonth(-1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-left"></i></button><button onclick="changeMonth(1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-right"></i></button></div></div><div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase mb-2"><div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div></div><div id="calendarDays" class="grid grid-cols-7 gap-1 text-xs"></div></div><div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2"><h3 class="font-bold text-sm text-slate-800 mb-3 pb-2 border-b border-slate-100">Scheduled Activities</h3><div id="activityList" class="space-y-3"></div></div></div>
+  <div id="calendarLayout" class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div id="calendarPanel" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1"><div class="flex justify-between items-center mb-4"><h3 id="calendarMonthYear" class="font-bold text-sm text-slate-800"></h3><div class="flex space-x-1"><button onclick="changeMonth(-1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-left"></i></button><button onclick="changeMonth(1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-right"></i></button></div></div><div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase mb-2"><div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div></div><div id="calendarDays" class="grid grid-cols-7 gap-1 text-xs"></div></div><div id="activityPanel" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2"><h3 class="font-bold text-sm text-slate-800 mb-3 pb-2 border-b border-slate-100">Scheduled Activities</h3><div id="activityList" class="space-y-3"></div></div></div>
 </main>
 
 <main id="documentsView" class="hidden max-w-7xl mx-auto px-4 py-6">
@@ -101,7 +194,7 @@
 <div id="playlistModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 class="text-base font-bold text-slate-800">Create New Playlist</h3><button onclick="closeAddPlaylistModal()" class="text-slate-400 text-xl">&times;</button></div><form onsubmit="saveNewPlaylist(event)" class="space-y-3 text-xs"><div><label class="font-bold text-slate-700 block mb-1">Playlist Name *</label><input type="text" id="newPlaylistName" required placeholder="e.g. CEMS Maintenance" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500"></div><div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAddPlaylistModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Create Playlist</button></div></form></div></div>
 <div id="partModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="partModalTitle" class="text-base font-bold text-slate-800">Add New Spare Part</h3><button onclick="closePartModal()" class="text-slate-400 text-xl">&times;</button></div><form id="partForm" onsubmit="savePartData(event)" class="space-y-3 text-xs"><input type="hidden" id="editPartId"><div><label class="font-bold text-slate-600 block mb-1">Part Number *</label><input type="text" id="addPartNum" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Description *</label><input type="text" id="addPartName" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Model</label><input type="text" id="addModel" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Category</label><select id="addCategory" class="w-full p-2.5 border rounded-lg bg-white"><option value="Filters & Consumables">Filters & Consumables</option><option value="Fittings, O-Rings & Tubings">Fittings, O-Rings & Tubings</option><option value="General Spares & Hardware">General Spares & Hardware</option><option value="PCBs, Power & Fuses">PCBs, Power & Fuses</option><option value="Pumps & Motors">Pumps & Motors</option><option value="Sensors, Detectors & Optical">Sensors, Detectors & Optical</option><option value="Valves & Solenoids">Valves & Solenoids</option></select></div></div><div><label class="font-bold text-slate-700 block mb-1">Attach Image</label><div onclick="document.getElementById('partPhotoInput').click()" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-xl p-3 text-center cursor-pointer transition"><i class="fa-solid fa-camera text-xl text-cyan-600 mb-1"></i><p id="partPhotoDisplay" class="font-bold text-slate-700 text-xs">Click to browse file from device</p></div><input type="file" id="partPhotoInput" accept="image/*" class="hidden"><input type="text" id="addImageUrlInput" placeholder="or paste web image link: https://..." class="w-full mt-2 p-2 border rounded-lg text-xs bg-slate-50 outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Part</button></div></form></div></div>
 <div id="activityModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="activityModalTitle" class="text-base font-bold text-slate-800">Schedule Activity</h3><button onclick="closeActivityModal()" class="text-slate-400 text-xl">&times;</button></div><form id="activityForm" onsubmit="saveNewActivity(event)" class="space-y-3 text-xs"><input type="hidden" id="editActivityId"><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Start Date *</label><input type="date" id="addActStart" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">End Date *</label><input type="date" id="addActEnd" required class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Activity Title *</label><input type="text" id="addActTitle" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Type</label><select id="addActType" class="w-full p-2.5 border rounded-lg bg-white"><option value="PM">Preventive Maint. (PM)</option><option value="Calibration">Calibration</option><option value="Troubleshooting">Troubleshooting</option><option value="Audit">Audit / CGA</option></select></div><div><label class="font-bold text-slate-600 block mb-1">Lead Tech</label><input type="text" id="addActLead" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Remarks</label><textarea id="addActDesc" rows="2" class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeActivityModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Activity</button></div></form></div></div>
-<div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div><form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-4 text-xs"><input type="hidden" id="editDocId"><div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div><label class="font-bold text-slate-700 block mb-1.5">File Upload *</label><div id="dropZone" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-2xl p-4 text-center cursor-pointer transition"><i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-600 mb-1"></i><p class="font-bold text-slate-700 text-xs" id="fileNameDisplay">Drag & drop file or click to browse</p></div><input type="file" id="fileInput" class="hidden"></div><div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div><div><label class="font-bold text-slate-700 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div></form></div></div>
+<div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div><form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-4 text-xs"><input type="hidden" id="editDocId"><div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div><label class="font-bold text-slate-700 block mb-1.5">Upload a file <span class="text-slate-400 font-normal">(optional if using Google Drive)</span></label><div id="dropZone" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-2xl p-4 text-center cursor-pointer transition"><i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-600 mb-1"></i><p class="font-bold text-slate-700 text-xs" id="fileNameDisplay">Drag & drop file or click to browse</p></div><input type="file" id="fileInput" class="hidden"></div><div><label class="font-bold text-slate-700 block mb-1">Google Drive Link</label><input type="url" id="addDocDriveLink" placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 border rounded-xl outline-none"><p class="text-[10px] text-slate-400 mt-1">Use a shared Drive file link. Set access to Anyone with the link for team preview.</p></div><div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div><div><label class="font-bold text-slate-700 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div></form></div></div>
 <div id="galleryModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="galleryModalTitle" class="text-base font-bold text-slate-800">Upload YouTube Video / Blog</h3><button onclick="closeGalleryModal()" class="text-slate-400 text-xl">&times;</button></div><form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs"><input type="hidden" id="editGalleryId"><div><label class="font-bold text-slate-700 block mb-1">Select Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Video" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">YouTube Link *</label><input type="text" id="galleryYoutube" required placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Story / Details *</label><textarea id="galleryDesc" rows="3" required class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Publish Video</button></div></form></div></div>
 <div id="partImageModal" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
@@ -322,7 +415,12 @@ async function savePartData(e){
   const model = document.getElementById('addModel').value.trim() || 'GENERAL';
   const cat = document.getElementById('addCategory').value;
   const manualUrl = document.getElementById('addImageUrlInput').value.trim();
-  const img = manualUrl ? manualUrl : (currentPartPhoto || '');
+  let img = manualUrl ? manualUrl : (currentPartPhoto || '');
+  const selectedImageFile=document.getElementById('partPhotoInput')?.files?.[0]||null;
+  if(!manualUrl && selectedImageFile && window.firebaseUploadFile){
+    try{ img=await window.firebaseUploadFile(selectedImageFile,'part-images'); }
+    catch(err){ console.warn('Image upload failed; using local image data.',err); }
+  }
   if(!pn || !name){
     alert('Part Number and Description required');
     return;
@@ -381,19 +479,40 @@ async function deletePartItem(id){
   alert('✅ Deleted (Total: '+parts.length+' items)');
 }
 
+function updateCatalogStats(){
+  const total=parts.length;
+  const models=new Set(parts.map(p=>p.model).filter(Boolean)).size;
+  const cats=new Set(parts.map(p=>p.cat).filter(Boolean)).size;
+  const images=parts.filter(p=>p.img).length;
+  const set=(id,val)=>{const el=document.getElementById(id); if(el) el.innerText=val.toLocaleString();};
+  set('statTotalParts',total); set('statModels',models); set('statCategories',cats); set('statImages',images);
+  const badge=document.getElementById('headerBadge'); if(badge) badge.innerText=`${total.toLocaleString()} Items`;
+}
 function applyFilters(){
   const catVal=document.getElementById('categoryDropdown').value; const modVal=document.getElementById('modelDropdown').value; const searchVal=document.getElementById('searchInput').value.trim().toLowerCase();
+  const sortVal=(document.getElementById('sortDropdown')||{}).value||'default';
   const container=document.getElementById('partsCardsContainer'); const emptyNotice=document.getElementById('emptyResultNotice'); const countElem=document.getElementById('totalCountDisplay');
-  const matched=parts.filter(item=>{const matchCat=(catVal==='ALL'||item.cat===catVal); const matchMod=(modVal==='ALL'||item.model===modVal); const matchSearch=!searchVal||item.pn.toLowerCase().includes(searchVal)||item.name.toLowerCase().includes(searchVal)||item.model.toLowerCase().includes(searchVal); return matchCat&&matchMod&&matchSearch;});
-  countElem.innerText=matched.length; container.innerHTML='';
+  let matched=parts.filter(item=>{const pn=String(item.pn||'').toLowerCase(); const name=String(item.name||'').toLowerCase(); const model=String(item.model||'').toLowerCase(); const matchCat=(catVal==='ALL'||item.cat===catVal); const matchMod=(modVal==='ALL'||item.model===modVal); const matchSearch=!searchVal||pn.includes(searchVal)||name.includes(searchVal)||model.includes(searchVal); return matchCat&&matchMod&&matchSearch;});
+  const compare=(a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'});
+  if(sortVal==='pnAsc') matched.sort((a,b)=>compare(a.pn,b.pn));
+  else if(sortVal==='pnDesc') matched.sort((a,b)=>compare(b.pn,a.pn));
+  else if(sortVal==='nameAsc') matched.sort((a,b)=>compare(a.name,b.name));
+  else if(sortVal==='modelAsc') matched.sort((a,b)=>compare(a.model,b.model));
+  updateCatalogStats();
+  countElem.innerText=matched.length;
+  const statTotal=document.getElementById('statTotalParts'); if(statTotal) statTotal.innerText=parts.length;
+  const statModels=document.getElementById('statModels'); if(statModels) statModels.innerText=new Set(parts.map(p=>p.model).filter(Boolean)).size;
+  const statCats=document.getElementById('statCategories'); if(statCats) statCats.innerText=new Set(parts.map(p=>p.cat).filter(Boolean)).size;
+  const statImages=document.getElementById('statImages'); if(statImages) statImages.innerText=parts.filter(p=>p.img).length;
+  container.innerHTML='';
   if(matched.length===0){emptyNotice.classList.remove('hidden');return;} emptyNotice.classList.add('hidden');
   if(partsViewMode==='grid'){
     let gridDiv=document.createElement('div'); gridDiv.className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
     matched.forEach(item=>{
       const icon=categoryIcons[item.cat]||'fa-microchip text-slate-400';
       const safePn=escapeHtml(item.pn); const safeName=escapeHtml(item.name); const safeModel=escapeHtml(item.model);
-      const imgBlock=item.img?`<div class="w-full h-36 overflow-hidden bg-slate-50 border-t cursor-pointer group relative" onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})"><img src="${escapeHtml(item.img)}" onerror="this.parentElement.innerHTML='<div class=\'w-full h-24 bg-slate-50 flex flex-col items-center justify-center text-slate-300\'><i class=\'fa-solid ${icon} text-2xl mb-1\'></i><span class=\'text-[9px] font-bold uppercase text-slate-400\'>No Image</span></div>'" class="w-full h-full object-cover group-hover:scale-105 transition"><div class="absolute bottom-1 right-1 bg-slate-900/75 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</div></div>`:`<div class="w-full h-24 bg-slate-50 border-t flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-2xl mb-1"></i><span class="text-[9px] font-bold uppercase text-slate-400">${escapeHtml(item.cat)}</span></div>`;
-      const card=document.createElement('div'); card.className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition";
+      const imgBlock=item.img?`<div class="part-grid-image w-full overflow-hidden bg-slate-50 border-t cursor-pointer group relative" onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})"><img src="${escapeHtml(item.img)}" onerror="this.parentElement.innerHTML='<div class=\'w-full h-24 bg-slate-50 flex flex-col items-center justify-center text-slate-300\'><i class=\'fa-solid ${icon} text-2xl mb-1\'></i><span class=\'text-[9px] font-bold uppercase text-slate-400\'>No Image</span></div>'" class="w-full h-full object-contain group-hover:scale-[1.02] transition p-3"><div class="absolute bottom-1 right-1 bg-slate-900/75 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</div></div>`:`<div class="w-full h-24 bg-slate-50 border-t flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-2xl mb-1"></i><span class="text-[9px] font-bold uppercase text-slate-400">${escapeHtml(item.cat)}</span></div>`;
+      const card=document.createElement('div'); card.className="catalog-card bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between";
       card.innerHTML=`<div class="p-4 flex-1 flex flex-col justify-between"><div><div class="flex justify-between items-center gap-1 mb-2"><span class="text-xs font-mono font-bold text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-md border border-cyan-200">${safePn}</span><div class="flex items-center gap-1"><button onclick="copyText(${JSON.stringify(item.pn)})" class="text-slate-400 hover:text-slate-700 p-1" title="Copy PN"><i class="fa-regular fa-copy text-xs"></i></button>${isAdmin?`<button onclick="openEditPartModal('${item.id}')" class="text-cyan-600 hover:text-cyan-800 p-1"><i class="fa-solid fa-pen-to-square text-xs"></i></button><button onclick="deletePartItem('${item.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>`:''}</div></div><h4 class="font-bold text-slate-800 text-xs leading-snug mb-1 line-clamp-2" title="${safeName}">${safeName}</h4></div><div class="mt-3 pt-2.5 border-t text-[10px] flex justify-between text-slate-500"><span>Model:</span><span class="font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">${safeModel}</span></div></div>${imgBlock}`;
       gridDiv.appendChild(card);
     }); container.appendChild(gridDiv);
@@ -486,63 +605,124 @@ function openAddModal(){currentPartPhoto=null; document.getElementById('editPart
 
 
 function renderFoldersAndDocs(){
-  const nav=document.getElementById('folderNav'); nav.innerHTML=''; folders.forEach(folder=>{const isActive=(currentFolder===folder); const wrapper=document.createElement('div'); wrapper.className='flex items-center gap-1'; const btn=document.createElement('button'); btn.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm ${isActive?'bg-cyan-600 text-white':'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`; btn.innerHTML=`<i class="fa-solid fa-folder${isActive?'-open':''}"></i> ${escapeHtml(folder)}`; btn.onclick=()=>{currentFolder=folder; renderFoldersAndDocs();}; wrapper.appendChild(btn);
-  if(isAdmin && folder!=="All Documents"){ const editBtn=document.createElement('button'); editBtn.className='p-1 text-cyan-600 hover:text-cyan-800'; editBtn.innerHTML='<i class="fa-solid fa-pen-to-square text-[10px]"></i>'; editBtn.title='Edit folder'; editBtn.onclick=(e)=>{e.stopPropagation(); openEditFolderModal(folder);}; wrapper.appendChild(editBtn); const delBtn=document.createElement('button'); delBtn.className='p-1 text-red-400 hover:text-red-600'; delBtn.innerHTML='<i class="fa-solid fa-trash-can text-[10px]"></i>'; delBtn.title='Delete folder'; delBtn.onclick=(e)=>{e.stopPropagation(); deleteFolder(folder);}; wrapper.appendChild(delBtn); }
-  nav.appendChild(wrapper);});
-  const container=document.getElementById('docsContainer'); const emptyNotice=document.getElementById('emptyDocsNotice'); const docsHeader=document.getElementById('docsHeader'); container.innerHTML='';
-  const filteredDocs=(currentFolder==="All Documents")?documents:documents.filter(d=>d.folder===currentFolder);
-  if(filteredDocs.length===0){docsHeader.classList.add('hidden'); emptyNotice.classList.remove('hidden'); return;} docsHeader.classList.remove('hidden'); emptyNotice.classList.add('hidden');
+  const nav=document.getElementById('folderNav'); nav.innerHTML='';
+  folders.forEach(folder=>{
+    const active=currentFolder===folder;
+    const wrapper=document.createElement('div'); wrapper.className='flex items-center gap-1';
+    const btn=document.createElement('button');
+    btn.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm ${active?'bg-cyan-600 text-white':'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`;
+    btn.innerHTML=`<i class="fa-solid fa-folder${active?'-open':''}"></i> ${escapeHtml(folder)}`;
+    btn.onclick=()=>{currentFolder=folder;renderFoldersAndDocs();}; wrapper.appendChild(btn);
+    if(isAdmin&&folder!=='All Documents'){
+      const eb=document.createElement('button');eb.className='p-1 text-cyan-600';eb.title='Edit folder';eb.innerHTML='<i class="fa-solid fa-pen-to-square text-[10px]"></i>';eb.onclick=e=>{e.stopPropagation();openEditFolderModal(folder)};wrapper.appendChild(eb);
+      const db=document.createElement('button');db.className='p-1 text-red-400';db.title='Delete folder';db.innerHTML='<i class="fa-solid fa-trash-can text-[10px]"></i>';db.onclick=e=>{e.stopPropagation();deleteFolder(folder)};wrapper.appendChild(db);
+    }
+    nav.appendChild(wrapper);
+  });
+
+  const container=document.getElementById('docsContainer'), empty=document.getElementById('emptyDocsNotice'), header=document.getElementById('docsHeader');
+  const list=currentFolder==='All Documents'?documents:documents.filter(d=>d.folder===currentFolder);
+  container.innerHTML='';
+  if(!list.length){header.classList.add('hidden');empty.classList.remove('hidden');return;}
+  header.classList.remove('hidden');empty.classList.add('hidden');
+
+  const action=(doc)=>`<div class="flex flex-wrap items-center gap-2 mt-3">
+    <button onclick="previewFileById('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-eye"></i> Preview</button>
+    <button onclick="downloadFileById('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-white bg-cyan-600 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-download"></i> Download</button>
+    ${isAdmin?`<button onclick="openEditDocModal('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-pen"></i> Edit</button><button onclick="deleteDocument('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-trash"></i> Delete</button>`:''}
+  </div>`;
+  const icon=doc=>({PDF:'fa-file-pdf text-red-500',EXCEL:'fa-file-excel text-emerald-500',WORD:'fa-file-word text-blue-500',IMAGE:'fa-file-image text-violet-500',POWERPOINT:'fa-file-powerpoint text-orange-500'}[doc.type]||'fa-file-lines text-slate-400');
+
   if(docsViewMode==='grid'){
-    let grid=document.createElement('div'); grid.className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
-    filteredDocs.forEach(doc=>{let badgeColor="bg-red-50 text-red-600 border-red-200"; let icon="fa-file-pdf text-red-500"; if(doc.type==="EXCEL"){badgeColor="bg-emerald-50 text-emerald-600 border-emerald-200"; icon="fa-file-excel text-emerald-500";} else if(doc.type==="WORD"){badgeColor="bg-blue-50 text-blue-600 border-blue-200"; icon="fa-file-word text-blue-500";} const card=document.createElement('div'); card.className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition"; card.innerHTML=`<div><div class="flex justify-between items-center mb-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}"><i class="fa-solid ${icon} mr-1"></i> ${escapeHtml(doc.type)}</span><div class="flex items-center gap-1"><span class="text-[10px] text-slate-400 font-mono bg-slate-50 px-2 py-0.5 rounded">${escapeHtml(doc.folder||'General')}</span>${isAdmin?`<button onclick="openEditDocModal('${doc.id}')" class="text-cyan-600 hover:text-cyan-800 p-1"><i class="fa-solid fa-pen-to-square text-xs"></i></button><button onclick="deleteDocument('${doc.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>`:''}</div></div><h4 class="font-bold text-slate-800 text-sm mb-1 leading-snug">${escapeHtml(doc.title)}</h4><p class="text-xs text-slate-500 mb-4">${escapeHtml(doc.description||'No additional details.')}</p></div><div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2"><div class="flex items-center gap-2"><button onclick="previewFileById('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 px-3 py-1.5 rounded-xl transition shadow-sm"><i class="fa-solid fa-eye text-xs"></i> Preview</button><button onclick="downloadFileById('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-700 px-3 py-1.5 rounded-xl shadow-sm transition"><i class="fa-solid fa-download text-xs"></i> Download</button></div></div>`; grid.appendChild(card);});
-    container.appendChild(grid);
-  } else { let table=document.createElement('div'); table.className="bg-white rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100 text-xs"; filteredDocs.forEach(doc=>{const row=document.createElement('div'); row.className="p-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50 transition"; row.innerHTML=`<div class="flex items-center gap-3"><span class="font-bold px-2 py-1 rounded bg-slate-100 text-slate-700">${escapeHtml(doc.type)}</span><div><h5 class="font-bold text-slate-900">${escapeHtml(doc.title)}</h5><p class="text-[11px] text-slate-500">Folder: ${escapeHtml(doc.folder)}</p></div></div><div class="flex items-center gap-3"><button onclick="previewFileById('${doc.id}')" class="text-cyan-700 font-bold">Preview</button><button onclick="downloadFileById('${doc.id}')" class="text-slate-700 font-bold">Download</button>${isAdmin?`<button onclick="openEditDocModal('${doc.id}')" class="text-cyan-600 font-bold">Edit</button><button onclick="deleteDocument('${doc.id}')" class="text-red-500 font-bold">Delete</button>`:''}</div>`; table.appendChild(row);}); container.appendChild(table); }
+    const grid=document.createElement('div');grid.className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5';
+    list.forEach(doc=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition';el.innerHTML=`<div class="h-32 rounded-xl bg-slate-50 border flex items-center justify-center mb-4"><i class="fa-solid ${icon(doc)} text-5xl"></i></div><div class="flex justify-between gap-2"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-600">${escapeHtml(doc.type||'FILE')}</span><span class="text-[10px] text-slate-400">${escapeHtml(doc.folder||'')}</span></div><h4 class="font-bold text-slate-800 text-sm mt-2">${escapeHtml(doc.title)}</h4><p class="text-xs text-slate-500 mt-1 line-clamp-3">${escapeHtml(doc.description||'No description')}</p>${action(doc)}`;grid.appendChild(el)});container.appendChild(grid);
+  }else if(docsViewMode==='details'){
+    const grid=document.createElement('div');grid.className='grid grid-cols-1 lg:grid-cols-2 gap-4';
+    list.forEach(doc=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-4 flex gap-4';el.innerHTML=`<div class="w-20 h-20 shrink-0 rounded-xl bg-slate-50 border flex items-center justify-center"><i class="fa-solid ${icon(doc)} text-3xl"></i></div><div class="min-w-0 flex-1"><div class="flex justify-between gap-2"><span class="font-bold text-sm text-slate-900">${escapeHtml(doc.title)}</span><span class="text-[10px] text-slate-400">${escapeHtml(doc.type||'FILE')}</span></div><p class="text-[11px] text-slate-500 mt-1">Folder: ${escapeHtml(doc.folder||'—')}</p><p class="text-xs text-slate-600 mt-2">${escapeHtml(doc.description||'No description')}</p>${action(doc)}</div>`;grid.appendChild(el)});container.appendChild(grid);
+  }else if(docsViewMode==='list'){
+    const table=document.createElement('div');table.className='bg-white rounded-2xl border overflow-hidden divide-y';
+    list.forEach(doc=>{const row=document.createElement('div');row.className='p-4 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50';row.innerHTML=`<div class="flex items-center gap-3 min-w-0"><i class="fa-solid ${icon(doc)} text-xl"></i><div><h4 class="font-bold text-sm text-slate-900">${escapeHtml(doc.title)}</h4><p class="text-[11px] text-slate-500">${escapeHtml(doc.type||'FILE')} • ${escapeHtml(doc.folder||'')}</p></div></div><div class="flex gap-2"><button onclick="previewFileById('${doc.id}')" class="text-cyan-700 text-xs font-bold">Preview</button><button onclick="downloadFileById('${doc.id}')" class="text-slate-700 text-xs font-bold">Download</button>${isAdmin?`<button onclick="openEditDocModal('${doc.id}')" class="text-cyan-600 text-xs font-bold">Edit</button>`:''}</div>`;table.appendChild(row)});container.appendChild(table);
+  }else{
+    const wrap=document.createElement('div');wrap.className='space-y-4';
+    list.forEach(doc=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-6';el.innerHTML=`<div class="flex items-start gap-4"><i class="fa-solid ${icon(doc)} text-3xl mt-1"></i><div class="flex-1"><p class="text-[10px] uppercase tracking-wider font-bold text-cyan-700">${escapeHtml(doc.type||'FILE')} • ${escapeHtml(doc.folder||'')}</p><h3 class="text-lg font-black text-slate-900 mt-1">${escapeHtml(doc.title)}</h3><p class="text-sm text-slate-600 mt-2 whitespace-pre-line">${escapeHtml(doc.description||'No description provided.')}</p>${action(doc)}</div></div>`;wrap.appendChild(el)});container.appendChild(wrap);
+  }
 }
 function dataUrlToBlob(dataUrl){const parts=dataUrl.split(';base64,'); const contentType=parts[0].split(':')[1]; const raw=window.atob(parts[1]); const uInt8Array=new Uint8Array(raw.length); for(let i=0;i<raw.length;++i) uInt8Array[i]=raw.charCodeAt(i); return new Blob([uInt8Array],{type:contentType});}
 function previewFileById(id){
-  const doc=documents.find(d=>d.id===id);
-  if(!doc||!doc.url||doc.url==='#'){alert("No file attached.");return;}
-  document.getElementById('previewModalTitle').innerText=doc.title;
-  const body=document.getElementById('previewModalBody');
-  body.innerHTML='';
-  document.getElementById('previewDownloadBtn').onclick=()=>downloadFileById(doc.id);
-  if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl); activePreviewBlobUrl=null;}
-  if(doc.url.startsWith('data:')){
-    const blob=dataUrlToBlob(doc.url);
-    activePreviewBlobUrl=URL.createObjectURL(blob);
-    if(doc.type==='PDF') body.innerHTML=`<iframe src="${activePreviewBlobUrl}#toolbar=1" class="w-full h-full rounded-xl border bg-white"></iframe>`;
-    else if(doc.type==='IMAGE') body.innerHTML=`<img src="${activePreviewBlobUrl}" class="max-h-full max-w-full object-contain rounded-xl shadow">`;
-    else body.innerHTML=`<div class="text-center p-8 bg-white rounded-2xl border max-w-md shadow-sm"><h4 class="font-bold text-sm mb-1">${escapeHtml(doc.fileName)}</h4><button onclick="downloadFileById('${doc.id}')" class="mt-3 bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs">Download File</button></div>`;
-  } else {
-    const driveId = extractDriveId(doc.url);
-    if(driveId){
-      body.innerHTML=`<div class="w-full h-full flex flex-col"><div class="bg-amber-50 border border-amber-200 p-3 rounded-xl mb-3 text-xs"><i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Google Drive - If 403, set sharing to Anyone with link. <a href="https://drive.google.com/file/d/${driveId}/view" target="_blank" class="text-cyan-600 underline font-bold">Open in Drive</a></div><iframe src="https://drive.google.com/file/d/${driveId}/preview" class="w-full flex-1 rounded-xl border bg-white"></iframe></div>`;
-    } else {
-      body.innerHTML=`<iframe src="${doc.url}" class="w-full h-full rounded-xl border bg-white"></iframe>`;
+  const item=documents.find(d=>String(d.id)===String(id));
+  if(!item||!item.url){alert('No file attached.');return;}
+  document.getElementById('previewModalTitle').innerText=item.title||'Document Preview';
+  const body=document.getElementById('previewModalBody'); body.innerHTML='';
+  document.getElementById('previewDownloadBtn').onclick=()=>downloadFileById(item.id);
+  if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl);activePreviewBlobUrl=null;}
+
+  if(item.url.startsWith('data:')){
+    const blob=dataUrlToBlob(item.url); activePreviewBlobUrl=URL.createObjectURL(blob);
+    if(item.type==='PDF') body.innerHTML=`<iframe src="${activePreviewBlobUrl}#toolbar=1" class="w-full h-full rounded-xl border bg-white"></iframe>`;
+    else if(item.type==='IMAGE') body.innerHTML=`<img src="${activePreviewBlobUrl}" class="max-h-full max-w-full object-contain rounded-xl shadow">`;
+    else body.innerHTML=`<div class="text-center p-8 bg-white rounded-2xl border max-w-md shadow-sm"><i class="fa-solid fa-file-lines text-4xl text-cyan-600 mb-3"></i><h4 class="font-bold text-sm mb-1">${escapeHtml(item.fileName||item.title)}</h4><p class="text-xs text-slate-500">This file type is available for download.</p><button onclick="downloadFileById('${item.id}')" class="mt-3 bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs">Download File</button></div>`;
+  }else{
+    const drivePreview=drivePreviewUrl(item.url);
+    if(drivePreview){
+      const driveView=`https://drive.google.com/file/d/${extractDriveId(item.url)}/view`;
+      body.innerHTML=`<div class="w-full h-full flex flex-col gap-2"><div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2"><span><i class="fa-brands fa-google-drive text-emerald-600 mr-1"></i> Google Drive document</span><a href="${driveView}" target="_blank" rel="noopener" class="text-cyan-700 underline font-bold">Open in Google Drive</a></div><iframe src="${drivePreview}" class="w-full flex-1 min-h-0 rounded-xl border bg-white"></iframe></div>`;
+    }else if(item.type==='PDF'){
+      body.innerHTML=`<iframe src="${item.url}" class="w-full h-full rounded-xl border bg-white"></iframe>`;
+    }else if(item.type==='IMAGE'){
+      body.innerHTML=`<img src="${item.url}" class="max-h-full max-w-full object-contain rounded-xl shadow">`;
+    }else{
+      body.innerHTML=`<div class="text-center p-8 bg-white rounded-2xl border max-w-md shadow-sm"><i class="fa-solid fa-file-lines text-4xl text-cyan-600 mb-3"></i><h4 class="font-bold text-sm">${escapeHtml(item.fileName||item.title)}</h4><p class="text-xs text-slate-500 mt-1">Preview is not supported for this file type in the browser.</p><button onclick="downloadFileById('${item.id}')" class="mt-3 bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs">Download File</button></div>`;
     }
   }
   document.getElementById('filePreviewModal').classList.remove('hidden');
 }
 function closePreviewModal(){document.getElementById('filePreviewModal').classList.add('hidden'); if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl); activePreviewBlobUrl=null;}}
-function downloadFileById(id){const doc=documents.find(d=>d.id===id); if(!doc||!doc.url)return; const a=document.createElement('a'); a.href=doc.url; a.download=doc.fileName||doc.title; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
+function normalizeDriveUrl(url){
+  const id=extractDriveId(url||'');
+  return id ? `https://drive.google.com/file/d/${id}/view` : (url||'');
+}
+function drivePreviewUrl(url){
+  const id=extractDriveId(url||'');
+  return id ? `https://drive.google.com/file/d/${id}/preview` : null;
+}
+function driveDownloadUrl(url){
+  const value=url||'', id=extractDriveId(value);
+  if(!id)return null;
+  if(value.includes('docs.google.com/document/')) return `https://docs.google.com/document/d/${id}/export?format=pdf`;
+  if(value.includes('docs.google.com/spreadsheets/')) return `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
+  if(value.includes('docs.google.com/presentation/')) return `https://docs.google.com/presentation/d/${id}/export/pdf`;
+  return `https://drive.google.com/uc?export=download&id=${id}`;
+}
+function downloadFileById(id){
+  const item=documents.find(d=>String(d.id)===String(id));
+  if(!item||!item.url){alert('No file is attached to this document.');return;}
+  const driveDl=driveDownloadUrl(item.url);
+  if(driveDl){
+    window.open(driveDl,'_blank','noopener');
+    return;
+  }
+  const a=document.createElement('a');
+  a.href=item.url; a.download=item.fileName||item.title||'document';
+  document.body.appendChild(a); a.click(); a.remove();
+}
 function openAddFolderModal(){document.getElementById('folderModal').classList.remove('hidden');}
 function closeAddFolderModal(){document.getElementById('folderModal').classList.add('hidden');}
 
-function openEditFolderModal(oldName){
+async function openEditFolderModal(oldName){
   const newName = prompt("Edit Folder Name:", oldName);
   if(newName===null) return;
   const trimmed = newName.trim();
   if(!trimmed){ alert("Folder name cannot be empty"); return; }
   if(folders.includes(trimmed)){ alert("Folder already exists"); return; }
   const idx = folders.indexOf(oldName);
-  if(idx>-1){ folders[idx]=trimmed; localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders)); }
+  if(idx>-1){ folders[idx]=trimmed; localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders)); if(window.firebaseSetNamed) await window.firebaseSetNamed('kytos_folders',trimmed); }
   // update documents that were in this folder
   documents.forEach(d=>{ if(d.folder===oldName) d.folder=trimmed; });
   localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents));
   if(currentFolder===oldName) currentFolder=trimmed;
   renderFoldersAndDocs();
 }
-function deleteFolder(name){
+async function deleteFolder(name){
   if(name==="All Documents"){ alert("Cannot delete All Documents"); return; }
   if(!confirm(`Delete folder "${name}"? Files inside will move to "All Documents" category but will still be visible under All Documents.`)) return;
   folders = folders.filter(f=>f!==name);
@@ -553,7 +733,13 @@ function deleteFolder(name){
   renderFoldersAndDocs();
 }
 
-function saveNewFolder(e){e.preventDefault(); const name=document.getElementById('newFolderName').value.trim(); if(name && !folders.includes(name)){folders.push(name); localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));} closeAddFolderModal(); renderFoldersAndDocs();}
+async function saveNewFolder(e){
+  e.preventDefault();const name=document.getElementById('newFolderName').value.trim();
+  if(!name||folders.includes(name))return;
+  folders.push(name);localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
+  if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_folders',name);
+  closeAddFolderModal();renderFoldersAndDocs();
+}
 function openAddDocModal(){currentSelectedFile=null; document.getElementById('editDocId').value=""; document.getElementById('docModalTitle').innerText="Add Technical Document"; document.getElementById('fileNameDisplay').innerText="Drag & drop file or click to browse"; document.getElementById('docForm').reset(); const select=document.getElementById('docFolderSelect'); select.innerHTML=''; folders.filter(f=>f!=="All Documents").forEach(f=>{select.innerHTML+=`<option value="${escapeHtml(f)}" ${currentFolder===f?'selected':''}>${escapeHtml(f)}</option>`;}); document.getElementById('docModal').classList.remove('hidden');}
 
 function openEditDocModal(id){
@@ -582,32 +768,230 @@ function openEditDocModal(id){
 }
 
 function closeAddDocModal(){document.getElementById('docModal').classList.add('hidden');}
-function saveNewDocument(e){e.preventDefault(); const editId=document.getElementById('editDocId').value; const title=document.getElementById('addDocTitle').value.trim(); const folder=document.getElementById('docFolderSelect').value; const desc=document.getElementById('addDocDesc').value.trim(); function detectFileType(name){const ext=name.split('.').pop().toLowerCase(); if(['pdf'].includes(ext)) return 'PDF'; if(['xlsx','xls','csv'].includes(ext)) return 'EXCEL'; if(['docx','doc'].includes(ext)) return 'WORD'; if(['jpg','jpeg','png','webp'].includes(ext)) return 'IMAGE'; return ext.toUpperCase()||'FILE';}
-  if(editId){const idx=documents.findIndex(d=>d.id==editId); if(idx!==-1){documents[idx].title=title; documents[idx].folder=folder; documents[idx].description=desc; if(currentSelectedFile){const reader=new FileReader(); reader.onload=function(event){documents[idx].fileName=currentSelectedFile.name; documents[idx].type=detectFileType(currentSelectedFile.name); documents[idx].url=event.target.result; localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents)); closeAddDocModal(); renderFoldersAndDocs();}; reader.readAsDataURL(currentSelectedFile); return;} localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents)); closeAddDocModal(); renderFoldersAndDocs();} return;}
-  if(!currentSelectedFile){alert("Please select a file!"); return;} const fileName=currentSelectedFile.name; const fileType=detectFileType(fileName); const reader=new FileReader(); reader.onload=function(event){documents.unshift({id:Date.now(),title,type:fileType,folder,fileName,url:event.target.result,description:desc}); localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents)); closeAddDocModal(); renderFoldersAndDocs();}; reader.readAsDataURL(currentSelectedFile);
+async function saveNewDocument(e){
+  e.preventDefault();
+  const editId=document.getElementById('editDocId').value;
+  const title=document.getElementById('addDocTitle').value.trim();
+  const folder=document.getElementById('docFolderSelect').value;
+  const desc=document.getElementById('addDocDesc').value.trim();
+  const driveLink=(document.getElementById('addDocDriveLink')?.value||'').trim();
+  const driveUrl=driveLink?normalizeDriveUrl(driveLink):'';
+  const file=currentSelectedFile;
+
+  function detectFileType(name){
+    const ext=(name||'').split('.').pop().toLowerCase();
+    if(ext==='pdf') return 'PDF';
+    if(['xlsx','xls','csv'].includes(ext)) return 'EXCEL';
+    if(['docx','doc'].includes(ext)) return 'WORD';
+    if(['jpg','jpeg','png','webp','gif'].includes(ext)) return 'IMAGE';
+    if(['ppt','pptx'].includes(ext)) return 'POWERPOINT';
+    return ext.toUpperCase()||'FILE';
+  }
+
+  if(!title){alert('Document title is required.');return;}
+  if(!editId && !file && !driveUrl){alert('Select a local file or enter a Google Drive link.');return;}
+
+  const saveLocal=()=>{
+    try{localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));}catch(err){console.warn('Local document cache failed',err);}
+  };
+
+  if(editId){
+    const idx=documents.findIndex(d=>String(d.id)===String(editId));
+    if(idx<0){alert('Document not found.');return;}
+    const existing=documents[idx];
+    const patch={title,folder,description:desc};
+    if(driveUrl){patch.url=driveUrl; patch.source='google-drive';}
+    else if(file){
+      patch.fileName=file.name; patch.type=detectFileType(file.name);
+      // Keep small local files locally; Firebase Storage is used when available.
+      if(window.firebaseUploadFile){
+        try{patch.url=await window.firebaseUploadFile(file,'documents');patch.source='firebase-storage';}
+        catch(err){console.warn(err); const reader=await file.arrayBuffer(); if(file.size<700000){const blob=new Blob([reader],{type:file.type});patch.url=URL.createObjectURL(blob);} }
+      }else if(file.size<700000){
+        patch.url=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);});
+        patch.source='local-data';
+      }else{alert('This file is too large for local browser storage. Connect Firebase Storage or use Google Drive.');return;}
+    }
+    documents[idx]={...existing,...patch};
+    saveLocal();
+    if(window.firebaseUpdate && String(editId).length>0) await window.firebaseUpdate('kytos_docs',String(editId),documents[idx]);
+  }else{
+    let url=driveUrl, source=driveUrl?'google-drive':'local-data', fileName=file?.name||'';
+    let type=file?detectFileType(file.name):'DRIVE';
+    if(file){
+      if(window.firebaseUploadFile){
+        try{url=await window.firebaseUploadFile(file,'documents');source='firebase-storage';}
+        catch(err){console.warn(err); if(file.size<700000){url=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);});}else{alert('Upload failed. Please use a Google Drive link or a smaller file.');return;}}
+      }else if(file.size<700000){
+        url=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);});
+      }else{alert('This file is too large for local browser storage. Please use a Google Drive link.');return;}
+    }
+    const newDoc={id:Date.now().toString(),title,type,folder,fileName,url,description:desc,source};
+    documents.unshift(newDoc);
+    saveLocal();
+    if(window.firebaseAdd){
+      const firebaseId=await window.firebaseAdd('kytos_docs',{title,type,folder,fileName,url,description:desc,source});
+      if(firebaseId){newDoc.id=firebaseId;saveLocal();}
+    }
+  }
+  closeAddDocModal(); renderFoldersAndDocs(); updateLiveSyncTime();
 }
-function deleteDocument(id){if(!confirm("Delete?"))return; documents=documents.filter(d=>d.id!==id); localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents)); renderFoldersAndDocs();}
+async function deleteDocument(id){
+  if(!isAdmin){alert('Admin only');return;}
+  const item=documents.find(d=>String(d.id)===String(id));
+  if(!item||!confirm(`Delete "${item.title}"?`))return;
+  documents=documents.filter(d=>String(d.id)!==String(id));
+  localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));
+  if(window.firebaseDelete) await window.firebaseDelete('kytos_docs',String(id));
+  renderFoldersAndDocs(); updateLiveSyncTime();
+}
 function renderPlaylistsAndGallery(){
-  const nav=document.getElementById('playlistNav'); nav.innerHTML=''; playlists.forEach(pl=>{const isActive=(selectedPlaylist===pl); const wrapper=document.createElement('div'); wrapper.className='flex items-center gap-1'; const btn=document.createElement('button'); btn.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm ${isActive?'bg-cyan-600 text-white':'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`; btn.innerHTML=`<i class="fa-solid fa-folder-video mr-1"></i> ${escapeHtml(pl)}`; btn.onclick=()=>{selectedPlaylist=pl; renderPlaylistsAndGallery();}; wrapper.appendChild(btn); if(isAdmin && pl!=='All Playlists'){ const eBtn=document.createElement('button'); eBtn.className='p-1 text-cyan-600'; eBtn.innerHTML='<i class="fa-solid fa-pen-to-square text-[10px]"></i>'; eBtn.onclick=(e)=>{e.stopPropagation(); openEditPlaylistModal(pl);}; wrapper.appendChild(eBtn); const dBtn=document.createElement('button'); dBtn.className='p-1 text-red-400'; dBtn.innerHTML='<i class="fa-solid fa-trash-can text-[10px]"></i>'; dBtn.onclick=(e)=>{e.stopPropagation(); deletePlaylist(pl);}; wrapper.appendChild(dBtn); } nav.appendChild(wrapper);});
-  const container=document.getElementById('galleryContainer'); const emptyNotice=document.getElementById('emptyGalleryNotice'); container.innerHTML=''; const filteredPosts=(selectedPlaylist==='All Playlists')?galleryPosts:galleryPosts.filter(p=>p.playlist===selectedPlaylist);
-  if(filteredPosts.length===0){emptyNotice.classList.remove('hidden'); return;} emptyNotice.classList.add('hidden');
+  const nav=document.getElementById('playlistNav');nav.innerHTML='';
+  playlists.forEach(pl=>{
+    const active=selectedPlaylist===pl,wrap=document.createElement('div');wrap.className='flex items-center gap-1';
+    const b=document.createElement('button');b.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm ${active?'bg-cyan-600 text-white':'bg-white border text-slate-700'}`;b.innerHTML=`<i class="fa-solid fa-folder-video mr-1"></i>${escapeHtml(pl)}`;b.onclick=()=>{selectedPlaylist=pl;renderPlaylistsAndGallery()};wrap.appendChild(b);
+    if(isAdmin&&pl!=='All Playlists'){const eb=document.createElement('button');eb.className='p-1 text-cyan-600';eb.innerHTML='<i class="fa-solid fa-pen text-[10px]"></i>';eb.onclick=e=>{e.stopPropagation();openEditPlaylistModal(pl)};wrap.appendChild(eb);const db=document.createElement('button');db.className='p-1 text-red-400';db.innerHTML='<i class="fa-solid fa-trash text-[10px]"></i>';db.onclick=e=>{e.stopPropagation();deletePlaylist(pl)};wrap.appendChild(db)}
+    nav.appendChild(wrap);
+  });
+  const container=document.getElementById('galleryContainer'),empty=document.getElementById('emptyGalleryNotice');container.innerHTML='';
+  const list=selectedPlaylist==='All Playlists'?galleryPosts:galleryPosts.filter(p=>p.playlist===selectedPlaylist);
+  if(!list.length){empty.classList.remove('hidden');return}empty.classList.add('hidden');
+
+  const media=post=>{const vid=getYouTubeId(post.youtube||'');return vid?`<div class="aspect-video bg-black rounded-xl overflow-hidden"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1" title="${escapeHtml(post.title)}" allowfullscreen></iframe></div>`:`<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">No video link</div>`};
+  const actions=post=>isAdmin?`<div class="flex gap-2 mt-3"><button onclick="openEditGalleryModal('${post.id}')" class="text-xs font-bold text-cyan-700 bg-cyan-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-pen"></i> Edit</button><button onclick="deleteGallery('${post.id}')" class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-trash"></i> Delete</button></div>`:'';
+
   if(galleryViewMode==='grid'){
-    let grid=document.createElement('div'); grid.className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
-    filteredPosts.forEach(post=>{let mediaContent=''; const ytLink=post.youtube||""; const vid=getYouTubeId(ytLink); if(vid){mediaContent=`<div class="relative w-full h-48 bg-black"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1" title="${escapeHtml(post.title)}" frameborder="0" allowfullscreen></iframe></div>`;} else {mediaContent=`<div class="h-48 overflow-hidden relative bg-slate-100 flex items-center justify-center"><span class="text-xs text-slate-400">No Video Link</span></div>`;} const card=document.createElement('div'); card.className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between"; card.innerHTML=`<div>${mediaContent}<div class="p-5"><div class="flex justify-between text-xs text-slate-400 mb-2"><span><i class="fa-regular fa-calendar mr-1"></i> ${escapeHtml(post.date)} • ${escapeHtml(post.location)}</span><div class="flex items-center gap-1.5"><span class="text-[9px] font-bold px-2 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200">${escapeHtml(post.playlist||'General')}</span>${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 hover:text-cyan-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteGallery('${post.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash-can"></i></button>`:''}</div></div><h3 class="font-bold text-slate-900 text-sm mb-2">${escapeHtml(post.title)}</h3><p class="text-xs text-slate-600 whitespace-pre-line">${escapeHtml(post.description)}</p></div></div><div class="px-5 py-3 bg-slate-50 border-t text-[11px] text-slate-400 flex justify-between"><span>Kytos Arabia Team</span><span class="text-cyan-600 font-medium">Activity Video Blog</span></div>`; grid.appendChild(card);}); container.appendChild(grid);
-  } else { let table=document.createElement('div'); table.className="bg-white rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100 text-xs"; filteredPosts.forEach(post=>{const row=document.createElement('div'); row.className="p-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50 transition"; row.innerHTML=`<div class="flex items-center gap-3"><span class="font-bold px-2 py-1 rounded bg-slate-100 text-slate-700">Video</span><div><h5 class="font-bold text-slate-900">${escapeHtml(post.title)}</h5><p class="text-[11px] text-slate-500">Playlist: ${escapeHtml(post.playlist)} • Location: ${escapeHtml(post.location)}</p></div></div><div class="flex items-center gap-3">${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 font-bold">Edit</button><button onclick="deleteGallery('${post.id}')" class="text-red-500 font-bold">Delete</button>`:''}</div>`; table.appendChild(row);}); container.appendChild(table); }
+    const grid=document.createElement('div');grid.className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5';
+    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border overflow-hidden shadow-sm';el.innerHTML=`${media(post)}<div class="p-5"><div class="text-[10px] text-slate-400">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</div><h3 class="font-black text-slate-900 mt-2">${escapeHtml(post.title)}</h3><p class="text-xs text-slate-600 mt-2 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;grid.appendChild(el)});container.appendChild(grid);
+  }else if(galleryViewMode==='details'){
+    const wrap=document.createElement('div');wrap.className='grid grid-cols-1 lg:grid-cols-2 gap-5';
+    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-4 flex gap-4';el.innerHTML=`<div class="w-56 max-w-[42%] shrink-0">${media(post)}</div><div class="min-w-0"><span class="text-[10px] font-bold text-cyan-700">${escapeHtml(post.playlist||'General')}</span><h3 class="font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h3><p class="text-[11px] text-slate-500 mt-1">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-xs text-slate-600 mt-2">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;wrap.appendChild(el)});container.appendChild(wrap);
+  }else if(galleryViewMode==='list'){
+    const table=document.createElement('div');table.className='bg-white rounded-2xl border divide-y overflow-hidden';
+    list.forEach(post=>{const row=document.createElement('div');row.className='p-4 flex items-center justify-between gap-3 flex-wrap';row.innerHTML=`<div><h4 class="font-bold text-sm">${escapeHtml(post.title)}</h4><p class="text-[11px] text-slate-500">${escapeHtml(post.playlist||'General')} • ${escapeHtml(post.location||'')} • ${escapeHtml(post.date||'')}</p></div><div class="flex gap-3"><a href="${escapeHtml(post.youtube||'#')}" target="_blank" rel="noopener" class="text-red-600 text-xs font-bold">YouTube</a>${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 text-xs font-bold">Edit</button><button onclick="deleteGallery('${post.id}')" class="text-red-500 text-xs font-bold">Delete</button>`:''}</div>`;table.appendChild(row)});container.appendChild(table);
+  }else{
+    const wrap=document.createElement('div');wrap.className='space-y-5';
+    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-6';el.innerHTML=`<div class="grid lg:grid-cols-[420px_1fr] gap-6 items-start">${media(post)}<div><p class="text-[10px] uppercase tracking-wider font-bold text-cyan-700">${escapeHtml(post.playlist||'General')}</p><h2 class="text-xl font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h2><p class="text-xs text-slate-500 mt-2">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-sm text-slate-700 mt-4 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div></div>`;wrap.appendChild(el)});container.appendChild(wrap);
+  }
 }
-function openEditPlaylistModal(oldName){ const newName = prompt('Edit Playlist Name:', oldName); if(!newName) return; const t=newName.trim(); if(!t) return; const idx=playlists.indexOf(oldName); if(idx>-1){ playlists[idx]=t; localStorage.setItem('kytos_playlists_fixed', JSON.stringify(playlists)); galleryPosts.forEach(p=>{ if(p.playlist===oldName) p.playlist=t; }); localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); if(selectedPlaylist===oldName) selectedPlaylist=t; renderPlaylistsAndGallery(); } }
-function deletePlaylist(name){ if(name==='All Playlists'){ alert('Cannot delete All Playlists'); return; } if(!confirm(`Delete playlist "${name}"? Videos will move to General.`)) return; playlists=playlists.filter(p=>p!==name); localStorage.setItem('kytos_playlists_fixed', JSON.stringify(playlists)); galleryPosts.forEach(p=>{ if(p.playlist===name) p.playlist='General'; }); localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); if(selectedPlaylist===name) selectedPlaylist='All Playlists'; renderPlaylistsAndGallery(); }
+async function openEditPlaylistModal(oldName){
+  const newName=prompt('Edit Playlist Name:',oldName);if(newName===null)return;
+  const name=newName.trim();if(!name||name===oldName)return;
+  if(playlists.includes(name)){alert('Playlist already exists.');return;}
+  playlists=playlists.map(p=>p===oldName?name:p);
+  galleryPosts=galleryPosts.map(p=>p.playlist===oldName?{...p,playlist:name}:p);
+  localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
+  if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_playlists',name);
+  if(window._db){for(const post of galleryPosts.filter(p=>p.playlist===name)){if(String(post.id).length>10&&window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(post.id),{playlist:name});}}
+  if(selectedPlaylist===oldName)selectedPlaylist=name;renderPlaylistsAndGallery();
+}
+async function deletePlaylist(name){
+  if(name==='All Playlists'){alert('Cannot delete All Playlists.');return;}
+  if(!confirm(`Delete playlist "${name}"? Videos will move to General.`))return;
+  playlists=playlists.filter(p=>p!==name);
+  galleryPosts=galleryPosts.map(p=>p.playlist===name?{...p,playlist:'General'}:p);
+  if(!playlists.includes('General'))playlists.push('General');
+  localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
+  if(window._db&&window.firebaseUpdate){for(const post of galleryPosts.filter(p=>p.playlist==='General')){if(String(post.id).length>10)await window.firebaseUpdate('kytos_gallery',String(post.id),{playlist:'General'});}}
+  if(selectedPlaylist===name)selectedPlaylist='All Playlists';renderPlaylistsAndGallery();
+}
 function openAddPlaylistModal(){document.getElementById('playlistModal').classList.remove('hidden');}
 function closeAddPlaylistModal(){document.getElementById('playlistModal').classList.add('hidden');}
-function saveNewPlaylist(e){e.preventDefault(); const name=document.getElementById('newPlaylistName').value.trim(); if(name && !playlists.includes(name)){playlists.push(name); localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));} closeAddPlaylistModal(); renderPlaylistsAndGallery();}
+async function saveNewPlaylist(e){
+  e.preventDefault();const name=document.getElementById('newPlaylistName').value.trim();
+  if(!name||playlists.includes(name))return;
+  playlists.push(name);localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));
+  if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_playlists',name);
+  closeAddPlaylistModal();renderPlaylistsAndGallery();
+}
 function openAddGalleryModal(){document.getElementById('editGalleryId').value=""; document.getElementById('galleryModalTitle').innerText="Upload YouTube Video / Blog"; document.getElementById('galleryForm').reset(); const select=document.getElementById('galleryPlaylistSelect'); select.innerHTML=''; let opts = playlists.filter(p=>p!=="All Playlists"); if(opts.length===0){ opts=["Thermo Analyzers","Airpointer","General"]; playlists = ["All Playlists", ...opts]; localStorage.setItem('kytos_playlists_fixed', JSON.stringify(playlists)); } opts.forEach(pl=>{select.innerHTML+=`<option value="${escapeHtml(pl)}" ${selectedPlaylist===pl?'selected':''}>${escapeHtml(pl)}</option>`;}); document.getElementById('galleryModal').classList.remove('hidden');}
 function openEditGalleryModal(id){const post=galleryPosts.find(p=>String(p.id)===String(id)); if(!post){ alert("Video not found: "+id); return; } document.getElementById('editGalleryId').value=String(post.id); document.getElementById('galleryModalTitle').innerText="Edit Video / Blog Post"; document.getElementById('galleryDate').value=post.date||""; document.getElementById('galleryLocation').value=post.location||""; document.getElementById('galleryTitle').value=post.title||""; document.getElementById('galleryYoutube').value=post.youtube||""; document.getElementById('galleryDesc').value=post.description||""; const select=document.getElementById('galleryPlaylistSelect'); select.innerHTML=''; let opts = playlists.filter(p=>p!=="All Playlists"); if(opts.length===0){ opts=["Thermo Analyzers","Airpointer","General"]; playlists = ["All Playlists", ...opts]; localStorage.setItem('kytos_playlists_fixed', JSON.stringify(playlists)); } if(post.playlist && !opts.includes(post.playlist)){ opts.push(post.playlist); } opts.forEach(pl=>{ const sel = (post.playlist===pl) ? 'selected' : ''; select.innerHTML+=`<option value="${escapeHtml(pl)}" ${sel}>${escapeHtml(pl)}</option>`;}); document.getElementById('galleryModal').classList.remove('hidden');}
 function closeGalleryModal(){document.getElementById('galleryModal').classList.add('hidden');}
-function saveNewGallery(e){e.preventDefault(); const editId=document.getElementById('editGalleryId').value; const date=document.getElementById('galleryDate').value; const location=document.getElementById('galleryLocation').value.trim(); const playlist=document.getElementById('galleryPlaylistSelect').value; const title=document.getElementById('galleryTitle').value.trim(); const youtube=document.getElementById('galleryYoutube').value.trim(); const description=document.getElementById('galleryDesc').value.trim(); if(editId){galleryPosts=galleryPosts.map(p=>p.id==editId?{...p,date,location,playlist,title,youtube,description}:p);} else {galleryPosts.unshift({id:Date.now(),date,location,playlist,title,youtube,description});} localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts)); closeGalleryModal(); renderPlaylistsAndGallery();}
-function deleteGallery(id){if(!confirm("Delete?"))return; galleryPosts=galleryPosts.filter(p=>p.id!==id); localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts)); renderPlaylistsAndGallery();}
-function renderActivities(){const container=document.getElementById('activityList'); container.innerHTML=''; if(activities.length===0){container.innerHTML=`<p class="text-xs text-slate-400 py-4 text-center">No activities scheduled.</p>`; renderCalendar(); return;} activities.forEach(act=>{const item=document.createElement('div'); item.className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-start justify-between gap-3"; const startStr=new Date(act.startDate).toLocaleDateString('default',{month:'short',day:'numeric'}); const endStr=new Date(act.endDate).toLocaleDateString('default',{month:'short',day:'numeric',year:'numeric'}); item.innerHTML=`<div class="flex items-start gap-3"><div class="bg-cyan-600 text-white rounded-lg p-2 text-center min-w-[70px]"><span class="block text-[9px] uppercase font-semibold">Activity</span><span class="block text-[11px] font-bold leading-tight mt-0.5">${escapeHtml(startStr)}</span><span class="block text-[9px] opacity-80">to</span><span class="block text-[11px] font-bold leading-tight">${escapeHtml(endStr)}</span></div><div><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white border text-cyan-700">${escapeHtml(act.type)}</span><h5 class="text-xs font-bold text-slate-900 mt-1">${escapeHtml(act.title)}</h5><p class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(act.description||'')} ${act.person?`• <strong>Lead:</strong> ${escapeHtml(act.person)}`:''}</p></div></div>${isAdmin?`<div class="flex items-center gap-1"><button onclick="openEditActivityModal('${act.id}')" class="text-cyan-600 p-1"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteActivityItem('${act.id}')" class="text-red-400 p-1"><i class="fa-solid fa-trash-can"></i></button></div>`:''}`; container.appendChild(item);}); renderCalendar();}
-function renderCalendar(){const monthYearElem=document.getElementById('calendarMonthYear'); const daysContainer=document.getElementById('calendarDays'); daysContainer.innerHTML=''; const year=currentCalendarDate.getFullYear(); const month=currentCalendarDate.getMonth(); monthYearElem.innerText=currentCalendarDate.toLocaleDateString('default',{month:'long',year:'numeric'}); const firstDay=new Date(year,month,1).getDay(); const totalDays=new Date(year,month+1,0).getDate(); for(let i=0;i<firstDay;i++) daysContainer.appendChild(document.createElement('div')); for(let day=1;day<=totalDays;day++){const currDate=new Date(year,month,day); const matchedAct=activities.find(a=>{const start=new Date(a.startDate); const end=new Date(a.endDate); start.setHours(0,0,0,0); end.setHours(23,59,59,999); currDate.setHours(12,0,0,0); return currDate>=start&&currDate<=end;}); const dayElem=document.createElement('div'); dayElem.className=matchedAct?`h-8 flex items-center justify-center rounded text-xs bg-cyan-600 font-bold text-white shadow-sm`:`h-8 flex items-center justify-center rounded text-xs hover:bg-slate-100 text-slate-700`; dayElem.innerText=day; daysContainer.appendChild(dayElem);}}
+async function saveNewGallery(e){
+  e.preventDefault();
+  const editId=document.getElementById('editGalleryId').value;
+  const date=document.getElementById('galleryDate').value;
+  const location=document.getElementById('galleryLocation').value.trim();
+  const playlist=document.getElementById('galleryPlaylistSelect').value;
+  const title=document.getElementById('galleryTitle').value.trim();
+  const youtube=document.getElementById('galleryYoutube').value.trim();
+  const description=document.getElementById('galleryDesc').value.trim();
+  const payload={date,location,playlist,title,youtube,description};
+  if(editId){
+    galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
+    if(window.firebaseUpdate) await window.firebaseUpdate('kytos_gallery',String(editId),payload);
+  }else{
+    const local={id:Date.now().toString(),...payload};
+    galleryPosts.unshift(local);
+    if(window.firebaseAdd){
+      const fid=await window.firebaseAdd('kytos_gallery',payload); if(fid)local.id=fid;
+    }
+  }
+  localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
+  closeGalleryModal(); renderPlaylistsAndGallery(); updateLiveSyncTime();
+}
+async function deleteGallery(id){
+  if(!isAdmin){alert('Admin only');return;}
+  const item=galleryPosts.find(p=>String(p.id)===String(id)); if(!item)return;
+  if(!confirm(`Delete "${item.title}"?`))return;
+  galleryPosts=galleryPosts.filter(p=>String(p.id)!==String(id));
+  localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
+  if(window.firebaseDelete) await window.firebaseDelete('kytos_gallery',String(id));
+  renderPlaylistsAndGallery(); updateLiveSyncTime();
+}
+function setActivityViewButtons(){
+  ['card','table','timeline'].forEach(m=>{
+    const b=document.getElementById('actView'+m.charAt(0).toUpperCase()+m.slice(1)+'Btn');
+    if(b)b.className=m===activityViewMode?'px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow':'px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium';
+  });
+  ['month','week','list'].forEach(m=>{
+    const b=document.getElementById('calView'+m.charAt(0).toUpperCase()+m.slice(1)+'Btn');
+    if(b)b.className=m===calendarViewMode?'px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow':'px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium';
+  });
+}
+function renderActivities(){
+  setActivityViewButtons();
+  const panel=document.getElementById('calendarPanel'), activityPanel=document.getElementById('activityPanel'), container=document.getElementById('activityList');
+  if(calendarViewMode==='list'){panel.classList.add('hidden');activityPanel.classList.remove('lg:col-span-2');activityPanel.classList.add('lg:col-span-3');}
+  else{panel.classList.remove('hidden');activityPanel.classList.remove('lg:col-span-3');activityPanel.classList.add('lg:col-span-2');}
+  container.innerHTML='';
+  const sorted=[...activities].sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
+  if(!sorted.length){container.innerHTML='<p class="text-xs text-slate-400 py-8 text-center">No activities scheduled.</p>';renderCalendar();return;}
+  const controls=a=>isAdmin?`<div class="flex items-center gap-1 ml-auto"><button onclick="openEditActivityModal('${a.id}')" class="p-1.5 text-cyan-600" title="Edit"><i class="fa-solid fa-pen"></i></button><button onclick="deleteActivityItem('${a.id}')" class="p-1.5 text-red-500" title="Delete"><i class="fa-solid fa-trash"></i></button></div>`:'';
+  if(activityViewMode==='card'){
+    container.className='space-y-3';
+    sorted.forEach(a=>{const el=document.createElement('article');el.className='p-4 rounded-2xl border bg-slate-50 flex items-start gap-3';el.innerHTML=`<div class="bg-cyan-600 text-white rounded-xl p-2.5 text-center min-w-[78px]"><span class="block text-[9px] uppercase font-bold">${escapeHtml(a.type||'Activity')}</span><span class="block text-[12px] font-black mt-1">${escapeHtml(a.startDate)}</span><span class="block text-[9px] opacity-80">to</span><span class="block text-[11px] font-bold">${escapeHtml(a.endDate)}</span></div><div class="flex-1 min-w-0"><div class="flex gap-2 items-start"><div><h4 class="font-black text-sm text-slate-900">${escapeHtml(a.title)}</h4><p class="text-xs text-slate-600 mt-1">${escapeHtml(a.description||'No remarks.')}</p><p class="text-[11px] text-slate-500 mt-2"><strong>Lead:</strong> ${escapeHtml(a.person||'Unassigned')}</p></div>${controls(a)}</div></div>`;container.appendChild(el)});
+  }else if(activityViewMode==='table'){
+    const table=document.createElement('div');table.className='overflow-x-auto rounded-2xl border';table.innerHTML='<table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="text-left p-3">Date</th><th class="text-left p-3">Activity</th><th class="text-left p-3">Type</th><th class="text-left p-3">Lead</th><th class="text-left p-3">Remarks</th><th class="p-3"></th></tr></thead><tbody></tbody></table>';const tb=table.querySelector('tbody');sorted.forEach(a=>{const tr=document.createElement('tr');tr.className='border-t hover:bg-slate-50';tr.innerHTML=`<td class="p-3 whitespace-nowrap">${escapeHtml(a.startDate)} → ${escapeHtml(a.endDate)}</td><td class="p-3 font-bold">${escapeHtml(a.title)}</td><td class="p-3">${escapeHtml(a.type||'')}</td><td class="p-3">${escapeHtml(a.person||'')}</td><td class="p-3">${escapeHtml(a.description||'')}</td><td class="p-3">${controls(a)}</td>`;tb.appendChild(tr)});container.appendChild(table);
+  }else{
+    container.className='relative space-y-3 pl-6 border-l-2 border-cyan-100';
+    sorted.forEach(a=>{const el=document.createElement('article');el.className='relative bg-white border rounded-2xl p-4';el.innerHTML=`<span class="absolute -left-[31px] top-5 w-3 h-3 rounded-full bg-cyan-600 border-2 border-white"></span><div class="flex gap-2 items-start"><div class="flex-1"><p class="text-[10px] font-bold uppercase text-cyan-700">${escapeHtml(a.startDate)} → ${escapeHtml(a.endDate)} • ${escapeHtml(a.type||'')}</p><h4 class="font-black text-slate-900 mt-1">${escapeHtml(a.title)}</h4><p class="text-xs text-slate-600 mt-1">${escapeHtml(a.description||'')}</p><p class="text-[11px] text-slate-500 mt-2">Lead: ${escapeHtml(a.person||'Unassigned')}</p></div>${controls(a)}</div>`;container.appendChild(el)});
+  }
+  renderCalendar();
+}
+function renderCalendar(){
+  const title=document.getElementById('calendarMonthYear'),days=document.getElementById('calendarDays');
+  if(!title||!days)return;days.innerHTML='';
+  const y=currentCalendarDate.getFullYear(),m=currentCalendarDate.getMonth();
+  title.innerText=currentCalendarDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  if(calendarViewMode==='week'){
+    const base=new Date(currentCalendarDate);const day=base.getDay();base.setDate(base.getDate()-day);
+    days.className='grid grid-cols-7 gap-2';
+    for(let i=0;i<7;i++){const d=new Date(base);d.setDate(base.getDate()+i);const key=d.toISOString().slice(0,10);const acts=activities.filter(a=>key>=a.startDate&&key<=a.endDate);const cell=document.createElement('div');cell.className='min-h-[150px] rounded-xl border bg-slate-50 p-2';cell.innerHTML=`<div class="font-black text-[11px] text-slate-700 mb-2">${d.toLocaleDateString('en-US',{weekday:'short'})}<br><span class="text-cyan-700">${d.getDate()}</span></div>${acts.map(a=>`<div class="text-[9px] font-bold bg-cyan-100 text-cyan-800 rounded-lg p-1.5 mb-1">${escapeHtml(a.title)}</div>`).join('')}`;days.appendChild(cell)}
+    return;
+  }
+  if(calendarViewMode==='list'){
+    days.className='grid grid-cols-1 gap-2';days.innerHTML='<div class="text-xs text-slate-500 p-3 bg-slate-50 rounded-xl">Use the activity panel for the full list.</div>';return;
+  }
+  days.className='grid grid-cols-7 gap-1 text-xs';
+  const first=new Date(y,m,1).getDay(),total=new Date(y,m+1,0).getDate();
+  for(let i=0;i<first;i++)days.appendChild(document.createElement('div'));
+  for(let day=1;day<=total;day++){
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const count=activities.filter(a=>key>=a.startDate&&key<=a.endDate).length;
+    const cell=document.createElement('div');cell.className=count?'h-10 flex flex-col items-center justify-center rounded-lg bg-cyan-600 text-white font-bold cursor-pointer':'h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700';cell.innerHTML=count?`${day}<span class="text-[8px] opacity-80">${count} item${count>1?'s':''}</span}`:`${day}`;days.appendChild(cell);
+  }
+}
 function changeMonth(delta){currentCalendarDate.setMonth(currentCalendarDate.getMonth()+delta); renderCalendar();}
 function openAddActivityModal(){document.getElementById('editActivityId').value=""; document.getElementById('activityModalTitle').innerText="Schedule Activity"; document.getElementById('activityForm').reset(); document.getElementById('activityModal').classList.remove('hidden');}
 function openEditActivityModal(id){ const act=activities.find(a=>String(a.id)===String(id)); if(!act){ alert('Activity not found: '+id); return; } document.getElementById('editActivityId').value=String(act.id); document.getElementById('activityModalTitle').innerText="Edit Activity Schedule"; document.getElementById('addActStart').value=act.startDate; document.getElementById('addActEnd').value=act.endDate; document.getElementById('addActTitle').value=act.title; document.getElementById('addActType').value=act.type; document.getElementById('addActLead').value=act.person||""; document.getElementById('addActDesc').value=act.description||""; document.getElementById('activityModal').classList.remove('hidden');}
@@ -693,6 +1077,8 @@ document.querySelectorAll('[id$="Modal"]').forEach(m=>{m.addEventListener('click
 document.addEventListener('keydown', e=>{if(e.key==='Escape'){document.querySelectorAll('[id$="Modal"]').forEach(m=>m.classList.add('hidden'));}});
 document.getElementById('dropZone').addEventListener('click', ()=>document.getElementById('fileInput').click());
 document.getElementById('fileInput').addEventListener('change', e=>{if(e.target.files[0]){currentSelectedFile=e.target.files[0]; document.getElementById('fileNameDisplay').innerHTML=`<span class="text-emerald-700 font-bold"><i class="fa-solid fa-file-circle-check mr-1"></i> ${escapeHtml(e.target.files[0].name)}</span>`; if(!document.getElementById('addDocTitle').value) document.getElementById('addDocTitle').value=e.target.files[0].name.substring(0,e.target.files[0].name.lastIndexOf('.'))||e.target.files[0].name;}});
+const searchBox=document.getElementById('searchInput');
+if(searchBox) searchBox.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();triggerSearch();}});
 applyFilters(); setPartsViewMode(partsViewMode); setDocsViewMode(docsViewMode); setGalleryViewMode(galleryViewMode);
 </script>
 
@@ -704,55 +1090,110 @@ applyFilters(); setPartsViewMode(partsViewMode); setDocsViewMode(docsViewMode); 
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyACUvUCcoGriWQUUPS_nNARgN95wnBbFsU",
-  authDomain: "kytos-aqms.firebaseapp.com",
-  projectId: "kytos-aqms",
-  storageBucket: "kytos-aqms.firebasestorage.app",
-  messagingSenderId: "358326782114",
-  appId: "1:358326782114:web:76205cfbcd035ac1a22ffb",
-  measurementId: "G-RD6123H3DP"
+import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyACUvUCcoGriWQUUPS_nNARgN95wnBbFsU",
+  authDomain:"kytos-aqms.firebaseapp.com",
+  projectId:"kytos-aqms",
+  storageBucket:"kytos-aqms.firebasestorage.app",
+  messagingSenderId:"358326782114",
+  appId:"1:358326782114:web:76205cfbcd035ac1a22ffb",
+  measurementId:"G-RD6123H3DP"
 };
-let app, db;
+
+let app,db,storage;
 try{
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  window._db = db;
-  const ind = document.getElementById('liveSyncIndicator');
-  if(ind){ ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync - Firebase Live (All Updates Saved)</span><span class="text-[9px] text-slate-300 ml-1" id="lastSyncTime"></span>`; }
-  onSnapshot(collection(db, "kytos_parts"), async (snap)=>{
+  app=initializeApp(firebaseConfig);
+  db=getFirestore(app);
+  storage=getStorage(app);
+  window._db=db; window._storage=storage;
+
+  const ind=document.getElementById('liveSyncIndicator');
+  if(ind) ind.innerHTML=`<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync — Connected</span><span class="text-[9px] text-slate-300 ml-1" id="lastSyncTime"></span>`;
+
+  window.firebaseUploadFile=async(file,folder='uploads')=>{
+    if(!storage) throw new Error('Firebase Storage is not available');
+    const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const path=`${folder}/${Date.now()}_${safe}`;
+    const ref=storageRef(storage,path);
+    await uploadBytes(ref,file);
+    return await getDownloadURL(ref);
+  };
+
+  window.firebaseAdd=async(col,data)=>{
+    try{const ref=await addDoc(collection(db,col),{...data,createdAt:Date.now(),updatedAt:Date.now()});return ref.id;}
+    catch(e){console.error('Firebase add failed',col,e);return null;}
+  };
+  window.firebaseUpdate=async(col,id,data)=>{
+    try{await updateDoc(doc(db,col,id),{...data,updatedAt:Date.now()});return true;}
+    catch(e){console.error('Firebase update failed',col,id,e);return false;}
+  };
+  window.firebaseDelete=async(col,id,fallbackPn=null)=>{
+    try{await deleteDoc(doc(db,col,id));return true;}
+    catch(e){
+      if(fallbackPn&&col==='kytos_parts'){
+        try{const q=query(collection(db,col),where('pn','==',fallbackPn));const snap=await getDocs(q);for(const d of snap.docs)await deleteDoc(doc(db,col,d.id));return true;}catch(_){}
+      }
+      console.error('Firebase delete failed',col,id,e);return false;
+    }
+  };
+
+  onSnapshot(collection(db,'kytos_parts'),snap=>{
     if(snap.size>=300){
-      let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-      parts = live.map(p=>({id:p.id||p.pn, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""}));
-      try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
-      if(typeof applyFilters==='function') applyFilters();
+      const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
+      parts=live.map(p=>({id:p.id,pn:p.pn||p.partNumber||'',name:p.name||p.description||'',model:p.model||'GENERAL',cat:p.cat||p.category||'General Spares & Hardware',rem:p.rem||'Active Reference',img:p.img||''}));
+      try{localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts));}catch(_){}
+      if(typeof applyFilters==='function')applyFilters();
     }
-    const el=document.getElementById('lastSyncTime');
-    if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Live:'+snap.size+' (Firebase Live)';
+    const el=document.getElementById('lastSyncTime');if(el)el.innerText=`• ${new Date().toLocaleTimeString()} • ${snap.size} parts`;
   });
-  onSnapshot(collection(db, "kytos_activities"), (snap)=>{
-    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-    if(snap.size>0){
-      activities = live.map(a=>({id:a.id, startDate:a.startDate, endDate:a.endDate, title:a.title, type:a.type, person:a.person, description:a.description}));
-      try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
-      if(typeof renderActivities==='function') renderActivities();
-    }
+
+  onSnapshot(collection(db,'kytos_activities'),snap=>{
+    const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
+    activities=live;try{localStorage.setItem('kytos_acts_fixed',JSON.stringify(activities));}catch(_){}
+    renderActivities();
   });
-  onSnapshot(collection(db, "kytos_docs"), (snap)=>{
-    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-    if(live.length>0){ documents=live; try{ localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); }catch(e){} if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs(); }
+
+  onSnapshot(collection(db,'kytos_docs'),snap=>{
+    const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
+    if(live.length){documents=live;try{localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));}catch(_){}}
+    renderFoldersAndDocs();
   });
-  onSnapshot(collection(db, "kytos_gallery"), (snap)=>{
-    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
-    if(live.length>0){ galleryPosts=live; try{ localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); }catch(e){} if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery(); }
+
+  onSnapshot(collection(db,'kytos_gallery'),snap=>{
+    const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
+    if(live.length){galleryPosts=live;try{localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));}catch(_){}}
+    renderPlaylistsAndGallery();
   });
-  window.firebaseAdd = async (col, data)=>{ try{ const ref = await addDoc(collection(db, col), {...data, createdAt:Date.now()}); return ref.id; }catch(e){ return null; } };
-  window.firebaseUpdate = async (col, id, data)=>{ try{ await updateDoc(doc(db, col, id), data); return true; }catch(e){ return false; } };
-  window.firebaseDelete = async (col, id, fallbackPn=null)=>{ try{ await deleteDoc(doc(db, col, id)); return true; }catch(e){ if(fallbackPn && col==='kytos_parts'){ try{ const q = query(collection(db, col), where("pn", "==", fallbackPn)); const snap = await getDocs(q); for(const d of snap.docs){ await deleteDoc(doc(db, col, d.id)); } return true; }catch(e2){} } return false; } };
-}catch(e){ console.error('Firebase failed', e); }
-function updateLiveSyncTime(){ const el=document.getElementById('lastSyncTime'); if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Firebase Live'; }
-window.updateLiveSyncTime = updateLiveSyncTime;
+
+  onSnapshot(collection(db,'kytos_folders'),snap=>{
+    const live=[];snap.forEach(d=>live.push(d.data().name));
+    if(live.length)folders=['All Documents',...live.filter(n=>n&&n!=='All Documents')];
+    localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));renderFoldersAndDocs();
+  });
+
+  onSnapshot(collection(db,'kytos_playlists'),snap=>{
+    const live=[];snap.forEach(d=>live.push(d.data().name));
+    if(live.length)playlists=['All Playlists',...live.filter(n=>n&&n!=='All Playlists')];
+    localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));renderPlaylistsAndGallery();
+  });
+
+  window.firebaseSetNamed=async(col,name,data={})=>{
+    const safe=btoa(unescape(encodeURIComponent(name))).replace(/[/+=]/g,'_').slice(0,100);
+    await setDoc(doc(db,col,safe),{name,...data,updatedAt:Date.now()},{merge:true});return safe;
+  };
+
+}catch(e){
+  console.error('Firebase initialization failed',e);
+  const ind=document.getElementById('liveSyncIndicator');
+  if(ind)ind.innerHTML=`<span class="text-amber-400 font-bold">Local Mode — Firebase unavailable</span>`;
+}
+function updateLiveSyncTime(){
+  const el=document.getElementById('lastSyncTime');if(el)el.innerText='• '+new Date().toLocaleTimeString()+' • Live';
+}
+window.updateLiveSyncTime=updateLiveSyncTime;
 </script>
 
 </body>

@@ -192,7 +192,7 @@
 <div id="loginModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><h3 class="text-base font-bold text-slate-800 mb-1">Admin Access</h3><p class="text-xs text-slate-500 mb-4">Enter password to unlock management controls:</p><input type="password" id="adminPassInput" placeholder="Enter password..." class="w-full px-3 py-2.5 border rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-cyan-500"><div class="flex justify-end gap-2 text-xs"><button onclick="closeAdminModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button onclick="verifyAdminPass()" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Unlock Admin</button></div></div></div>
 <div id="folderModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 class="text-base font-bold text-slate-800">Create New Folder</h3><button onclick="closeAddFolderModal()" class="text-slate-400 text-xl">&times;</button></div><form onsubmit="saveNewFolder(event)" class="space-y-3 text-xs"><div><label class="font-bold text-slate-700 block mb-1">Folder Name *</label><input type="text" id="newFolderName" required placeholder="e.g. Thermo Manuals" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500"></div><div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAddFolderModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Create Folder</button></div></form></div></div>
 <div id="playlistModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 class="text-base font-bold text-slate-800">Create New Playlist</h3><button onclick="closeAddPlaylistModal()" class="text-slate-400 text-xl">&times;</button></div><form onsubmit="saveNewPlaylist(event)" class="space-y-3 text-xs"><div><label class="font-bold text-slate-700 block mb-1">Playlist Name *</label><input type="text" id="newPlaylistName" required placeholder="e.g. CEMS Maintenance" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500"></div><div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAddPlaylistModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Create Playlist</button></div></form></div></div>
-<div id="partModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="partModalTitle" class="text-base font-bold text-slate-800">Add New Spare Part</h3><button onclick="closePartModal()" class="text-slate-400 text-xl">&times;</button></div><form id="partForm" onsubmit="savePartData(event)" class="space-y-3 text-xs"><input type="hidden" id="editPartId"><div><label class="font-bold text-slate-600 block mb-1">Part Number *</label><input type="text" id="addPartNum" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Description *</label><input type="text" id="addPartName" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Model</label><input type="text" id="addModel" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Category</label><select id="addCategory" class="w-full p-2.5 border rounded-lg bg-white"><option value="Filters & Consumables">Filters & Consumables</option><option value="Fittings, O-Rings & Tubings">Fittings, O-Rings & Tubings</option><option value="General Spares & Hardware">General Spares & Hardware</option><option value="PCBs, Power & Fuses">PCBs, Power & Fuses</option><option value="Pumps & Motors">Pumps & Motors</option><option value="Sensors, Detectors & Optical">Sensors, Detectors & Optical</option><option value="Valves & Solenoids">Valves & Solenoids</option></select></div></div><div><label class="font-bold text-slate-700 block mb-1">Attach Image</label><div onclick="document.getElementById('partPhotoInput').click()" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-xl p-3 text-center cursor-pointer transition"><i class="fa-solid fa-camera text-xl text-cyan-600 mb-1"></i><p id="partPhotoDisplay" class="font-bold text-slate-700 text-xs">Click to browse file from device</p></div><input type="file" id="partPhotoInput" accept="image/*" class="hidden"><input type="text" id="addImageUrlInput" placeholder="or paste web image link: https://..." class="w-full mt-2 p-2 border rounded-lg text-xs bg-slate-50 outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Part</button></div></form></div></div>
+<div id="partModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="partModalTitle" class="text-base font-bold text-slate-800">Add New Spare Part</h3><button onclick="closePartModal()" class="text-slate-400 text-xl">&times;</button></div><form id="partForm" onsubmit="savePartData(event)" class="space-y-3 text-xs"><input type="hidden" id="editPartId"><div><label class="font-bold text-slate-600 block mb-1">Part Number *</label><input type="text" id="addPartNum" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Description *</label><input type="text" id="addPartName" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Model</label><input type="text" id="addModel" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Category</label><select id="addCategory" class="w-full p-2.5 border rounded-lg bg-white"><option value="Filters & Consumables">Filters & Consumables</option><option value="Fittings, O-Rings & Tubings">Fittings, O-Rings & Tubings</option><option value="General Spares & Hardware">General Spares & Hardware</option><option value="PCBs, Power & Fuses">PCBs, Power & Fuses</option><option value="Pumps & Motors">Pumps & Motors</option><option value="Sensors, Detectors & Optical">Sensors, Detectors & Optical</option><option value="Valves & Solenoids">Valves & Solenoids</option></select></div></div><div><label class="font-bold text-slate-700 block mb-1">Attach Image</label><div onclick="document.getElementById('partPhotoInput').click()" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-xl p-3 text-center cursor-pointer transition"><i class="fa-solid fa-camera text-xl text-cyan-600 mb-1"></i><p id="partPhotoDisplay" class="font-bold text-slate-700 text-xs">Click to browse file from device</p></div><input type="file" id="partPhotoInput" accept="image/*" class="hidden"><input type="text" id="addImageUrlInput" placeholder="or paste web image link: https://..." class="w-full mt-2 p-2 border rounded-lg text-xs bg-slate-50 outline-none"><div id="partImageUploadHint" class="text-[10px] text-slate-400 mt-1">New uploads are stored in shared Firebase Storage so your team can see the same image.</div></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Part</button></div></form></div></div>
 <div id="activityModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="activityModalTitle" class="text-base font-bold text-slate-800">Schedule Activity</h3><button onclick="closeActivityModal()" class="text-slate-400 text-xl">&times;</button></div><form id="activityForm" onsubmit="saveNewActivity(event)" class="space-y-3 text-xs"><input type="hidden" id="editActivityId"><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Start Date *</label><input type="date" id="addActStart" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">End Date *</label><input type="date" id="addActEnd" required class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Activity Title *</label><input type="text" id="addActTitle" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Type</label><select id="addActType" class="w-full p-2.5 border rounded-lg bg-white"><option value="PM">Preventive Maint. (PM)</option><option value="Calibration">Calibration</option><option value="Troubleshooting">Troubleshooting</option><option value="Audit">Audit / CGA</option></select></div><div><label class="font-bold text-slate-600 block mb-1">Lead Tech</label><input type="text" id="addActLead" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Remarks</label><textarea id="addActDesc" rows="2" class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeActivityModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Activity</button></div></form></div></div>
 <div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div><form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-4 text-xs"><input type="hidden" id="editDocId"><div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div><label class="font-bold text-slate-700 block mb-1.5">Upload a file <span class="text-slate-400 font-normal">(optional if using Google Drive)</span></label><div id="dropZone" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-2xl p-4 text-center cursor-pointer transition"><i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-600 mb-1"></i><p class="font-bold text-slate-700 text-xs" id="fileNameDisplay">Drag & drop file or click to browse</p></div><input type="file" id="fileInput" class="hidden"></div><div><label class="font-bold text-slate-700 block mb-1">Google Drive Link</label><input type="url" id="addDocDriveLink" placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 border rounded-xl outline-none"><p class="text-[10px] text-slate-400 mt-1">Use a shared Drive file link. Set access to Anyone with the link for team preview.</p></div><div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div><div><label class="font-bold text-slate-700 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div></form></div></div>
 <div id="galleryModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="galleryModalTitle" class="text-base font-bold text-slate-800">Upload YouTube Video / Blog</h3><button onclick="closeGalleryModal()" class="text-slate-400 text-xl">&times;</button></div><form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs"><input type="hidden" id="editGalleryId"><div><label class="font-bold text-slate-700 block mb-1">Select Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Video" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">YouTube Link *</label><input type="text" id="galleryYoutube" required placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Story / Details *</label><textarea id="galleryDesc" rows="3" required class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Publish Video</button></div></form></div></div>
@@ -415,11 +415,44 @@ async function savePartData(e){
   const model = document.getElementById('addModel').value.trim() || 'GENERAL';
   const cat = document.getElementById('addCategory').value;
   const manualUrl = document.getElementById('addImageUrlInput').value.trim();
-  let img = manualUrl ? manualUrl : (currentPartPhoto || '');
   const selectedImageFile=document.getElementById('partPhotoInput')?.files?.[0]||null;
-  if(!manualUrl && selectedImageFile && window.firebaseUploadFile){
-    try{ img=await window.firebaseUploadFile(selectedImageFile,'part-images'); }
-    catch(err){ console.warn('Image upload failed; using local image data.',err); }
+  let img = manualUrl || (currentPartPhoto || '');
+  let imageSource = manualUrl ? 'url' : (img ? 'existing' : 'none');
+
+  // A new local image MUST be uploaded to shared Firebase Storage first.
+  // This prevents browser-only object/data URLs from becoming broken for the team.
+  if(selectedImageFile){
+    if(window.firebaseUploadFile){
+      try{
+        img = await window.firebaseUploadFile(selectedImageFile,'part-images');
+        imageSource = 'firebase-storage';
+        console.log('Shared part image uploaded:', img);
+      }catch(err){
+        console.error('Firebase Storage upload failed:', err);
+        try{
+          img = await compressImageToDataUrl(selectedImageFile, 1200, 0.82);
+          imageSource = 'firestore-fallback';
+          alert('Firebase Storage upload was unavailable, so the image was compressed and saved with the part record instead.');
+        }catch(fallbackErr){
+          alert('The image could not be uploaded. Please check Firebase Storage permissions and try again.');
+          return;
+        }
+      }
+    }else{
+      try{
+        img = await compressImageToDataUrl(selectedImageFile, 1200, 0.82);
+        imageSource = 'firestore-fallback';
+      }catch(err){
+        alert('The image could not be processed. Please try another image.');
+        return;
+      }
+    }
+  }
+
+  // Never save a temporary browser-only blob URL.
+  if(/^blob:/i.test(img)){
+    alert('This image is only available in this browser. Please upload it again so it can be shared with the team.');
+    return;
   }
   if(!pn || !name){
     alert('Part Number and Description required');
@@ -430,14 +463,14 @@ async function savePartData(e){
     const idx = parts.findIndex(p=>String(p.id)===String(editId));
     console.log('Edit index found:', idx);
     if(idx>-1){
-      parts[idx] = {...parts[idx], pn, name, model, cat, img};
+      parts[idx] = {...parts[idx], pn, name, model, cat, img, imageSource};
     } else {
       alert('ID not found for edit: '+editId);
       return;
     }
   } else {
     const newId = Date.now().toString();
-    parts.unshift({id:newId, pn, name, model, cat, rem:'Active Reference', img});
+    parts.unshift({id:newId, pn, name, model, cat, rem:'Active Reference', img, imageSource});
   }
   try{
     localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
@@ -447,9 +480,9 @@ async function savePartData(e){
     if(window._db){
       const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
       if(editId && String(editId).length>=10){
-        await updateDoc(doc(window._db, "kytos_parts", String(editId)), {pn, name, model, cat, img});
+        await updateDoc(doc(window._db, "kytos_parts", String(editId)), {pn, name, model, cat, img, imageSource, updatedAt:Date.now()});
       } else if(!editId){
-        await addDoc(collection(window._db, "kytos_parts"), {pn, name, model, cat, rem:"Active Reference", img, createdAt:Date.now()});
+        await addDoc(collection(window._db, "kytos_parts"), {pn, name, model, cat, rem:"Active Reference", img, imageSource, createdAt:Date.now(), updatedAt:Date.now()});
       }
     }
   }catch(e){ console.log('Firebase save skipped:', e); }
@@ -511,7 +544,7 @@ function applyFilters(){
     matched.forEach(item=>{
       const icon=categoryIcons[item.cat]||'fa-microchip text-slate-400';
       const safePn=escapeHtml(item.pn); const safeName=escapeHtml(item.name); const safeModel=escapeHtml(item.model);
-      const imgBlock=item.img?`<div class="part-grid-image w-full overflow-hidden bg-slate-50 border-t cursor-pointer group relative" onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})"><img src="${escapeHtml(item.img)}" onerror="this.parentElement.innerHTML='<div class=\'w-full h-24 bg-slate-50 flex flex-col items-center justify-center text-slate-300\'><i class=\'fa-solid ${icon} text-2xl mb-1\'></i><span class=\'text-[9px] font-bold uppercase text-slate-400\'>No Image</span></div>'" class="w-full h-full object-contain group-hover:scale-[1.02] transition p-3"><div class="absolute bottom-1 right-1 bg-slate-900/75 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</div></div>`:`<div class="w-full h-24 bg-slate-50 border-t flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-2xl mb-1"></i><span class="text-[9px] font-bold uppercase text-slate-400">${escapeHtml(item.cat)}</span></div>`;
+      const imgBlock=item.img?`<div class="part-grid-image w-full overflow-hidden bg-slate-50 border-t cursor-pointer group relative" onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})"><img src="${escapeHtml(item.img)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')" class="w-full h-full object-contain group-hover:scale-[1.02] transition p-3"><div class="hidden absolute inset-0 bg-slate-50 flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-3xl mb-2"></i><span class="text-[9px] font-bold uppercase text-slate-400">Image unavailable</span><span class="text-[9px] text-slate-400 mt-1">Edit part to replace image</span></div><div class="absolute bottom-1 right-1 bg-slate-900/75 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</div></div>`:`<div class="w-full h-24 bg-slate-50 border-t flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-2xl mb-1"></i><span class="text-[9px] font-bold uppercase text-slate-400">${escapeHtml(item.cat)}</span></div>`;
       const card=document.createElement('div'); card.className="catalog-card bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between";
       card.innerHTML=`<div class="p-4 flex-1 flex flex-col justify-between"><div><div class="flex justify-between items-center gap-1 mb-2"><span class="text-xs font-mono font-bold text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-md border border-cyan-200">${safePn}</span><div class="flex items-center gap-1"><button onclick="copyText(${JSON.stringify(item.pn)})" class="text-slate-400 hover:text-slate-700 p-1" title="Copy PN"><i class="fa-regular fa-copy text-xs"></i></button>${isAdmin?`<button onclick="openEditPartModal('${item.id}')" class="text-cyan-600 hover:text-cyan-800 p-1"><i class="fa-solid fa-pen-to-square text-xs"></i></button><button onclick="deletePartItem('${item.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>`:''}</div></div><h4 class="font-bold text-slate-800 text-xs leading-snug mb-1 line-clamp-2" title="${safeName}">${safeName}</h4></div><div class="mt-3 pt-2.5 border-t text-[10px] flex justify-between text-slate-500"><span>Model:</span><span class="font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">${safeModel}</span></div></div>${imgBlock}`;
       gridDiv.appendChild(card);
@@ -546,6 +579,7 @@ function triggerSearch(){applyFilters();}
 function openPartImagePreview(title,imgSrc){
   document.getElementById('partImageModalTitle').innerText=title;
   const imgEl = document.getElementById('partImageModalImg');
+  imgEl.onerror=()=>{ imgEl.alt='Image unavailable. Edit the spare part and upload the image again.'; };
   imgEl.src=imgSrc;
   imgEl.style.transform='scale(1)';
   imgEl.dataset.scale='1';
@@ -597,7 +631,40 @@ function closePartImageModal(){document.getElementById('partImageModal').classLi
 document.getElementById('searchInput').addEventListener('input', debounce(()=>applyFilters(),300));
 document.getElementById('categoryDropdown').addEventListener('change', ()=>applyFilters());
 document.getElementById('modelDropdown').addEventListener('change', ()=>applyFilters());
-function handlePartPhotoUpload(file){if(!file)return; const reader=new FileReader(); reader.onload=function(e){currentPartPhoto=e.target.result; document.getElementById('partPhotoDisplay').innerHTML=`<span class="text-emerald-700 font-bold">${escapeHtml(file.name)}</span>`; document.getElementById('addImageUrlInput').value="";}; reader.readAsDataURL(file);}
+async function compressImageToDataUrl(file, maxSize=1200, quality=0.82){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(reader.error||new Error('Unable to read image'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const scale=Math.min(1, maxSize/Math.max(img.naturalWidth,img.naturalHeight));
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+        canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+        const ctx=canvas.getContext('2d');
+        if(!ctx)return reject(new Error('Canvas unavailable'));
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.onerror=()=>reject(new Error('Invalid image'));
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function previewSelectedPartImage(file){
+  if(!file)return;
+  const holder=document.getElementById('partPhotoDisplay');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    holder.innerHTML=`<div class=\"flex items-center gap-3 justify-center\"><img src=\"${e.target.result}\" class=\"w-16 h-16 rounded-lg object-contain bg-white border\"><span class=\"text-emerald-700 font-bold text-xs\">${escapeHtml(file.name)}</span></div>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handlePartPhotoUpload(file){if(!file)return; currentPartPhoto=null; document.getElementById('addImageUrlInput').value=''; previewSelectedPartImage(file);}
 document.getElementById('partPhotoInput').addEventListener('change', e=>{if(e.target.files[0]) handlePartPhotoUpload(e.target.files[0]);});
 function openAddModal(){currentPartPhoto=null; document.getElementById('editPartId').value=""; document.getElementById('partModalTitle').innerText="Add New Spare Part"; document.getElementById('partForm').reset(); document.getElementById('partPhotoDisplay').innerText="Click to browse file from device"; document.getElementById('addImageUrlInput').value=""; document.getElementById('partModal').classList.remove('hidden');}
 
@@ -1118,8 +1185,9 @@ try{
     const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
     const path=`${folder}/${Date.now()}_${safe}`;
     const ref=storageRef(storage,path);
-    await uploadBytes(ref,file);
-    return await getDownloadURL(ref);
+    await uploadBytes(ref,file,{contentType:file.type||'image/jpeg',customMetadata:{uploadedFrom:'AQMS Technical Portal'}});
+    const url=await getDownloadURL(ref);
+    return url;
   };
 
   window.firebaseAdd=async(col,data)=>{
@@ -1143,7 +1211,7 @@ try{
   onSnapshot(collection(db,'kytos_parts'),snap=>{
     if(snap.size>=300){
       const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
-      parts=live.map(p=>({id:p.id,pn:p.pn||p.partNumber||'',name:p.name||p.description||'',model:p.model||'GENERAL',cat:p.cat||p.category||'General Spares & Hardware',rem:p.rem||'Active Reference',img:p.img||''}));
+      parts=live.map(p=>({id:p.id,pn:p.pn||p.partNumber||'',name:p.name||p.description||'',model:p.model||'GENERAL',cat:p.cat||p.category||'General Spares & Hardware',rem:p.rem||'Active Reference',img:p.img||'',imageSource:p.imageSource||'unknown'}));
       try{localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts));}catch(_){}
       if(typeof applyFilters==='function')applyFilters();
     }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kytos Arabia — AQMS Technical Portal</title>
+  <title>Abdul Karim H. Al-Sinan for Trading and Contracting Company — AQMS Technical Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -29,6 +29,10 @@
     @media (max-width:768px){
       .mobile-scroll-tabs{width:100%;overflow-x:auto;flex-wrap:nowrap!important}
       .mobile-scroll-tabs button{flex:0 0 auto}
+    }
+    .company-legal-name{line-height:1.25;max-width:min(62vw,760px)}
+    @media (max-width:768px){
+      .company-legal-name{max-width:58vw;font-size:10px}
     }
     @media print{
       header,.no-print,#activitiesView,#documentsView,#galleryView{display:none!important}
@@ -72,6 +76,16 @@
     .view-mode-panel{min-height:120px}
     @media (max-width:1024px){.part-grid-image{height:330px}.media-empty{min-height:330px}}
     @media (max-width:640px){.part-grid-image{height:260px}.media-empty{min-height:260px}}
+
+    /* Mobile-friendly document preview */
+    #filePreviewModal > div { max-width: 1200px; }
+    #previewModalBody { min-height: 0; }
+    @media (max-width: 640px) {
+      #filePreviewModal { padding: .5rem; }
+      #filePreviewModal > div { height: 94vh !important; max-height: 94vh !important; border-radius: 1rem; }
+      #previewModalBody { padding: .5rem !important; }
+      #previewModalTitle { max-width: 45vw; }
+    }
 </style>
 </head>
 <body class="portal-shell text-slate-800 min-h-screen">
@@ -88,7 +102,15 @@
 <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importAllData(event)">
 </div>
 <h1 class="text-base md:text-lg font-bold tracking-tight">AQMS Technical Portal</h1><span class="bg-cyan-950 text-cyan-300 border border-cyan-700/50 text-[10px] font-bold px-2 py-0.5 rounded-full" id="headerBadge">366 Items</span></div>
-        <p class="text-xs text-slate-400">Spare Parts, Calendar, Documents & Gallery • <span id="liveSyncIndicator" title="100% Local - Hindi na babalik, hindi na mawawala" class="inline-flex items-center gap-1.5"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync</span><span class="text-[9px] text-slate-500" id="lastSyncTime"></span></span></p>
+        <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-1">
+  <span class="font-semibold text-slate-300">Abdul Karim H. Al-Sinan for Trading and Contracting Company</span>
+  <span class="text-slate-600">•</span>
+  <span id="liveSyncIndicator" title="Live team synchronization" class="inline-flex items-center gap-1.5">
+    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+    <span class="text-emerald-400 font-bold">Live Sync</span>
+    <span class="text-[9px] text-slate-400" id="lastSyncTime"></span>
+  </span>
+</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
@@ -704,7 +726,7 @@ function updateLiveSyncTime(){
   const el=document.getElementById('lastSyncTime');
   if(el){
     const now=new Date();
-    el.innerText='• '+now.toLocaleTimeString();
+    el.innerText='• '+now.toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})+' '+now.toLocaleTimeString();
   }
   const badge=document.getElementById('headerBadge');
   if(badge){
@@ -761,9 +783,30 @@ function downloadPartImage(){
 }
 function extractDriveId(url){
   if(!url) return null;
-  const patterns = [/\/d\/([^\/\?]+)/, /id=([^&]+)/, /\/file\/d\/([^\/]+)/];
-  for(let p of patterns){ const m=url.match(p); if(m) return m[1]; }
+  const raw=String(url).trim();
+  const patterns=[
+    /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i,
+    /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/i,
+    /drive\.google\.com\/uc\?(?:[^#]*&)?id=([a-zA-Z0-9_-]+)/i,
+    /drive\.google\.com\/thumbnail\?id=([a-zA-Z0-9_-]+)/i,
+    /docs\.google\.com\/(?:document|spreadsheets|presentation)\/d\/([a-zA-Z0-9_-]+)/i,
+    /[?&]id=([a-zA-Z0-9_-]+)/i,
+    /\/d\/([a-zA-Z0-9_-]+)/i
+  ];
+  for(const pattern of patterns){ const match=raw.match(pattern); if(match) return match[1]; }
   return null;
+}
+
+function isGoogleDriveUrl(url){
+  return /(?:drive\.google\.com|docs\.google\.com)/i.test(String(url||''));
+}
+
+function getGoogleDocumentKind(url){
+  const value=String(url||'').toLowerCase();
+  if(value.includes('docs.google.com/document/')) return 'document';
+  if(value.includes('docs.google.com/spreadsheets/')) return 'spreadsheet';
+  if(value.includes('docs.google.com/presentation/')) return 'presentation';
+  return 'drive-file';
 }
 
 function closePartImageModal(){document.getElementById('partImageModal').classList.add('hidden');}
@@ -857,46 +900,98 @@ function dataUrlToBlob(dataUrl){const parts=dataUrl.split(';base64,'); const con
 function previewFileById(id){
   const item=documents.find(d=>String(d.id)===String(id));
   if(!item||!item.url){alert('No file attached.');return;}
-  document.getElementById('previewModalTitle').innerText=item.title||'Document Preview';
-  const body=document.getElementById('previewModalBody'); body.innerHTML='';
-  document.getElementById('previewDownloadBtn').onclick=()=>downloadFileById(item.id);
+
+  const modal=document.getElementById('filePreviewModal');
+  const title=document.getElementById('previewModalTitle');
+  const body=document.getElementById('previewModalBody');
+  const downloadBtn=document.getElementById('previewDownloadBtn');
+  if(!modal||!body)return;
+
+  title.innerText=item.title||'Document Preview';
+  body.innerHTML='';
+  downloadBtn.onclick=()=>downloadFileById(item.id);
   if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl);activePreviewBlobUrl=null;}
+
+  const showUnsupported=(message='Preview is not available for this file type.')=>{
+    body.innerHTML=`<div class="w-full h-full flex items-center justify-center p-6"><div class="text-center p-8 bg-white rounded-2xl border max-w-lg shadow-sm"><i class="fa-solid fa-file-lines text-4xl text-cyan-600 mb-3"></i><h4 class="font-bold text-sm mb-1">${escapeHtml(item.fileName||item.title||'Document')}</h4><p class="text-xs text-slate-500 mt-2">${escapeHtml(message)}</p><div class="flex flex-wrap justify-center gap-2 mt-4"><button onclick="downloadFileById('${item.id}')" class="bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs"><i class="fa-solid fa-download mr-1"></i> Download File</button>${isGoogleDriveUrl(item.url)?`<a href="${normalizeDriveUrl(item.url)}" target="_blank" rel="noopener" class="bg-slate-100 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs"><i class="fa-brands fa-google-drive mr-1"></i> Open in Google Drive</a>`:''}</div></div></div>`;
+  };
 
   if(item.url.startsWith('data:')){
     const blob=dataUrlToBlob(item.url); activePreviewBlobUrl=URL.createObjectURL(blob);
-    if(item.type==='PDF') body.innerHTML=`<iframe src="${activePreviewBlobUrl}#toolbar=1" class="w-full h-full rounded-xl border bg-white"></iframe>`;
-    else if(item.type==='IMAGE') body.innerHTML=`<img src="${activePreviewBlobUrl}" class="max-h-full max-w-full object-contain rounded-xl shadow">`;
-    else body.innerHTML=`<div class="text-center p-8 bg-white rounded-2xl border max-w-md shadow-sm"><i class="fa-solid fa-file-lines text-4xl text-cyan-600 mb-3"></i><h4 class="font-bold text-sm mb-1">${escapeHtml(item.fileName||item.title)}</h4><p class="text-xs text-slate-500">This file type is available for download.</p><button onclick="downloadFileById('${item.id}')" class="mt-3 bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs">Download File</button></div>`;
-  }else{
-    const drivePreview=drivePreviewUrl(item.url);
-    if(drivePreview){
-      const driveView=`https://drive.google.com/file/d/${extractDriveId(item.url)}/view`;
-      body.innerHTML=`<div class="w-full h-full flex flex-col gap-2"><div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2"><span><i class="fa-brands fa-google-drive text-emerald-600 mr-1"></i> Google Drive document</span><a href="${driveView}" target="_blank" rel="noopener" class="text-cyan-700 underline font-bold">Open in Google Drive</a></div><iframe src="${drivePreview}" class="w-full flex-1 min-h-0 rounded-xl border bg-white"></iframe></div>`;
-    }else if(item.type==='PDF'){
-      body.innerHTML=`<iframe src="${item.url}" class="w-full h-full rounded-xl border bg-white"></iframe>`;
-    }else if(item.type==='IMAGE'){
-      body.innerHTML=`<img src="${item.url}" class="max-h-full max-w-full object-contain rounded-xl shadow">`;
-    }else{
-      body.innerHTML=`<div class="text-center p-8 bg-white rounded-2xl border max-w-md shadow-sm"><i class="fa-solid fa-file-lines text-4xl text-cyan-600 mb-3"></i><h4 class="font-bold text-sm">${escapeHtml(item.fileName||item.title)}</h4><p class="text-xs text-slate-500 mt-1">Preview is not supported for this file type in the browser.</p><button onclick="downloadFileById('${item.id}')" class="mt-3 bg-cyan-600 text-white font-bold px-4 py-2 rounded-xl text-xs">Download File</button></div>`;
+    if(item.type==='PDF') body.innerHTML=`<iframe title="Document preview" src="${activePreviewBlobUrl}#toolbar=1&navpanes=0" class="w-full h-full rounded-xl border bg-white"></iframe>`;
+    else if(item.type==='IMAGE') body.innerHTML=`<div class="w-full h-full flex items-center justify-center bg-slate-100 p-3"><img src="${activePreviewBlobUrl}" class="max-h-full max-w-full object-contain rounded-xl shadow"></div>`;
+    else showUnsupported('This locally stored file can be downloaded, but the browser cannot preview this format directly.');
+  }else if(isGoogleDriveUrl(item.url)){
+    const id=extractDriveId(item.url);
+    if(!id){ showUnsupported('The Google Drive link is not recognized. Please edit the document and paste the full Drive sharing link.'); }
+    else{
+      const kind=getGoogleDocumentKind(item.url);
+      let previewUrl;
+      let driveViewUrl;
+      if(kind==='document'){
+        previewUrl=`https://docs.google.com/document/d/${id}/preview`;
+        driveViewUrl=`https://docs.google.com/document/d/${id}/edit`;
+      }else if(kind==='spreadsheet'){
+        previewUrl=`https://docs.google.com/spreadsheets/d/${id}/preview`;
+        driveViewUrl=`https://docs.google.com/spreadsheets/d/${id}/edit`;
+      }else if(kind==='presentation'){
+        previewUrl=`https://docs.google.com/presentation/d/${id}/preview`;
+        driveViewUrl=`https://docs.google.com/presentation/d/${id}/edit`;
+      }else{
+        previewUrl=`https://drive.google.com/file/d/${id}/preview`;
+        driveViewUrl=`https://drive.google.com/file/d/${id}/view`;
+      }
+
+      body.innerHTML=`<div class="w-full h-full flex flex-col gap-2">
+        <div class="bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2 shrink-0">
+          <span class="font-bold text-emerald-800"><i class="fa-brands fa-google-drive text-emerald-600 mr-1"></i> Google Drive Preview</span>
+          <div class="flex items-center gap-2"><a href="${driveViewUrl}" target="_blank" rel="noopener" class="text-cyan-700 underline font-bold">Open in Google Drive</a><button type="button" onclick="downloadFileById('${item.id}')" class="bg-cyan-600 text-white px-2.5 py-1 rounded-lg font-bold">Download</button></div>
+        </div>
+        <div class="relative flex-1 min-h-0 rounded-xl overflow-hidden border bg-white">
+          <iframe id="googleDrivePreviewFrame" title="${escapeHtml(item.title||'Google Drive document')}" src="${previewUrl}" class="absolute inset-0 w-full h-full bg-white" allow="autoplay; fullscreen" loading="eager"></iframe>
+          <div class="absolute inset-x-0 bottom-0 pointer-events-none flex justify-center p-2"><span class="pointer-events-auto bg-slate-900/80 text-white text-[10px] px-3 py-1.5 rounded-full">If the preview is blocked, use “Open in Google Drive”.</span></div>
+        </div>
+      </div>`;
     }
+  }else if(item.type==='PDF'){
+    body.innerHTML=`<iframe title="PDF preview" src="${item.url}#toolbar=1&navpanes=0" class="w-full h-full rounded-xl border bg-white"></iframe>`;
+  }else if(item.type==='IMAGE'){
+    body.innerHTML=`<div class="w-full h-full flex items-center justify-center bg-slate-100 p-3"><img src="${item.url}" class="max-h-full max-w-full object-contain rounded-xl shadow"></div>`;
+  }else{
+    showUnsupported();
   }
-  document.getElementById('filePreviewModal').classList.remove('hidden');
+
+  modal.classList.remove('hidden');
 }
+
 function closePreviewModal(){document.getElementById('filePreviewModal').classList.add('hidden'); if(activePreviewBlobUrl){URL.revokeObjectURL(activePreviewBlobUrl); activePreviewBlobUrl=null;}}
 function normalizeDriveUrl(url){
-  const id=extractDriveId(url||'');
-  return id ? `https://drive.google.com/file/d/${id}/view` : (url||'');
+  const raw=String(url||'').trim();
+  if(!raw)return '';
+  const id=extractDriveId(raw);
+  if(!id)return raw;
+  const kind=getGoogleDocumentKind(raw);
+  if(kind==='document') return `https://docs.google.com/document/d/${id}/edit`;
+  if(kind==='spreadsheet') return `https://docs.google.com/spreadsheets/d/${id}/edit`;
+  if(kind==='presentation') return `https://docs.google.com/presentation/d/${id}/edit`;
+  return `https://drive.google.com/file/d/${id}/view`;
 }
 function drivePreviewUrl(url){
   const id=extractDriveId(url||'');
-  return id ? `https://drive.google.com/file/d/${id}/preview` : null;
+  if(!id)return null;
+  const kind=getGoogleDocumentKind(url);
+  if(kind==='document') return `https://docs.google.com/document/d/${id}/preview`;
+  if(kind==='spreadsheet') return `https://docs.google.com/spreadsheets/d/${id}/preview`;
+  if(kind==='presentation') return `https://docs.google.com/presentation/d/${id}/preview`;
+  return `https://drive.google.com/file/d/${id}/preview`;
 }
 function driveDownloadUrl(url){
-  const value=url||'', id=extractDriveId(value);
+  const value=String(url||''), id=extractDriveId(value);
   if(!id)return null;
-  if(value.includes('docs.google.com/document/')) return `https://docs.google.com/document/d/${id}/export?format=pdf`;
-  if(value.includes('docs.google.com/spreadsheets/')) return `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
-  if(value.includes('docs.google.com/presentation/')) return `https://docs.google.com/presentation/d/${id}/export/pdf`;
+  const kind=getGoogleDocumentKind(value);
+  if(kind==='document') return `https://docs.google.com/document/d/${id}/export?format=pdf`;
+  if(kind==='spreadsheet') return `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
+  if(kind==='presentation') return `https://docs.google.com/presentation/d/${id}/export/pdf`;
   return `https://drive.google.com/uc?export=download&id=${id}`;
 }
 function downloadFileById(id){
@@ -1355,7 +1450,7 @@ try{
       try{localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts));}catch(_){}
       if(typeof applyFilters==='function')applyFilters();
     }
-    const el=document.getElementById('lastSyncTime');if(el)el.innerText=`• ${new Date().toLocaleTimeString()} • ${snap.size} parts`;
+    const el=document.getElementById('lastSyncTime');if(el)el.innerText=`• ${new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})} ${new Date().toLocaleTimeString()} • ${snap.size} parts`;
   });
 
   onSnapshot(collection(db,'kytos_activities'),snap=>{
@@ -1399,7 +1494,7 @@ try{
   if(ind)ind.innerHTML=`<span class="text-amber-400 font-bold">Local Mode — Firebase unavailable</span>`;
 }
 function updateLiveSyncTime(){
-  const el=document.getElementById('lastSyncTime');if(el)el.innerText='• '+new Date().toLocaleTimeString()+' • Live';
+  const el=document.getElementById('lastSyncTime');if(el)el.innerText='• '+new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})+' '+new Date().toLocaleTimeString()+' • Live';
 }
 window.updateLiveSyncTime=updateLiveSyncTime;
 </script>

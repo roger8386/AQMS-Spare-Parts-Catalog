@@ -65,7 +65,31 @@
 </main>
 
 <main id="activitiesView" class="hidden max-w-7xl mx-auto px-4 py-6">
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex justify-between items-center flex-wrap gap-3"><div><h2 class="text-base font-bold text-slate-800">Maintenance & Site Activities Schedule</h2><p class="text-xs text-slate-500">Preventive maintenance, audits, and calibration schedules.</p></div><div id="adminActivityAction" class="hidden"><button onclick="openAddActivityModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-plus mr-1"></i> Add Activity</button></div></div>
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
+  <div class="flex flex-wrap justify-between items-start gap-4">
+    <div>
+      <h2 class="text-base font-bold text-slate-800">Maintenance & Site Activities Schedule</h2>
+      <p class="text-xs text-slate-500 mt-1">Preventive maintenance, audits, and calibration schedules.</p>
+    </div>
+    <div id="adminActivityAction" class="hidden">
+      <button onclick="openAddActivityModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-plus mr-1"></i> Add Activity</button>
+    </div>
+  </div>
+  <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
+    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Calendar:</span>
+    <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
+      <button id="calViewMonthBtn" onclick="window.switchCalendarView('month')" class="px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow">Month</button>
+      <button id="calViewWeekBtn" onclick="window.switchCalendarView('week')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">Week</button>
+      <button id="calViewListBtn" onclick="window.switchCalendarView('list')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">List</button>
+    </div>
+    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-2">Activities:</span>
+    <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
+      <button id="actViewCardBtn" onclick="window.switchActivityView('card')" class="px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow">Cards</button>
+      <button id="actViewTableBtn" onclick="window.switchActivityView('table')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">Table</button>
+      <button id="actViewTimelineBtn" onclick="window.switchActivityView('timeline')" class="px-3 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 font-medium">Timeline</button>
+    </div>
+  </div>
+</div>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1"><div class="flex justify-between items-center mb-4"><h3 id="calendarMonthYear" class="font-bold text-sm text-slate-800"></h3><div class="flex space-x-1"><button onclick="changeMonth(-1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-left"></i></button><button onclick="changeMonth(1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-right"></i></button></div></div><div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase mb-2"><div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div></div><div id="calendarDays" class="grid grid-cols-7 gap-1 text-xs"></div></div><div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2"><h3 class="font-bold text-sm text-slate-800 mb-3 pb-2 border-b border-slate-100">Scheduled Activities</h3><div id="activityList" class="space-y-3"></div></div></div>
 </main>
 
@@ -207,7 +231,16 @@ function getYouTubeId(url){
   return null;
 }
 let parts = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null') || rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
-let activities = JSON.parse(localStorage.getItem('kytos_acts_fixed')||'null') || [{id:1,startDate:"2026-09-20",endDate:"2026-09-23",title:"4-Days Annual Preventive Maintenance",type:"PM",person:"Service Team",description:"Comprehensive testing."}];
+let activities = JSON.parse(localStorage.getItem('kytos_acts_fixed')||'null') || [
+{id:"act_kaust",startDate:"2026-09-20",endDate:"2026-09-23",title:"KAUST MONTHLY MAINTENANCE",type:"PM",person:"Service Team",description:"Monthly maintenance at KAUST site"},
+{id:1,startDate:"2026-09-20",endDate:"2026-09-23",title:"4-Days Annual Preventive Maintenance",type:"PM",person:"Service Team",description:"Comprehensive testing."},
+{id:"act_albert",startDate:"2026-10-05",endDate:"2026-10-10",title:"Albert in France - Audit",type:"Audit",person:"Albert",description:"Site audit in France"},
+{id:"act_maint2",startDate:"2026-09-15",endDate:"2026-09-18",title:"maintenance - ako ikaw sila",type:"Calibration",person:"Team",description:"Calibration and maintenance"}
+];
+let calendarViewMode = localStorage.getItem('kytos_calView')||'month';
+let activityViewMode = localStorage.getItem('kytos_actView')||'card';
+window.switchCalendarView = function(mode){ calendarViewMode=mode; localStorage.setItem('kytos_calView', mode); renderActivities(); };
+window.switchActivityView = function(mode){ activityViewMode=mode; localStorage.setItem('kytos_actView', mode); renderActivities(); };
 let galleryPosts = JSON.parse(localStorage.getItem('kytos_gallery_fixed')||'null') || [{id:1,date:"2026-09-15",location:"Jubail Plant",playlist:"Thermo Analyzers",title:"CEMS Maintenance & Calibration Walkthrough",youtube:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",description:"Sample troubleshooting and maintenance video."}];
 let playlists = JSON.parse(localStorage.getItem('kytos_playlists_fixed')||'null') || ["All Playlists","Thermo Analyzers","Airpointer","Calibration & SOP"];
 let selectedPlaylist="All Playlists";
@@ -581,13 +614,78 @@ applyFilters(); setPartsViewMode(partsViewMode); setDocsViewMode(docsViewMode); 
 
 
 
-<script>console.log("V13 - 100% Local Only, No Firebase - hindi na babalik"); function updateLiveSyncTime(){ const el=document.getElementById("lastSyncTime"); if(el) el.innerText="• "+new Date().toLocaleTimeString()+" Local:"+parts.length+" (No Firebase)"; } window.updateLiveSyncTime=updateLiveSyncTime; window.firebaseAdd=async()=>null; window.firebaseUpdate=async()=>null; window.firebaseDelete=async()=>null;</script>
 
-
-
-
-<script>console.log("V13 - 100% Local Only, No Firebase - hindi na babalik"); function updateLiveSyncTime(){ const el=document.getElementById("lastSyncTime"); if(el) el.innerText="• "+new Date().toLocaleTimeString()+" Local:"+parts.length+" (No Firebase)"; } window.updateLiveSyncTime=updateLiveSyncTime; window.firebaseAdd=async()=>null; window.firebaseUpdate=async()=>null; window.firebaseDelete=async()=>null;</script>
-
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyACUvUCcoGriWQUUPS_nNARgN95wnBbFsU",
+  authDomain: "kytos-aqms.firebaseapp.com",
+  projectId: "kytos-aqms",
+  storageBucket: "kytos-aqms.firebasestorage.app",
+  messagingSenderId: "358326782114",
+  appId: "1:358326782114:web:76205cfbcd035ac1a22ffb",
+  measurementId: "G-RD6123H3DP"
+};
+let app, db;
+try{
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  window._db = db;
+  console.log('🔥 LIVE FOR TEAM - Every update online team sees');
+  const ind = document.getElementById('liveSyncIndicator');
+  if(ind){
+    ind.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-emerald-400 font-bold">Live Sync - Team View (LIVE)</span><span class="text-[9px] text-slate-300 ml-1" id="lastSyncTime"></span>`;
+  }
+  onSnapshot(collection(db, "kytos_parts"), (snap)=>{
+    if(snap.size>=10){
+      let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+      parts = live.map(p=>({id:p.id||p.pn, pn:p.pn||p.partNumber, name:p.name||p.description, model:p.model, cat:p.cat||p.category, rem:p.rem||"Active Reference", img:p.img||""}));
+      try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+      if(typeof applyFilters==='function') applyFilters();
+    }
+    const el=document.getElementById('lastSyncTime');
+    if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Live:'+snap.size;
+  });
+  onSnapshot(collection(db, "kytos_activities"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(snap.size>0){
+      activities = live.map(a=>({id:a.id, startDate:a.startDate, endDate:a.endDate, title:a.title, type:a.type, person:a.person, description:a.description}));
+      try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+      if(typeof renderActivities==='function') renderActivities();
+    }
+  });
+  onSnapshot(collection(db, "kytos_docs"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){ documents=live; try{ localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents)); }catch(e){} if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs(); }
+  });
+  onSnapshot(collection(db, "kytos_gallery"), (snap)=>{
+    let live=[]; snap.forEach(d=>live.push({id:d.id, ...d.data()}));
+    if(live.length>0){ galleryPosts=live; try{ localStorage.setItem('kytos_gallery_fixed', JSON.stringify(galleryPosts)); }catch(e){} if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery(); }
+  });
+  window.firebaseAdd = async (col, data)=>{
+    try{ const ref = await addDoc(collection(db, col), {...data, createdAt:Date.now()}); return ref.id; }catch(e){ console.error(e); return null; }
+  };
+  window.firebaseUpdate = async (col, id, data)=>{
+    try{ await updateDoc(doc(db, col, id), data); return true; }catch(e){ return false; }
+  };
+  window.firebaseDelete = async (col, id, fallbackPn=null)=>{
+    try{ await deleteDoc(doc(db, col, id)); return true; }catch(e){
+      if(fallbackPn && col==='kytos_parts'){
+        try{
+          const q = query(collection(db, col), where("pn", "==", fallbackPn));
+          const snap = await getDocs(q);
+          for(const d of snap.docs){ await deleteDoc(doc(db, col, d.id)); }
+          return true;
+        }catch(e2){}
+      }
+      return false;
+    }
+  };
+}catch(e){ console.error('Firebase failed', e); }
+function updateLiveSyncTime(){ const el=document.getElementById('lastSyncTime'); if(el) el.innerText='• '+new Date().toLocaleTimeString()+' Live Team'; }
+window.updateLiveSyncTime = updateLiveSyncTime;
+</script>
 
 </body>
 </html>

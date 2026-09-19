@@ -27,7 +27,7 @@
     .soft-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
     .soft-scroll::-webkit-scrollbar-track{background:transparent}
     @media (max-width:768px){
-      .mobile-scroll-tabs{width:100%;overflow-x:auto;flex-wrap:nowrap!important}
+      .mobile-scroll-tabs{max-width:calc(100vw - 86px);overflow-x:auto;flex-wrap:nowrap!important}
       .mobile-scroll-tabs button{flex:0 0 auto}
     }
     .company-legal-name{line-height:1.25;max-width:min(62vw,760px)}
@@ -76,6 +76,18 @@
     .view-mode-panel{min-height:120px}
     @media (max-width:1024px){.part-grid-image{height:330px}.media-empty{min-height:330px}}
     @media (max-width:640px){.part-grid-image{height:260px}.media-empty{min-height:260px}}
+
+    /* Home editor: keep the modal itself fixed while its content scrolls */
+    .home-editor-overlay{align-items:flex-start!important;justify-content:center!important;padding:16px!important;overflow:hidden!important}
+    .home-editor-panel{max-height:calc(100vh - 32px);height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden;margin:0!important}
+    .home-editor-header{flex:0 0 auto;position:sticky;top:0;z-index:3;background:#fff}
+    .home-editor-content{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:4px;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+    .home-editor-footer{flex:0 0 auto;position:sticky;bottom:0;z-index:3;background:#fff}
+    .home-batch-slot{border:1px solid #e2e8f0;border-radius:16px;padding:12px;background:#f8fafc}
+    .home-batch-preview{height:190px;border:1px dashed #cbd5e1;border-radius:12px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .home-batch-preview img{width:100%;height:100%;object-fit:contain;background:#fff}
+    .home-batch-slot.has-image .home-batch-preview{border-style:solid;background:#fff}
+    @media (max-width:768px){.home-editor-overlay{padding:8px!important}.home-editor-panel{max-height:calc(100vh - 16px);height:calc(100vh - 16px);border-radius:14px!important;padding:16px!important}.home-batch-preview{height:170px}}
 
     /* Mobile-friendly document preview */
     #filePreviewModal > div { max-width: 1200px; }
@@ -137,8 +149,8 @@
 </p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <div class="mobile-scroll-tabs soft-scroll flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-wrap">
+    <div class="flex items-center gap-2 ml-auto">
+      <div class="mobile-scroll-tabs soft-scroll flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-nowrap">
         <button id="tabHomeBtn" onclick="switchTab('home')" class="tab-btn px-3 py-1.5 rounded-md bg-cyan-600 text-white font-medium"><i class="fa-solid fa-house mr-1"></i> Home</button>
          <button id="tabPartsBtn" onclick="switchTab('parts')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-boxes-stacked mr-1"></i> Spare Parts</button>
         <button id="tabActivitiesBtn" onclick="switchTab('activities')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-calendar-days mr-1"></i> Calendar</button>
@@ -315,9 +327,9 @@
 
 <!-- MODALS (same structure as original but with click-outside) -->
 
-<div id="homeEditorModal" class="hidden fixed inset-0 bg-slate-900/70 flex items-center justify-center p-4 z-50 overflow-y-auto">
-  <div class="bg-white rounded-2xl max-w-6xl w-full p-6 shadow-2xl my-8">
-    <div class="flex justify-between items-start gap-4 mb-5 pb-4 border-b">
+<div id="homeEditorModal" class="hidden fixed inset-0 bg-slate-900/70 flex z-50 home-editor-overlay">
+  <div class="bg-white rounded-2xl max-w-6xl w-full p-6 shadow-2xl home-editor-panel">
+    <div class="flex justify-between items-start gap-4 mb-4 pb-4 border-b home-editor-header">
       <div>
         <h3 class="text-base font-black text-slate-800">Edit Home Page</h3>
         <p class="text-xs text-slate-500 mt-1">Manage up to 10 activity photos, portal purpose, and shortcuts. Make all changes first, then use one Save All button.</p>
@@ -325,6 +337,7 @@
       <button onclick="closeHomeEditor()" class="text-slate-400 text-xl">&times;</button>
     </div>
 
+    <div class="home-editor-content pr-1">
     <div class="mb-5">
       <label class="text-xs font-bold text-slate-700 block mb-1">Portal Purpose</label>
       <textarea id="homePurposeInput" rows="3" class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Describe the purpose of this portal..."></textarea>
@@ -352,7 +365,8 @@
       <div id="homeBatchShortcuts" class="space-y-2"></div>
     </section>
 
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t pt-4">
+    </div>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t pt-4 home-editor-footer">
       <div class="text-[10px] text-slate-500"><i class="fa-solid fa-cloud-arrow-up mr-1 text-cyan-600"></i>One save updates the Home page and syncs changes to the team.</div>
       <div class="flex gap-2">
         <button type="button" onclick="closeHomeEditor()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-sm font-bold">Cancel</button>

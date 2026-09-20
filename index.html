@@ -559,12 +559,15 @@ if(parts.length<300 && rawData.length>=366){
   try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
 }
 
-let activities = JSON.parse(localStorage.getItem('kytos_acts_fixed')||'null') || [
+const defaultActivities = [
 {id:"act_kaust",startDate:"2026-09-20",endDate:"2026-09-23",title:"KAUST MONTHLY MAINTENANCE",type:"PM",person:"Service Team",description:"Monthly maintenance at KAUST site"},
 {id:1,startDate:"2026-09-20",endDate:"2026-09-23",title:"4-Days Annual Preventive Maintenance",type:"PM",person:"Service Team",description:"Comprehensive testing."},
 {id:"act_albert",startDate:"2026-10-05",endDate:"2026-10-10",title:"Albert in France - Audit",type:"Audit",person:"Albert",description:"Site audit in France"},
 {id:"act_maint2",startDate:"2026-09-15",endDate:"2026-09-18",title:"maintenance - ako ikaw sila",type:"Calibration",person:"Team",description:"Calibration and maintenance"}
 ];
+let _savedActivities = null;
+try{ _savedActivities = JSON.parse(localStorage.getItem('kytos_acts_fixed')||'null'); }catch(_){}
+let activities = (Array.isArray(_savedActivities) && _savedActivities.length) ? _savedActivities : defaultActivities.map(a=>({...a}));
 let calendarViewMode = localStorage.getItem('kytos_calView')||'month';
 let activityViewMode = localStorage.getItem('kytos_actView')||'card';
 window.switchCalendarView = function(mode){ calendarViewMode=mode; localStorage.setItem('kytos_calView', mode); renderActivities(); };
@@ -1194,6 +1197,135 @@ function openAddModal(){currentPartPhoto=null; document.getElementById('editPart
 
 
 
+function setActivityViewButtons(){
+  ['card','table','timeline'].forEach(m=>{
+    const b=document.getElementById('actView'+m.charAt(0).toUpperCase()+m.slice(1)+'Btn');
+    if(b)b.className=m===activityViewMode?'px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow':'px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium';
+  });
+  ['month','week','list'].forEach(m=>{
+    const b=document.getElementById('calView'+m.charAt(0).toUpperCase()+m.slice(1)+'Btn');
+    if(b)b.className=m===calendarViewMode?'px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow':'px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium';
+  });
+}
+function renderActivities(){
+  setActivityViewButtons();
+  const panel=document.getElementById('calendarPanel'), activityPanel=document.getElementById('activityPanel'), container=document.getElementById('activityList');
+  if(calendarViewMode==='list'){panel.classList.add('hidden');activityPanel.classList.remove('lg:col-span-2');activityPanel.classList.add('lg:col-span-3');}
+  else{panel.classList.remove('hidden');activityPanel.classList.remove('lg:col-span-3');activityPanel.classList.add('lg:col-span-2');}
+  container.innerHTML='';
+  const sorted=[...activities].sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
+  if(!sorted.length){container.innerHTML='<p class="text-xs text-slate-400 py-8 text-center">No activities scheduled.</p>';renderCalendar();return;}
+  const controls=a=>isAdmin?`<div class="flex items-center gap-1 ml-auto"><button onclick="openEditActivityModal('${a.id}')" class="p-1.5 text-cyan-600" title="Edit"><i class="fa-solid fa-pen"></i></button><button onclick="deleteActivityItem('${a.id}')" class="p-1.5 text-red-500" title="Delete"><i class="fa-solid fa-trash"></i></button></div>`:'';
+  if(activityViewMode==='card'){
+    container.className='space-y-3';
+    sorted.forEach(a=>{const el=document.createElement('article');el.className='p-4 rounded-2xl border bg-slate-50 flex items-start gap-3';el.innerHTML=`<div class="bg-cyan-600 text-white rounded-xl p-2.5 text-center min-w-[78px]"><span class="block text-[9px] uppercase font-bold">${escapeHtml(a.type||'Activity')}</span><span class="block text-[12px] font-black mt-1">${escapeHtml(a.startDate)}</span><span class="block text-[9px] opacity-80">to</span><span class="block text-[11px] font-bold">${escapeHtml(a.endDate)}</span></div><div class="flex-1 min-w-0"><div class="flex gap-2 items-start"><div><h4 class="font-black text-sm text-slate-900">${escapeHtml(a.title)}</h4><p class="text-xs text-slate-600 mt-1">${escapeHtml(a.description||'No remarks.')}</p><p class="text-[11px] text-slate-500 mt-2"><strong>Lead:</strong> ${escapeHtml(a.person||'Unassigned')}</p></div>${controls(a)}</div></div>`;container.appendChild(el)});
+  }else if(activityViewMode==='table'){
+    const table=document.createElement('div');table.className='overflow-x-auto rounded-2xl border';table.innerHTML='<table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="text-left p-3">Date</th><th class="text-left p-3">Activity</th><th class="text-left p-3">Type</th><th class="text-left p-3">Lead</th><th class="text-left p-3">Remarks</th><th class="p-3"></th></tr></thead><tbody></tbody></table>';const tb=table.querySelector('tbody');sorted.forEach(a=>{const tr=document.createElement('tr');tr.className='border-t hover:bg-slate-50';tr.innerHTML=`<td class="p-3 whitespace-nowrap">${escapeHtml(a.startDate)} → ${escapeHtml(a.endDate)}</td><td class="p-3 font-bold">${escapeHtml(a.title)}</td><td class="p-3">${escapeHtml(a.type||'')}</td><td class="p-3">${escapeHtml(a.person||'')}</td><td class="p-3">${escapeHtml(a.description||'')}</td><td class="p-3">${controls(a)}</td>`;tb.appendChild(tr)});container.appendChild(table);
+  }else{
+    container.className='relative space-y-3 pl-6 border-l-2 border-cyan-100';
+    sorted.forEach(a=>{const el=document.createElement('article');el.className='relative bg-white border rounded-2xl p-4';el.innerHTML=`<span class="absolute -left-[31px] top-5 w-3 h-3 rounded-full bg-cyan-600 border-2 border-white"></span><div class="flex gap-2 items-start"><div class="flex-1"><p class="text-[10px] font-bold uppercase text-cyan-700">${escapeHtml(a.startDate)} → ${escapeHtml(a.endDate)} • ${escapeHtml(a.type||'')}</p><h4 class="font-black text-slate-900 mt-1">${escapeHtml(a.title)}</h4><p class="text-xs text-slate-600 mt-1">${escapeHtml(a.description||'')}</p><p class="text-[11px] text-slate-500 mt-2">Lead: ${escapeHtml(a.person||'Unassigned')}</p></div>${controls(a)}</div>`;container.appendChild(el)});
+  }
+  renderCalendar();
+}
+function renderCalendar(){
+  const title=document.getElementById('calendarMonthYear'),days=document.getElementById('calendarDays');
+  if(!title||!days)return;days.innerHTML='';
+  const y=currentCalendarDate.getFullYear(),m=currentCalendarDate.getMonth();
+  title.innerText=currentCalendarDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  if(calendarViewMode==='week'){
+    const base=new Date(currentCalendarDate);const day=base.getDay();base.setDate(base.getDate()-day);
+    days.className='grid grid-cols-7 gap-2';
+    for(let i=0;i<7;i++){const d=new Date(base);d.setDate(base.getDate()+i);const key=d.toISOString().slice(0,10);const acts=activities.filter(a=>key>=a.startDate&&key<=a.endDate);const cell=document.createElement('div');cell.className='min-h-[150px] rounded-xl border bg-slate-50 p-2';cell.innerHTML=`<div class="font-black text-[11px] text-slate-700 mb-2">${d.toLocaleDateString('en-US',{weekday:'short'})}<br><span class="text-cyan-700">${d.getDate()}</span></div>${acts.map(a=>`<div class="text-[9px] font-bold bg-cyan-100 text-cyan-800 rounded-lg p-1.5 mb-1">${escapeHtml(a.title)}</div>`).join('')}`;days.appendChild(cell)}
+    return;
+  }
+  if(calendarViewMode==='list'){
+    days.className='grid grid-cols-1 gap-2';days.innerHTML='<div class="text-xs text-slate-500 p-3 bg-slate-50 rounded-xl">Use the activity panel for the full list.</div>';return;
+  }
+  days.className='grid grid-cols-7 gap-1 text-xs';
+  const first=new Date(y,m,1).getDay(),total=new Date(y,m+1,0).getDate();
+  for(let i=0;i<first;i++)days.appendChild(document.createElement('div'));
+  for(let day=1;day<=total;day++){
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const count=activities.filter(a=>key>=a.startDate&&key<=a.endDate).length;
+    const cell=document.createElement('div');cell.className=count?'h-10 flex flex-col items-center justify-center rounded-lg bg-cyan-600 text-white font-bold cursor-pointer':'h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700';cell.innerHTML=count?`${day}<span class="text-[8px] opacity-80">${count} item${count>1?'s':''}</span}`:`${day}`;days.appendChild(cell);
+  }
+}
+function changeMonth(delta){currentCalendarDate.setMonth(currentCalendarDate.getMonth()+delta); renderCalendar();}
+function openAddActivityModal(){document.getElementById('editActivityId').value=""; document.getElementById('activityModalTitle').innerText="Schedule Activity"; document.getElementById('activityForm').reset(); document.getElementById('activityModal').classList.remove('hidden');}
+function openEditActivityModal(id){ const act=activities.find(a=>String(a.id)===String(id)); if(!act){ alert('Activity not found: '+id); return; } document.getElementById('editActivityId').value=String(act.id); document.getElementById('activityModalTitle').innerText="Edit Activity Schedule"; document.getElementById('addActStart').value=act.startDate; document.getElementById('addActEnd').value=act.endDate; document.getElementById('addActTitle').value=act.title; document.getElementById('addActType').value=act.type; document.getElementById('addActLead').value=act.person||""; document.getElementById('addActDesc').value=act.description||""; document.getElementById('activityModal').classList.remove('hidden');}
+function closeActivityModal(){document.getElementById('activityModal').classList.add('hidden');}
+async function saveNewActivity(e){
+  e.preventDefault();
+  const editId=document.getElementById('editActivityId').value.trim();
+  const startDate=document.getElementById('addActStart').value;
+  const endDate=document.getElementById('addActEnd').value;
+  const title=document.getElementById('addActTitle').value.trim();
+  const type=document.getElementById('addActType').value;
+  const person=document.getElementById('addActLead').value.trim();
+  const description=document.getElementById('addActDesc').value.trim();
+  if(!title){ alert('Title required'); return; }
+  
+  // SAVE LOCAL FIRST - this is king
+  if(editId){
+    const idx=activities.findIndex(a=>String(a.id)===String(editId));
+    if(idx>-1){
+      activities[idx]={...activities[idx], startDate, endDate, title, type, person, description};
+      console.log('Updated activity locally:', editId);
+    }
+  } else {
+    const newId=Date.now().toString();
+    activities.push({id:newId, startDate, endDate, title, type, person, description});
+    console.log('Added activity locally:', newId, title);
+  }
+  
+  // Save to localStorage immediately
+  try{
+    localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));
+    console.log('Saved activities to localStorage, total:', activities.length);
+  }catch(e){
+    console.error('localStorage save failed', e);
+    alert('Storage error: '+e.message);
+    return;
+  }
+  
+  // Backup to Firebase (if available, but don't fail if not)
+  if(window.firebaseAdd || window.firebaseUpdate){
+    try{
+      if(editId && String(editId).length>=10){
+        if(window.firebaseUpdate) await window.firebaseUpdate('kytos_activities', editId, {startDate, endDate, title, type, person, description});
+      } else if(!editId){
+        if(window.firebaseAdd) await window.firebaseAdd('kytos_activities', {startDate, endDate, title, type, person, description});
+      }
+    }catch(e){ console.log('Firebase backup failed, but local saved', e); }
+  }
+  
+  closeActivityModal();
+  renderActivities();
+  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+  alert(editId?'✅ Calendar updated - saved locally ('+activities.length+' total)':'✅ Calendar added - saved locally ('+activities.length+' total)');
+}
+async function deleteActivityItem(id){
+  if(!isAdmin){alert('Admin only');return;}
+  const act=activities.find(a=>String(a.id)===String(id));
+  if(!act){ alert('Not found: '+id); return; }
+  if(!confirm('Delete activity: '+act.title+'?')) return;
+  
+  // Delete local first
+  activities=activities.filter(a=>String(a.id)!==String(id));
+  try{
+    localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));
+    console.log('Deleted activity locally, remaining:', activities.length);
+  }catch(e){}
+  
+  // Backup delete to Firebase
+  if(window.firebaseDelete){
+    try{ await window.firebaseDelete('kytos_activities', String(id)); }catch(e){}
+  }
+  
+  renderActivities();
+  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+  alert('✅ Activity deleted - '+act.title+' (remaining: '+activities.length+')');
+}
 function renderFoldersAndDocs(){
   const nav=document.getElementById('folderNav'); nav.innerHTML='';
   folders.forEach(folder=>{
@@ -1775,7 +1907,11 @@ try{
 
   onSnapshot(collection(db,'kytos_activities'),snap=>{
     const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
-    activities=live;try{localStorage.setItem('kytos_acts_fixed',JSON.stringify(activities));}catch(_){}
+    // Do not wipe the Calendar when Firestore has no activity documents.
+    if(live.length>0){
+      activities=live;
+      try{localStorage.setItem('kytos_acts_fixed',JSON.stringify(activities));}catch(_){}
+    }
     renderActivities(); renderHomeUpcomingEvents();
   });
 

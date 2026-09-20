@@ -10,6 +10,9 @@
     .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   #liveSearchResults, #liveSearchDropdown, .live-search-dropdown { display: none !important; }
+
+.admin-popup { animation: fadeOut 0.5s ease-in 2.5s forwards; }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -653,9 +656,54 @@ async function deleteActivityItem(id){
   if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
   alert('✅ Activity deleted - '+act.title+' (remaining: '+activities.length+')');
 }
-function handleAdminButtonClick(){if(isAdmin){if(confirm("Log out of Admin mode?")){isAdmin=false; document.getElementById('adminStatusText').innerText="Admin"; document.getElementById('adminLockIcon').className="fa-solid fa-lock text-yellow-400"; document.getElementById('adminActionBtn').classList.add('hidden'); document.getElementById('adminActivityAction').classList.add('hidden'); document.getElementById('adminDocAction').classList.add('hidden'); document.getElementById('adminGalleryAction').classList.add('hidden'); document.getElementById('saveButtonMain').classList.add('hidden'); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();}} else {document.getElementById('adminPassInput').value=''; document.getElementById('loginModal').classList.remove('hidden');}}
+function handleAdminButtonClick(){
+  if(isAdmin){
+    if(confirm("Log out of Admin mode?")){
+      isAdmin=false;
+      document.getElementById('adminStatusText').innerText="Admin";
+      document.getElementById('adminLockIcon').className="fa-solid fa-lock text-yellow-400";
+      document.getElementById('adminActionBtn')?.classList.add('hidden');
+      document.getElementById('adminActivityAction')?.classList.add('hidden');
+      document.getElementById('adminDocAction')?.classList.add('hidden');
+      document.getElementById('adminGalleryAction')?.classList.add('hidden');
+      document.getElementById('saveButtonMain')?.classList.add('hidden');
+      document.getElementById('editHomeBtn')?.classList.add('hidden');
+      applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();
+      const toast=document.createElement('div');
+      toast.textContent='🔒 Logged out of Admin';
+      toast.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-4 py-2 rounded-full shadow-lg z-[70]';
+      document.body.appendChild(toast);
+      setTimeout(()=>toast.remove(),2000);
+    }
+  } else {
+    document.getElementById('adminPassInput').value='';
+    document.getElementById('loginModal').classList.remove('hidden');
+  }
+}
 function closeAdminModal(){document.getElementById('loginModal').classList.add('hidden');}
-function verifyAdminPass(){if(document.getElementById('adminPassInput').value==='admin123'){isAdmin=true; document.getElementById('adminStatusText').innerText="Admin (Unlocked)"; document.getElementById('adminLockIcon').className="fa-solid fa-lock-open text-emerald-400"; document.getElementById('adminActionBtn').classList.remove('hidden'); document.getElementById('adminActivityAction').classList.remove('hidden'); document.getElementById('adminDocAction').classList.remove('hidden'); document.getElementById('adminGalleryAction').classList.remove('hidden'); document.getElementById('saveButtonMain').classList.remove('hidden'); closeAdminModal(); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();} else {alert("Incorrect password!");}}
+function verifyAdminPass(){
+  if(document.getElementById('adminPassInput').value==='admin123'){
+    isAdmin=true;
+    document.getElementById('adminStatusText').innerText="Admin (Unlocked)";
+    document.getElementById('adminLockIcon').className="fa-solid fa-lock-open text-emerald-400";
+    document.getElementById('adminActionBtn')?.classList.remove('hidden');
+    document.getElementById('adminActivityAction')?.classList.remove('hidden');
+    document.getElementById('adminDocAction')?.classList.remove('hidden');
+    document.getElementById('adminGalleryAction')?.classList.remove('hidden');
+    document.getElementById('saveButtonMain')?.classList.remove('hidden');
+    document.getElementById('editHomeBtn')?.classList.remove('hidden');
+    closeAdminModal();
+    applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();
+    // Show toast that auto-hides after 2 seconds
+    const toast=document.createElement('div');
+    toast.textContent='✅ Admin Unlocked - You can now edit';
+    toast.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs px-4 py-2 rounded-full shadow-lg z-[70] font-bold';
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(),2000);
+  } else {
+    alert("Incorrect password!");
+  }
+}
 function switchTab(tab){const hv=document.getElementById('homeView'); if(hv) hv.classList.add('hidden'); document.getElementById('partsView').classList.add('hidden'); document.getElementById('activitiesView').classList.add('hidden'); document.getElementById('documentsView').classList.add('hidden'); document.getElementById('galleryView').classList.add('hidden'); const homeBtn=document.getElementById('tabHomeBtn'); if(homeBtn) homeBtn.className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabPartsBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabActivitiesBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabDocsBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabGalleryBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; if(tab==='home'){const hv=document.getElementById('homeView'); if(hv) hv.classList.remove('hidden'); if(homeBtn) homeBtn.className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium";} else if(tab==='parts'){document.getElementById('partsView').classList.remove('hidden'); document.getElementById('tabPartsBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium";} else if(tab==='activities'){document.getElementById('activitiesView').classList.remove('hidden'); document.getElementById('tabActivitiesBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium"; renderActivities();} else if(tab==='documents'){document.getElementById('documentsView').classList.remove('hidden'); document.getElementById('tabDocsBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium"; renderFoldersAndDocs();} else if(tab==='gallery'){document.getElementById('galleryView').classList.remove('hidden'); document.getElementById('tabGalleryBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium"; renderPlaylistsAndGallery();}}
 // close modals on overlay click and ESC
 document.querySelectorAll('[id$="Modal"]').forEach(m=>{m.addEventListener('click', e=>{if(e.target===m) m.classList.add('hidden');});});

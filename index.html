@@ -719,6 +719,207 @@ applyFilters(); setPartsViewMode(partsViewMode); setDocsViewMode(docsViewMode); 
 
 
 
+
+<div id="editHomeModal" class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="p-5 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
+      <h3 class="font-bold text-sm">Edit Home Page</h3>
+      <button onclick="closeEditHomeModal()" class="w-8 h-8 rounded-full bg-white border flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>
+    </div>
+    <form onsubmit="saveHomeEdit(event)" class="p-5 space-y-4">
+      <div>
+        <label class="text-[11px] font-bold uppercase text-slate-500">Hero Title</label>
+        <input id="editHeroTitle" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-sm" placeholder="Arensco - New Station">
+      </div>
+      <div>
+        <label class="text-[11px] font-bold uppercase text-slate-500">Hero Image URL (or upload)</label>
+        <div class="flex gap-2 mt-1">
+          <input id="editHeroImage" class="flex-1 p-2.5 border border-slate-300 rounded-xl text-xs" placeholder="https://... or paste Google Drive link">
+          <label class="bg-slate-800 text-white px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-900">
+            <i class="fa-solid fa-upload mr-1"></i> Upload
+            <input type="file" id="editHeroImageFile" accept="image/*" class="hidden" onchange="handleHeroImageUpload(this)">
+          </label>
+        </div>
+        <div id="heroImagePreview" class="mt-2 hidden"><img id="heroPreviewImg" class="h-32 rounded-xl border object-cover"></div>
+      </div>
+      <div>
+        <label class="text-[11px] font-bold uppercase text-slate-500">About This Portal Text</label>
+        <textarea id="editAboutText" class="w-full mt-1 p-3 border border-slate-300 rounded-xl text-[13px] h-32" placeholder="This AQMS Technical Portal serves as the central hub..."></textarea>
+      </div>
+      <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+        <div class="flex justify-between items-center mb-2"><div class="text-[11px] font-bold text-cyan-700 uppercase"><i class="fa-solid fa-images mr-1"></i> Activity Images (Slider) - Up to 10</div><span id="homeImageCounter" class="text-[10px] font-bold text-cyan-600">0/10 images</span></div>
+        <div class="text-[10px] text-slate-500 mb-2">Add multiple images for hero slider - these will show as team activities</div>
+        <div id="homeImagesList" class="space-y-2 mb-3"></div>
+        <div class="flex gap-2">
+          <input id="newHomeImageUrl" class="flex-1 p-2 border rounded-xl text-xs" placeholder="Image URL or Drive link">
+          <input id="newHomeImageTitle" class="flex-1 p-2 border rounded-xl text-xs" placeholder="Title (e.g. KAUST Maintenance)">
+          <button type="button" onclick="addHomeImage()" class="bg-cyan-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Add</button>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <label class="flex-1 bg-white border border-slate-300 text-center py-2 rounded-xl text-xs font-bold cursor-pointer">
+            <i class="fa-solid fa-upload mr-1"></i> Upload Image from Device
+            <input type="file" id="homeImageFile" accept="image/*" class="hidden" onchange="handleHomeImageFileUpload(this)">
+          </label>
+          <label class="flex-1 bg-white border border-slate-300 text-center py-2 rounded-xl text-xs font-bold cursor-pointer">
+            <i class="fa-brands fa-google-drive mr-1"></i> Upload from Drive
+            <input type="file" id="homeDriveFile" accept="image/*" class="hidden" onchange="handleHomeImageFileUpload(this)">
+          </label>
+        </div>
+      </div>
+      <div class="flex gap-2 pt-3 border-t">
+        <button type="button" onclick="closeEditHomeModal()" class="flex-1 bg-slate-100 border border-slate-200 py-2.5 rounded-xl text-xs font-bold">Cancel</button>
+        <button type="submit" class="flex-1 bg-cyan-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-cyan-700">Save Home Page</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+let homeHeroImages = JSON.parse(localStorage.getItem('kytos_home_images')||'null') || [
+  {title:"Arensco - New Station", url:"https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&auto=format&fit=crop&q=60"},
+  {title:"KAUST Monthly Maintenance", url:"https://images.unsplash.com/photo-1581092918056-0c4c3b09bbc4?w=1200&auto=format&fit=crop&q=60"},
+  {title:"Team Field Activity", url:"https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&auto=format&fit=crop&q=60"}
+];
+
+function openEditHomeModal(){
+  const heroTitle=document.getElementById('heroTitle')?.innerText||'';
+  const heroImg=document.getElementById('heroImage')?.src||'';
+  const aboutText=document.querySelector('#homeView .lg\\:col-span-2 p')?.innerText||'';
+  document.getElementById('editHeroTitle').value=heroTitle.trim();
+  document.getElementById('editHeroImage').value=heroImg;
+  document.getElementById('editAboutText').value=aboutText.trim();
+  document.getElementById('heroImagePreview').classList.remove('hidden');
+  document.getElementById('heroPreviewImg').src=heroImg;
+  renderHomeImagesList();
+  document.getElementById('editHomeModal').classList.remove('hidden');
+}
+function closeEditHomeModal(){ document.getElementById('editHomeModal').classList.add('hidden'); }
+function handleHeroImageUpload(input){
+  if(!input.files[0]) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('editHeroImage').value=e.target.result;
+    document.getElementById('heroImagePreview').classList.remove('hidden');
+    document.getElementById('heroPreviewImg').src=e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function renderHomeImagesList(){
+  const list=document.getElementById('homeImagesList');
+  if(!list) return;
+  list.innerHTML='';
+  homeHeroImages.forEach((img, idx)=>{
+    const div=document.createElement('div');
+    div.className='flex items-center gap-2 bg-white border rounded-xl p-2';
+    div.innerHTML=`<img src="${img.url}" class="w-12 h-12 rounded-lg object-cover border"><div class="flex-1"><div class="text-xs font-bold truncate">${idx+1}. ${img.title}</div><div class="text-[10px] text-slate-400 truncate">${img.url.substring(0,40)}</div></div><button type="button" onclick="removeHomeImage(${idx})" class="w-7 h-7 bg-red-50 text-red-500 rounded-lg flex items-center justify-center"><i class="fa-solid fa-trash text-[10px]"></i></button>`;
+    list.appendChild(div);
+  });
+  updateHomeImageCounter();
+}
+function updateHomeImageCounter(){
+  const counter=document.getElementById('homeImageCounter');
+  if(counter){
+    counter.textContent=`${homeHeroImages.length}/10 images`;
+    counter.className= homeHeroImages.length>=10 ? 'text-[10px] font-bold text-red-600' : 'text-[10px] font-bold text-cyan-600';
+  }
+}
+function addHomeImage(){
+  if(homeHeroImages.length>=10){
+    alert('Maximum 10 images allowed for home slider. Please delete one first.');
+    return;
+  }
+  const url=document.getElementById('newHomeImageUrl').value.trim();
+  const title=document.getElementById('newHomeImageTitle').value.trim()||'Team Activity';
+  if(!url){ alert('Please enter image URL'); return; }
+  homeHeroImages.push({title, url});
+  localStorage.setItem('kytos_home_images', JSON.stringify(homeHeroImages));
+  document.getElementById('newHomeImageUrl').value='';
+  document.getElementById('newHomeImageTitle').value='';
+  renderHomeImagesList();
+  updateHomeImageCounter();
+}
+function handleHomeImageFileUpload(input){
+  if(!input.files[0]) return;
+  if(homeHeroImages.length>=10){
+    alert('Maximum 10 images allowed for home slider. Please delete one first.');
+    input.value='';
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const title=document.getElementById('newHomeImageTitle').value.trim()||input.files[0].name;
+    homeHeroImages.push({title, url:e.target.result});
+    localStorage.setItem('kytos_home_images', JSON.stringify(homeHeroImages));
+    renderHomeImagesList();
+    updateHomeImageCounter();
+    document.getElementById('newHomeImageTitle').value='';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function removeHomeImage(idx){
+  homeHeroImages.splice(idx,1);
+  localStorage.setItem('kytos_home_images', JSON.stringify(homeHeroImages));
+  renderHomeImagesList();
+  updateHomeImageCounter();
+}
+function saveHomeEdit(e){
+  e.preventDefault();
+  const title=document.getElementById('editHeroTitle').value.trim();
+  const imgUrl=document.getElementById('editHeroImage').value.trim();
+  const aboutText=document.getElementById('editAboutText').value.trim();
+  
+  if(title){ const el=document.getElementById('heroTitle'); if(el) el.innerText=title; }
+  if(imgUrl){ const el=document.getElementById('heroImage'); if(el) el.src=imgUrl; }
+  if(aboutText){
+    const aboutEl=document.querySelector('#homeView .lg\\:col-span-2 p');
+    if(aboutEl) aboutEl.innerText=aboutText;
+    localStorage.setItem('kytos_about_text', aboutText);
+  }
+  localStorage.setItem('kytos_home_hero', JSON.stringify({title, image:imgUrl}));
+  localStorage.setItem('kytos_home_images', JSON.stringify(homeHeroImages));
+  
+  // Start slider with new images
+  startHeroSlider();
+  
+  closeEditHomeModal();
+  const toast=document.createElement('div');
+  toast.textContent='✅ Home page updated!';
+  toast.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs px-4 py-2 rounded-full shadow-lg z-[70] font-bold';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),2000);
+}
+
+let heroSliderIdx=0;
+function startHeroSlider(){
+  if(homeHeroImages.length<=1) return;
+  setInterval(()=>{
+    heroSliderIdx=(heroSliderIdx+1)%homeHeroImages.length;
+    const img=homeHeroImages[heroSliderIdx];
+    const heroEl=document.getElementById('heroImage');
+    const titleEl=document.getElementById('heroTitle');
+    if(heroEl) heroEl.src=img.url;
+    if(titleEl) titleEl.innerText=img.title;
+  },5000);
+}
+// Load saved home data
+(function(){
+  const savedHero=JSON.parse(localStorage.getItem('kytos_home_hero')||'null');
+  const savedAbout=localStorage.getItem('kytos_about_text');
+  const savedImages=JSON.parse(localStorage.getItem('kytos_home_images')||'null');
+  if(savedHero){
+    if(savedHero.title){ const el=document.getElementById('heroTitle'); if(el) el.innerText=savedHero.title; }
+    if(savedHero.image){ const el=document.getElementById('heroImage'); if(el) el.src=savedHero.image; }
+  }
+  if(savedAbout){
+    const aboutEl=document.querySelector('#homeView .lg\\:col-span-2 p');
+    if(aboutEl) aboutEl.innerText=savedAbout;
+  }
+  if(savedImages && savedImages.length>0){
+    homeHeroImages=savedImages;
+  }
+  startHeroSlider();
+})();
+</script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";

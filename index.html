@@ -79,7 +79,7 @@ function getDrivePreviewLink(url){
 </header>
 
 <!-- HOME VIEW - EXACT AS SCREENSHOT WITH ABOUT -->
-<div id="homeView" class="max-w-7xl mx-auto px-4 py-6">
+<div id="homeView" class="max-w-7xl mx-auto px-4 py-6" style="display:block;">
   <div class="relative rounded-[20px] overflow-hidden shadow-sm border border-slate-200 mb-6 h-[280px]">
     <img id="heroImage" src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&auto=format&fit=crop&q=60" class="w-full h-full object-cover" alt="Team Activity" onerror="this.src='https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&auto=format&fit=crop&q=60'">
     <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent"></div>
@@ -170,17 +170,17 @@ function getDrivePreviewLink(url){
   </div>
 </main>
 
-<main id="activitiesView" class="hidden max-w-7xl mx-auto px-4 py-6">
+<main id="activitiesView" class="hidden max-w-7xl mx-auto px-4 py-6" style="display:none;">
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex justify-between items-center flex-wrap gap-3"><div><h2 class="text-base font-bold text-slate-800">Maintenance & Site Activities Schedule</h2><p class="text-xs text-slate-500">Preventive maintenance, audits, and calibration schedules.</p></div><div id="adminActivityAction" class="hidden"><button onclick="openAddActivityModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow"><i class="fa-solid fa-plus mr-1"></i> Add Activity</button></div></div>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-1"><div class="flex justify-between items-center mb-4"><h3 id="calendarMonthYear" class="font-bold text-sm text-slate-800"></h3><div class="flex space-x-1"><button onclick="changeMonth(-1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-left"></i></button><button onclick="changeMonth(1)" class="p-1 px-2 hover:bg-slate-100 rounded text-xs"><i class="fa-solid fa-chevron-right"></i></button></div></div><div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase mb-2"><div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div></div><div id="calendarDays" class="grid grid-cols-7 gap-1 text-xs"></div></div><div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2"><h3 class="font-bold text-sm text-slate-800 mb-3 pb-2 border-b border-slate-100">Scheduled Activities</h3><div id="activityList" class="space-y-3"></div></div></div>
 </main>
 
-<main id="documentsView" class="hidden max-w-7xl mx-auto px-4 py-6">
+<main id="documentsView" class="hidden max-w-7xl mx-auto px-4 py-6" style="display:none;">
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"><div><h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-folder-tree text-cyan-600"></i> Technical Folders & Documents</h2><p class="text-xs text-slate-500">Organized technical folders for manuals, calibration sheets, and SOPs.</p></div><div class="flex items-center gap-3 flex-wrap"><div class="flex bg-slate-100 p-1 rounded-xl text-xs gap-1"><button onclick="setDocsViewMode('grid')" id="dModeGrid" class="px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700"><i class="fa-solid fa-table-cells-large"></i> Grid</button><button onclick="setDocsViewMode('details')" id="dModeDetails" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-circle-info"></i> Details</button><button onclick="setDocsViewMode('list')" id="dModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list"></i> List</button><button onclick="setDocsViewMode('content')" id="dModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-newspaper"></i> Content</button></div><div id="adminDocAction" class="hidden flex gap-2"><button onclick="openAddFolderModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-folder-plus"></i> New Folder</button><button onclick="openAddDocModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-file-arrow-up"></i> Upload File</button></div></div></div>
   <div id="folderNav" class="flex flex-wrap items-center gap-2 mb-5"></div><div id="docsHeader" class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 hidden">Files in Folder</div><div id="docsContainer"></div><div id="emptyDocsNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200"><i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">This folder is empty.</h4></div>
 </main>
 
-<main id="galleryView" class="hidden max-w-7xl mx-auto px-4 py-6">
+<main id="galleryView" class="hidden max-w-7xl mx-auto px-4 py-6" style="display:none;">
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"><div><h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-photo-film text-cyan-600"></i> Video Playlists & Site Gallery</h2><p class="text-xs text-slate-500">Browse site media categorized by playlists and video topics.</p></div><div class="flex items-center gap-3 flex-wrap"><div class="flex bg-slate-100 p-1 rounded-xl text-xs gap-1"><button onclick="setGalleryViewMode('grid')" id="gModeGrid" class="px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700"><i class="fa-solid fa-table-cells-large"></i> Grid</button><button onclick="setGalleryViewMode('details')" id="gModeDetails" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-circle-info"></i> Details</button><button onclick="setGalleryViewMode('list')" id="gModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list"></i> List</button><button onclick="setGalleryViewMode('content')" id="gModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-newspaper"></i> Content</button></div><div id="adminGalleryAction" class="hidden flex gap-2"><button onclick="openAddPlaylistModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-list-ul"></i> New Playlist</button><button onclick="openAddGalleryModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-video"></i> Add Video</button></div></div></div>
   <div id="playlistNav" class="flex flex-wrap items-center gap-2 mb-6"></div><div id="galleryContainer"></div><div id="emptyGalleryNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200"><i class="fa-solid fa-photo-film text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">No videos or items in this playlist.</h4></div>
 </main>
@@ -826,53 +826,89 @@ function verifyAdminPass(){
     alert("Incorrect password!");
   }
 }
+
 function switchTab(tab){
-  const hv=document.getElementById('homeView'); if(hv) hv.classList.add('hidden');
-  document.getElementById('partsView').classList.add('hidden');
-  document.getElementById('activitiesView').classList.add('hidden');
-  document.getElementById('documentsView').classList.add('hidden');
-  document.getElementById('galleryView').classList.add('hidden');
+  console.log('Switching to', tab);
+  // Hide all views
+  const views = ['homeView','partsView','activitiesView','documentsView','galleryView'];
+  views.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      el.classList.add('hidden');
+      el.style.display = 'none';
+    }
+  });
   
+  // Reset all tab buttons
+  const tabs = ['tabHomeBtn','tabPartsBtn','tabActivitiesBtn','tabDocsBtn','tabGalleryBtn'];
   const baseClass="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 font-medium flex items-center gap-1.5 whitespace-nowrap transition";
   const activeClass="px-3 py-2 rounded-lg bg-cyan-600 text-white font-bold flex items-center gap-1.5 whitespace-nowrap shadow-sm";
-  const adminBase="px-3 py-2 rounded-lg border border-slate-600 bg-slate-700 text-slate-300 hover:border-yellow-400 hover:text-white font-bold flex items-center gap-1.5 whitespace-nowrap ml-1 transition";
-  const adminActive="px-3 py-2 rounded-lg border border-emerald-500 bg-emerald-600 text-white font-bold flex items-center gap-1.5 whitespace-nowrap ml-1 shadow-sm";
   
-  const homeBtn=document.getElementById('tabHomeBtn');
-  const partsBtn=document.getElementById('tabPartsBtn');
-  const actBtn=document.getElementById('tabActivitiesBtn');
-  const docsBtn=document.getElementById('tabDocsBtn');
-  const galBtn=document.getElementById('tabGalleryBtn');
-  const adminBtn=document.getElementById('adminLoginBtn');
+  tabs.forEach(tid => {
+    const btn = document.getElementById(tid);
+    if(btn) btn.className = baseClass;
+  });
   
-  if(homeBtn) homeBtn.className=baseClass;
-  if(partsBtn) partsBtn.className=baseClass;
-  if(actBtn) actBtn.className=baseClass;
-  if(docsBtn) docsBtn.className=baseClass;
-  if(galBtn) galBtn.className=baseClass;
-  if(adminBtn) adminBtn.className= isAdmin ? adminActive : adminBase;
+  // Show selected
+  const map = {
+    'home': {view:'homeView', btn:'tabHomeBtn'},
+    'parts': {view:'partsView', btn:'tabPartsBtn'},
+    'activities': {view:'activitiesView', btn:'tabActivitiesBtn'},
+    'documents': {view:'documentsView', btn:'tabDocsBtn'},
+    'gallery': {view:'galleryView', btn:'tabGalleryBtn'}
+  };
   
-  if(tab==='home'){
-    const hv2=document.getElementById('homeView'); if(hv2) hv2.classList.remove('hidden');
-    if(homeBtn) homeBtn.className=activeClass;
-  } else if(tab==='parts'){
-    document.getElementById('partsView').classList.remove('hidden');
-    if(partsBtn) partsBtn.className=activeClass;
-  } else if(tab==='activities'){
-    document.getElementById('activitiesView').classList.remove('hidden');
-    if(actBtn) actBtn.className=activeClass;
-    renderActivities();
-  } else if(tab==='documents'){
-    document.getElementById('documentsView').classList.remove('hidden');
-    if(docsBtn) docsBtn.className=activeClass;
-    renderFoldersAndDocs();
-  } else if(tab==='gallery'){
-    document.getElementById('galleryView').classList.remove('hidden');
-    if(galBtn) galBtn.className=activeClass;
-    renderPlaylistsAndGallery();
+  const target = map[tab];
+  if(target){
+    const viewEl = document.getElementById(target.view);
+    if(viewEl){
+      viewEl.classList.remove('hidden');
+      viewEl.style.display = 'block';
+    }
+    const btnEl = document.getElementById(target.btn);
+    if(btnEl) btnEl.className = activeClass;
+    
+    // Render if needed
+    if(tab==='activities' && typeof renderActivities==='function') renderActivities();
+    if(tab==='documents' && typeof renderFoldersAndDocs==='function') renderFoldersAndDocs();
+    if(tab==='gallery' && typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery();
+    if(tab==='parts' && typeof applyFilters==='function') applyFilters();
   }
+  
   window.scrollTo({top:0, behavior:'smooth'});
+  
+  // Close mobile menu if open
+  const mobileMenu = document.getElementById('mobileMenu');
+  if(mobileMenu) mobileMenu.classList.add('hidden');
 }
+
+// Make sure tabs work even if JS error before
+window.switchTab = switchTab;
+
+// Initial load - show home
+document.addEventListener('DOMContentLoaded', function(){
+  console.log('DOM loaded, initializing tabs');
+  // Ensure home is visible initially
+  const views = ['homeView','partsView','activitiesView','documentsView','galleryView'];
+  views.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if(el){
+      if(idx===0){
+        el.classList.remove('hidden');
+        el.style.display = 'block';
+      } else {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      }
+    }
+  });
+  // Set home active
+  const homeBtn = document.getElementById('tabHomeBtn');
+  if(homeBtn){
+    homeBtn.className = "px-3 py-2 rounded-lg bg-cyan-600 text-white font-bold flex items-center gap-1.5 whitespace-nowrap shadow-sm";
+  }
+});
+
 // close modals on overlay click and ESC
 document.querySelectorAll('[id$="Modal"]').forEach(m=>{m.addEventListener('click', e=>{if(e.target===m) m.classList.add('hidden');});});
 document.addEventListener('keydown', e=>{if(e.key==='Escape'){document.querySelectorAll('[id$="Modal"]').forEach(m=>m.classList.add('hidden'));}});

@@ -559,61 +559,12 @@ if(parts.length<300 && rawData.length>=366){
   try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
 }
 
-// ===== CALENDAR ACTIVITIES =====
-// Keep existing local schedules. If none exist, restore the saved schedules.
-let activities = JSON.parse(localStorage.getItem('kytos_acts_fixed') || 'null') || [
-  {
-    id: "act_kaust",
-    startDate: "2026-09-20",
-    endDate: "2026-09-23",
-    title: "KAUST MONTHLY MAINTENANCE",
-    type: "PM",
-    person: "Service Team",
-    description: "Monthly maintenance at KAUST site"
-  },
-  {
-    id: "act_annual_pm",
-    startDate: "2026-09-20",
-    endDate: "2026-09-23",
-    title: "4-Days Annual Preventive Maintenance",
-    type: "PM",
-    person: "Service Team",
-    description: "Comprehensive testing."
-  },
-  {
-    id: "act_albert",
-    startDate: "2026-10-05",
-    endDate: "2026-10-10",
-    title: "Albert in France - Audit",
-    type: "Audit",
-    person: "Albert",
-    description: "Site audit in France"
-  },
-  {
-    id: "act_maint2",
-    startDate: "2026-09-15",
-    endDate: "2026-09-18",
-    title: "maintenance - ako ikaw sila",
-    type: "Calibration",
-    person: "Team",
-    description: "Calibration and maintenance"
-  }
+let activities = JSON.parse(localStorage.getItem('kytos_acts_fixed')||'null') || [
+{id:"act_kaust",startDate:"2026-09-20",endDate:"2026-09-23",title:"KAUST MONTHLY MAINTENANCE",type:"PM",person:"Service Team",description:"Monthly maintenance at KAUST site"},
+{id:1,startDate:"2026-09-20",endDate:"2026-09-23",title:"4-Days Annual Preventive Maintenance",type:"PM",person:"Service Team",description:"Comprehensive testing."},
+{id:"act_albert",startDate:"2026-10-05",endDate:"2026-10-10",title:"Albert in France - Audit",type:"Audit",person:"Albert",description:"Site audit in France"},
+{id:"act_maint2",startDate:"2026-09-15",endDate:"2026-09-18",title:"maintenance - ako ikaw sila",type:"Calibration",person:"Team",description:"Calibration and maintenance"}
 ];
-
-let calendarViewMode = localStorage.getItem('kytos_calView') || 'month';
-let activityViewMode = localStorage.getItem('kytos_actView') || 'card';
-
-window.switchCalendarView = function(mode) {
-  calendarViewMode = mode;
-  localStorage.setItem('kytos_calView', mode);
-  renderActivities();
-};
-
-window.switchActivityView = function(mode) {
-  activityViewMode = mode;
-  localStorage.setItem('kytos_actView', mode);
-  renderActivities();
-};
 let calendarViewMode = localStorage.getItem('kytos_calView')||'month';
 let activityViewMode = localStorage.getItem('kytos_actView')||'card';
 window.switchCalendarView = function(mode){ calendarViewMode=mode; localStorage.setItem('kytos_calView', mode); renderActivities(); };
@@ -1823,40 +1774,10 @@ try{
   });
 
   onSnapshot(collection(db,'kytos_activities'),snap=>{
-  const live=[];
-
-  snap.forEach(d=>{
-    live.push({
-      id:d.id,
-      ...d.data()
-    });
+    const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
+    activities=live;try{localStorage.setItem('kytos_acts_fixed',JSON.stringify(activities));}catch(_){}
+    renderActivities(); renderHomeUpcomingEvents();
   });
-
-  // IMPORTANT:
-  // Do not erase existing Calendar schedules when Firebase is empty.
-  if(live.length > 0){
-    activities = live;
-
-    try{
-      localStorage.setItem(
-        'kytos_acts_fixed',
-        JSON.stringify(activities)
-      );
-    }catch(_){}
-  }else{
-    // Firebase collection is empty.
-    // Keep the restored/local Calendar schedules.
-    try{
-      localStorage.setItem(
-        'kytos_acts_fixed',
-        JSON.stringify(activities)
-      );
-    }catch(_){}
-  }
-
-  renderActivities();
-  renderHomeUpcomingEvents();
-});
 
   onSnapshot(collection(db,'kytos_docs'),snap=>{
     const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));

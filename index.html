@@ -321,8 +321,22 @@
 </main>
 
 <main id="galleryView" class="hidden max-w-7xl mx-auto px-4 py-6">
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"><div><h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-photo-film text-cyan-600"></i> Video Playlists & Site Gallery</h2><p class="text-xs text-slate-500">Browse site media categorized by playlists and video topics.</p></div><div class="flex items-center gap-3 flex-wrap"><div class="flex bg-slate-100 p-1 rounded-xl text-xs gap-1"><button onclick="setGalleryViewMode('grid')" id="gModeGrid" class="px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700"><i class="fa-solid fa-table-cells-large"></i> Grid</button><button onclick="setGalleryViewMode('details')" id="gModeDetails" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-circle-info"></i> Details</button><button onclick="setGalleryViewMode('list')" id="gModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list"></i> List</button><button onclick="setGalleryViewMode('content')" id="gModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-newspaper"></i> Content</button></div><div id="adminGalleryAction" class="hidden flex gap-2"><button onclick="openAddPlaylistModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-list-ul"></i> New Playlist</button><button onclick="openAddGalleryModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-video"></i> Add Video</button></div></div></div>
-  <div id="playlistNav" class="flex flex-wrap items-center gap-2 mb-6"></div><div id="galleryContainer"></div><div id="emptyGalleryNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200"><i class="fa-solid fa-photo-film text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">No videos or items in this playlist.</h4></div>
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div><h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-photo-film text-cyan-600"></i> Media Library & Site Gallery</h2><p class="text-xs text-slate-500">Videos and images in one library, organized by folders/playlists.</p></div>
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="flex bg-slate-100 p-1 rounded-xl text-xs gap-1">
+        <button onclick="setGalleryViewMode('grid')" id="gModeGrid" class="px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700"><i class="fa-solid fa-table-cells-large"></i> Grid</button>
+        <button onclick="setGalleryViewMode('details')" id="gModeDetails" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-circle-info"></i> Details</button>
+        <button onclick="setGalleryViewMode('list')" id="gModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list"></i> List</button>
+        <button onclick="setGalleryViewMode('content')" id="gModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-newspaper"></i> Content</button>
+      </div>
+      <div id="adminGalleryAction" class="hidden flex gap-2">
+        <button onclick="openAddPlaylistModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-folder-plus"></i> New Folder</button>
+        <button onclick="openAddGalleryModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-cloud-arrow-up"></i> Add Media</button>
+      </div>
+    </div>
+  </div>
+  <div id="playlistNav" class="flex flex-wrap items-center gap-2 mb-6"></div><div id="galleryContainer"></div><div id="emptyGalleryNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200"><i class="fa-solid fa-photo-film text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">No media in this folder.</h4></div>
 </main>
 
 <!-- MODALS (same structure as original but with click-outside) -->
@@ -382,7 +396,26 @@
 <div id="partModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="partModalTitle" class="text-base font-bold text-slate-800">Add New Spare Part</h3><button onclick="closePartModal()" class="text-slate-400 text-xl">&times;</button></div><form id="partForm" onsubmit="savePartData(event)" class="space-y-3 text-xs"><input type="hidden" id="editPartId"><div><label class="font-bold text-slate-600 block mb-1">Part Number *</label><input type="text" id="addPartNum" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Description *</label><input type="text" id="addPartName" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Model</label><input type="text" id="addModel" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Category</label><select id="addCategory" class="w-full p-2.5 border rounded-lg bg-white"><option value="Filters & Consumables">Filters & Consumables</option><option value="Fittings, O-Rings & Tubings">Fittings, O-Rings & Tubings</option><option value="General Spares & Hardware">General Spares & Hardware</option><option value="PCBs, Power & Fuses">PCBs, Power & Fuses</option><option value="Pumps & Motors">Pumps & Motors</option><option value="Sensors, Detectors & Optical">Sensors, Detectors & Optical</option><option value="Valves & Solenoids">Valves & Solenoids</option></select></div></div><div><label class="font-bold text-slate-700 block mb-1">Attach Image</label><div onclick="document.getElementById('partPhotoInput').click()" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-xl p-3 text-center cursor-pointer transition"><i class="fa-solid fa-camera text-xl text-cyan-600 mb-1"></i><p id="partPhotoDisplay" class="font-bold text-slate-700 text-xs">Click to browse file from device</p></div><input type="file" id="partPhotoInput" accept="image/*" class="hidden"><input type="text" id="addImageUrlInput" placeholder="Paste Google Drive image link or direct image URL" class="w-full mt-2 p-2 border rounded-lg text-xs bg-slate-50 outline-none"><div id="partImageUploadHint" class="text-[10px] text-slate-400 mt-1">Google Drive image links are converted automatically for display. For device uploads, images are stored in shared Firebase Storage so your team can see the same image.</div></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Part</button></div></form></div></div>
 <div id="activityModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="activityModalTitle" class="text-base font-bold text-slate-800">Schedule Activity</h3><button onclick="closeActivityModal()" class="text-slate-400 text-xl">&times;</button></div><form id="activityForm" onsubmit="saveNewActivity(event)" class="space-y-3 text-xs"><input type="hidden" id="editActivityId"><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Start Date *</label><input type="date" id="addActStart" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">End Date *</label><input type="date" id="addActEnd" required class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Activity Title *</label><input type="text" id="addActTitle" required class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Type</label><select id="addActType" class="w-full p-2.5 border rounded-lg bg-white"><option value="PM">Preventive Maint. (PM)</option><option value="Calibration">Calibration</option><option value="Troubleshooting">Troubleshooting</option><option value="Audit">Audit / CGA</option></select></div><div><label class="font-bold text-slate-600 block mb-1">Lead Tech</label><input type="text" id="addActLead" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Remarks</label><textarea id="addActDesc" rows="2" class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeActivityModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Activity</button></div></form></div></div>
 <div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div><form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-4 text-xs"><input type="hidden" id="editDocId"><div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div><label class="font-bold text-slate-700 block mb-1.5">Upload a file <span class="text-slate-400 font-normal">(optional if using Google Drive)</span></label><div id="dropZone" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-2xl p-4 text-center cursor-pointer transition"><i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-600 mb-1"></i><p class="font-bold text-slate-700 text-xs" id="fileNameDisplay">Drag & drop file or click to browse</p></div><input type="file" id="fileInput" class="hidden"></div><div><label class="font-bold text-slate-700 block mb-1">Google Drive Link</label><input type="url" id="addDocDriveLink" placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 border rounded-xl outline-none"><p class="text-[10px] text-slate-400 mt-1">Use a shared Drive file link. Set access to Anyone with the link for team preview.</p></div><div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div><div><label class="font-bold text-slate-700 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div></form></div></div>
-<div id="galleryModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto"><div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="galleryModalTitle" class="text-base font-bold text-slate-800">Upload YouTube Video / Blog</h3><button onclick="closeGalleryModal()" class="text-slate-400 text-xl">&times;</button></div><form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs"><input type="hidden" id="editGalleryId"><div><label class="font-bold text-slate-700 block mb-1">Select Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Video" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">YouTube Link *</label><input type="text" id="galleryYoutube" required placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Story / Details *</label><textarea id="galleryDesc" rows="3" required class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Publish Video</button></div></form></div></div>
+<div id="galleryModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8">
+    <div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="galleryModalTitle" class="text-base font-bold text-slate-800">Add Media</h3><button onclick="closeGalleryModal()" class="text-slate-400 text-xl">&times;</button></div>
+    <form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs">
+      <input type="hidden" id="editGalleryId">
+      <div><label class="font-bold text-slate-700 block mb-1">Folder / Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div>
+      <div><label class="font-bold text-slate-700 block mb-1">Media Type *</label><select id="galleryMediaType" onchange="toggleGalleryMediaFields()" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"><option value="video">YouTube Video</option><option value="image">Image / Photo</option></select></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div>
+      <div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Photo" class="w-full p-2.5 border rounded-lg"></div>
+      <div id="galleryVideoField"><label class="font-bold text-slate-600 block mb-1">YouTube Link</label><input type="text" id="galleryYoutube" placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div>
+      <div id="galleryImageFields" class="hidden space-y-2">
+        <div><label class="font-bold text-slate-600 block mb-1">Upload Image(s) from PC</label><input type="file" id="galleryImageFile" accept="image/*" multiple class="w-full p-2 border rounded-lg bg-slate-50"></div>
+        <div><label class="font-bold text-slate-600 block mb-1">Google Drive Image Link</label><input type="url" id="galleryDriveImage" placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 border rounded-lg"></div>
+        <p class="text-[10px] text-slate-400">For Drive images, share the file as “Anyone with the link” so the portal can display it.</p>
+      </div>
+      <div><label class="font-bold text-slate-600 block mb-1">Story / Details</label><textarea id="galleryDesc" rows="3" class="w-full p-2.5 border rounded-lg" placeholder="Description, work performed, equipment, etc."></textarea></div>
+      <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Media</button></div>
+    </form>
+  </div>
+</div>
 <div id="partImageModal" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
     <div class="p-4 border-b flex justify-between items-center bg-slate-50">
@@ -536,7 +569,7 @@ let calendarViewMode = localStorage.getItem('kytos_calView')||'month';
 let activityViewMode = localStorage.getItem('kytos_actView')||'card';
 window.switchCalendarView = function(mode){ calendarViewMode=mode; localStorage.setItem('kytos_calView', mode); renderActivities(); };
 window.switchActivityView = function(mode){ activityViewMode=mode; localStorage.setItem('kytos_actView', mode); renderActivities(); };
-let galleryPosts = JSON.parse(localStorage.getItem('kytos_gallery_fixed')||'null') || [{id:1,date:"2026-09-15",location:"Jubail Plant",playlist:"Thermo Analyzers",title:"CEMS Maintenance & Calibration Walkthrough",youtube:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",description:"Sample troubleshooting and maintenance video."}];
+let galleryPosts = JSON.parse(localStorage.getItem('kytos_gallery_fixed')||'null') || [{id:1,date:"2026-09-15",location:"Jubail Plant",playlist:"Thermo Analyzers",title:"CEMS Maintenance & Calibration Walkthrough",mediaType:"video",youtube:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",description:"Sample troubleshooting and maintenance video."}];
 let playlists = JSON.parse(localStorage.getItem('kytos_playlists_fixed')||'null') || ["All Playlists","Thermo Analyzers","Airpointer","Calibration & SOP"];
 let selectedPlaylist="All Playlists";
 let documents = JSON.parse(localStorage.getItem('kytos_docs_fixed')||'null') || [{id:1,title:"Thermo 42i NOx Analyzer Instruction Manual",type:"PDF",folder:"Manuals",fileName:"Thermo_42i_Manual.pdf",url:"#",description:"Standard operating and service manual."},{id:2,title:"Quarterly Analyzer Calibration Sheet",type:"EXCEL",folder:"Forms & Sheets",fileName:"Calibration_Checklist.xlsx",url:"#",description:"Excel template for calibration records."}];
@@ -1458,7 +1491,7 @@ function renderPlaylistsAndGallery(){
   const nav=document.getElementById('playlistNav');nav.innerHTML='';
   playlists.forEach(pl=>{
     const active=selectedPlaylist===pl,wrap=document.createElement('div');wrap.className='flex items-center gap-1';
-    const b=document.createElement('button');b.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm ${active?'bg-cyan-600 text-white':'bg-white border text-slate-700'}`;b.innerHTML=`<i class="fa-solid fa-folder-video mr-1"></i>${escapeHtml(pl)}`;b.onclick=()=>{selectedPlaylist=pl;renderPlaylistsAndGallery()};wrap.appendChild(b);
+    const b=document.createElement('button');b.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-sm ${active?'bg-cyan-600 text-white':'bg-white border text-slate-700'}`;b.innerHTML=`<i class="fa-solid fa-folder mr-1"></i>${escapeHtml(pl)}`;b.onclick=()=>{selectedPlaylist=pl;renderPlaylistsAndGallery()};wrap.appendChild(b);
     if(isAdmin&&pl!=='All Playlists'){const eb=document.createElement('button');eb.className='p-1 text-cyan-600';eb.innerHTML='<i class="fa-solid fa-pen text-[10px]"></i>';eb.onclick=e=>{e.stopPropagation();openEditPlaylistModal(pl)};wrap.appendChild(eb);const db=document.createElement('button');db.className='p-1 text-red-400';db.innerHTML='<i class="fa-solid fa-trash text-[10px]"></i>';db.onclick=e=>{e.stopPropagation();deletePlaylist(pl)};wrap.appendChild(db)}
     nav.appendChild(wrap);
   });
@@ -1466,23 +1499,46 @@ function renderPlaylistsAndGallery(){
   const list=selectedPlaylist==='All Playlists'?galleryPosts:galleryPosts.filter(p=>p.playlist===selectedPlaylist);
   if(!list.length){empty.classList.remove('hidden');return}empty.classList.add('hidden');
 
-  const media=post=>{const vid=getYouTubeId(post.youtube||'');return vid?`<div class="aspect-video bg-black rounded-xl overflow-hidden"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1" title="${escapeHtml(post.title)}" allowfullscreen></iframe></div>`:`<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">No video link</div>`};
+  const media=post=>{
+    const type=post.mediaType || (post.youtube ? 'video' : 'image');
+    if(type==='image'){
+      const src=post.imageUrl || post.url || (post.driveUrl ? driveImagePreviewUrl(post.driveUrl) : '');
+      return src
+        ? `<div class="aspect-video bg-slate-100 rounded-xl overflow-hidden cursor-pointer" onclick="openGalleryImage('${escapeHtml(post.id)}')"><img src="${escapeHtml(src)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover"></div>`
+        : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400"><i class="fa-solid fa-image text-2xl mr-2"></i>No image</div>`;
+    }
+    const vid=getYouTubeId(post.youtube||'');
+    return vid?`<div class="aspect-video bg-black rounded-xl overflow-hidden"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1" title="${escapeHtml(post.title)}" allowfullscreen></iframe></div>`:`<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">No video link</div>`;
+  };
+  const typeBadge=post=>(post.mediaType==='image'||(!post.mediaType&&!post.youtube))
+    ? '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[9px] font-bold"><i class="fa-solid fa-image"></i> IMAGE</span>'
+    : '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-700 text-[9px] font-bold"><i class="fa-brands fa-youtube"></i> VIDEO</span>';
   const actions=post=>isAdmin?`<div class="flex gap-2 mt-3"><button onclick="openEditGalleryModal('${post.id}')" class="text-xs font-bold text-cyan-700 bg-cyan-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-pen"></i> Edit</button><button onclick="deleteGallery('${post.id}')" class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-trash"></i> Delete</button></div>`:'';
 
   if(galleryViewMode==='grid'){
     const grid=document.createElement('div');grid.className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5';
-    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border overflow-hidden shadow-sm';el.innerHTML=`${media(post)}<div class="p-5"><div class="text-[10px] text-slate-400">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</div><h3 class="font-black text-slate-900 mt-2">${escapeHtml(post.title)}</h3><p class="text-xs text-slate-600 mt-2 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;grid.appendChild(el)});container.appendChild(grid);
+    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border overflow-hidden shadow-sm';el.innerHTML=`${media(post)}<div class="p-5"><div class="flex items-center justify-between gap-2">${typeBadge(post)}<div class="text-[10px] text-slate-400">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</div></div><h3 class="font-black text-slate-900 mt-2">${escapeHtml(post.title)}</h3><p class="text-xs text-slate-600 mt-2 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;grid.appendChild(el)});container.appendChild(grid);
   }else if(galleryViewMode==='details'){
     const wrap=document.createElement('div');wrap.className='grid grid-cols-1 lg:grid-cols-2 gap-5';
-    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-4 flex gap-4';el.innerHTML=`<div class="w-56 max-w-[42%] shrink-0">${media(post)}</div><div class="min-w-0"><span class="text-[10px] font-bold text-cyan-700">${escapeHtml(post.playlist||'General')}</span><h3 class="font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h3><p class="text-[11px] text-slate-500 mt-1">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-xs text-slate-600 mt-2">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;wrap.appendChild(el)});container.appendChild(wrap);
+    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-4 flex gap-4';el.innerHTML=`<div class="w-56 max-w-[42%] shrink-0">${media(post)}</div><div class="min-w-0">${typeBadge(post)}<h3 class="font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h3><p class="text-[11px] text-slate-500 mt-1">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-xs text-slate-600 mt-2">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;wrap.appendChild(el)});container.appendChild(wrap);
   }else if(galleryViewMode==='list'){
     const table=document.createElement('div');table.className='bg-white rounded-2xl border divide-y overflow-hidden';
-    list.forEach(post=>{const row=document.createElement('div');row.className='p-4 flex items-center justify-between gap-3 flex-wrap';row.innerHTML=`<div><h4 class="font-bold text-sm">${escapeHtml(post.title)}</h4><p class="text-[11px] text-slate-500">${escapeHtml(post.playlist||'General')} • ${escapeHtml(post.location||'')} • ${escapeHtml(post.date||'')}</p></div><div class="flex gap-3"><a href="${escapeHtml(post.youtube||'#')}" target="_blank" rel="noopener" class="text-red-600 text-xs font-bold">YouTube</a>${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 text-xs font-bold">Edit</button><button onclick="deleteGallery('${post.id}')" class="text-red-500 text-xs font-bold">Delete</button>`:''}</div>`;table.appendChild(row)});container.appendChild(table);
+    list.forEach(post=>{const row=document.createElement('div');row.className='p-4 flex items-center justify-between gap-3 flex-wrap';const isImg=(post.mediaType==='image'||(!post.mediaType&&!post.youtube));row.innerHTML=`<div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0">${isImg && (post.imageUrl||post.driveUrl)?`<img src="${escapeHtml(post.imageUrl||driveImagePreviewUrl(post.driveUrl))}" class="w-full h-full object-cover">`:'<i class="fa-solid fa-photo-film text-slate-300 flex items-center justify-center h-full"></i>'}</div><div><div class="flex items-center gap-2">${typeBadge(post)}<h4 class="font-bold text-sm">${escapeHtml(post.title)}</h4></div><p class="text-[11px] text-slate-500">${escapeHtml(post.playlist||'General')} • ${escapeHtml(post.location||'')} • ${escapeHtml(post.date||'')}</p></div></div><div class="flex gap-3">${isImg?(post.driveUrl?`<a href="${escapeHtml(post.driveUrl)}" target="_blank" rel="noopener" class="text-emerald-600 text-xs font-bold">Drive</a>`:''):`<a href="${escapeHtml(post.youtube||'#')}" target="_blank" rel="noopener" class="text-red-600 text-xs font-bold">YouTube</a>`}${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 text-xs font-bold">Edit</button><button onclick="deleteGallery('${post.id}')" class="text-red-500 text-xs font-bold">Delete</button>`:''}</div>`;table.appendChild(row)});container.appendChild(table);
   }else{
     const wrap=document.createElement('div');wrap.className='space-y-5';
-    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-6';el.innerHTML=`<div class="grid lg:grid-cols-[420px_1fr] gap-6 items-start">${media(post)}<div><p class="text-[10px] uppercase tracking-wider font-bold text-cyan-700">${escapeHtml(post.playlist||'General')}</p><h2 class="text-xl font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h2><p class="text-xs text-slate-500 mt-2">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-sm text-slate-700 mt-4 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div></div>`;wrap.appendChild(el)});container.appendChild(wrap);
+    list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-6';el.innerHTML=`<div class="grid lg:grid-cols-[420px_1fr] gap-6 items-start">${media(post)}<div>${typeBadge(post)}<p class="text-[10px] uppercase tracking-wider font-bold text-cyan-700 mt-2">${escapeHtml(post.playlist||'General')}</p><h2 class="text-xl font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h2><p class="text-xs text-slate-500 mt-2">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-sm text-slate-700 mt-4 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div></div>`;wrap.appendChild(el)});container.appendChild(wrap);
   }
 }
+function driveImagePreviewUrl(url){
+  const id=extractDriveId(url||'');
+  return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1600` : String(url||'');
+}
+function openGalleryImage(id){
+  const post=galleryPosts.find(p=>String(p.id)===String(id));if(!post)return;
+  const src=post.imageUrl||driveImagePreviewUrl(post.driveUrl||'');if(!src)return;
+  const win=window.open('','_blank','noopener,noreferrer');if(win)win.document.write(`<title>${escapeHtml(post.title||'Image')}</title><style>body{margin:0;background:#0f172a;display:flex;align-items:center;justify-content:center;min-height:100vh}img{max-width:96vw;max-height:96vh;object-fit:contain}</style><img src="${escapeHtml(src)}" alt="${escapeHtml(post.title||'Image')}">`);
+}
+
 async function openEditPlaylistModal(oldName){
   const newName=prompt('Edit Playlist Name:',oldName);if(newName===null)return;
   const name=newName.trim();if(!name||name===oldName)return;
@@ -1513,169 +1569,113 @@ async function saveNewPlaylist(e){
   if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_playlists',name);
   closeAddPlaylistModal();renderPlaylistsAndGallery();
 }
-function openAddGalleryModal(){document.getElementById('editGalleryId').value=""; document.getElementById('galleryModalTitle').innerText="Upload YouTube Video / Blog"; document.getElementById('galleryForm').reset(); const select=document.getElementById('galleryPlaylistSelect'); select.innerHTML=''; let opts = playlists.filter(p=>p!=="All Playlists"); if(opts.length===0){ opts=["Thermo Analyzers","Airpointer","General"]; playlists = ["All Playlists", ...opts]; localStorage.setItem('kytos_playlists_fixed', JSON.stringify(playlists)); } opts.forEach(pl=>{select.innerHTML+=`<option value="${escapeHtml(pl)}" ${selectedPlaylist===pl?'selected':''}>${escapeHtml(pl)}</option>`;}); document.getElementById('galleryModal').classList.remove('hidden');}
-function openEditGalleryModal(id){const post=galleryPosts.find(p=>String(p.id)===String(id)); if(!post){ alert("Video not found: "+id); return; } document.getElementById('editGalleryId').value=String(post.id); document.getElementById('galleryModalTitle').innerText="Edit Video / Blog Post"; document.getElementById('galleryDate').value=post.date||""; document.getElementById('galleryLocation').value=post.location||""; document.getElementById('galleryTitle').value=post.title||""; document.getElementById('galleryYoutube').value=post.youtube||""; document.getElementById('galleryDesc').value=post.description||""; const select=document.getElementById('galleryPlaylistSelect'); select.innerHTML=''; let opts = playlists.filter(p=>p!=="All Playlists"); if(opts.length===0){ opts=["Thermo Analyzers","Airpointer","General"]; playlists = ["All Playlists", ...opts]; localStorage.setItem('kytos_playlists_fixed', JSON.stringify(playlists)); } if(post.playlist && !opts.includes(post.playlist)){ opts.push(post.playlist); } opts.forEach(pl=>{ const sel = (post.playlist===pl) ? 'selected' : ''; select.innerHTML+=`<option value="${escapeHtml(pl)}" ${sel}>${escapeHtml(pl)}</option>`;}); document.getElementById('galleryModal').classList.remove('hidden');}
+function populateGalleryPlaylistSelect(selected){
+  const select=document.getElementById('galleryPlaylistSelect');select.innerHTML='';
+  let opts=playlists.filter(p=>p!=="All Playlists");
+  if(opts.length===0){opts=["General"];playlists=["All Playlists","General"];localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));}
+  if(selected && !opts.includes(selected))opts.push(selected);
+  opts.forEach(pl=>{select.innerHTML+=`<option value="${escapeHtml(pl)}" ${selected===pl?'selected':''}>${escapeHtml(pl)}</option>`;});
+}
+function toggleGalleryMediaFields(){
+  const type=document.getElementById('galleryMediaType')?.value||'video';
+  const vf=document.getElementById('galleryVideoField'),im=document.getElementById('galleryImageFields');
+  if(vf)vf.classList.toggle('hidden',type!=='video');if(im)im.classList.toggle('hidden',type!=='image');
+  const y=document.getElementById('galleryYoutube');if(y)y.required=(type==='video');
+}
+function openAddGalleryModal(){
+  document.getElementById('editGalleryId').value="";
+  document.getElementById('galleryModalTitle').innerText="Add Media";
+  document.getElementById('galleryForm').reset();
+  document.getElementById('galleryDate').value=new Date().toISOString().slice(0,10);
+  populateGalleryPlaylistSelect(selectedPlaylist!=='All Playlists'?selectedPlaylist:'');
+  document.getElementById('galleryMediaType').value='video';
+  toggleGalleryMediaFields();
+  document.getElementById('galleryModal').classList.remove('hidden');
+}
+function openEditGalleryModal(id){
+  const post=galleryPosts.find(p=>String(p.id)===String(id));if(!post){alert("Media not found: "+id);return;}
+  document.getElementById('editGalleryId').value=String(post.id);
+  document.getElementById('galleryModalTitle').innerText="Edit Media";
+  document.getElementById('galleryDate').value=post.date||"";
+  document.getElementById('galleryLocation').value=post.location||"";
+  document.getElementById('galleryTitle').value=post.title||"";
+  document.getElementById('galleryYoutube').value=post.youtube||"";
+  document.getElementById('galleryDesc').value=post.description||"";
+  document.getElementById('galleryDriveImage').value=post.driveUrl||"";
+  document.getElementById('galleryMediaType').value=post.mediaType||(post.youtube?'video':'image');
+  populateGalleryPlaylistSelect(post.playlist||'General');
+  toggleGalleryMediaFields();
+  document.getElementById('galleryModal').classList.remove('hidden');
+}
 function closeGalleryModal(){document.getElementById('galleryModal').classList.add('hidden');}
 async function saveNewGallery(e){
   e.preventDefault();
+  if(!isAdmin){alert('Admin only');return;}
   const editId=document.getElementById('editGalleryId').value;
+  const mediaType=document.getElementById('galleryMediaType').value;
   const date=document.getElementById('galleryDate').value;
   const location=document.getElementById('galleryLocation').value.trim();
   const playlist=document.getElementById('galleryPlaylistSelect').value;
   const title=document.getElementById('galleryTitle').value.trim();
   const youtube=document.getElementById('galleryYoutube').value.trim();
+  const driveInput=(document.getElementById('galleryDriveImage').value||'').trim();
+  const driveUrl=driveInput?normalizeDriveUrl(driveInput):'';
   const description=document.getElementById('galleryDesc').value.trim();
-  const payload={date,location,playlist,title,youtube,description};
-  if(editId){
-    galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
-    if(window.firebaseUpdate) await window.firebaseUpdate('kytos_gallery',String(editId),payload);
+  const files=[...(document.getElementById('galleryImageFile')?.files||[])];
+
+  if(!title||!date||!location||!playlist){alert('Please complete the required fields.');return;}
+  if(mediaType==='video' && !getYouTubeId(youtube)){alert('Please enter a valid YouTube link.');return;}
+  if(mediaType==='image' && !editId && !driveUrl && !files.length){alert('For an image, select a file or enter a Google Drive image link.');return;}
+
+  const base={date,location,playlist,title,description,mediaType};
+  if(mediaType==='video'){
+    const payload={...base,youtube,imageUrl:'',driveUrl:''};
+    if(editId){
+      galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
+      if(window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(editId),payload);
+    }else{
+      const local={id:Date.now().toString(),...payload};galleryPosts.unshift(local);
+      if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_gallery',payload);if(fid)local.id=fid;}
+    }
   }else{
-    const local={id:Date.now().toString(),...payload};
-    galleryPosts.unshift(local);
-    if(window.firebaseAdd){
-      const fid=await window.firebaseAdd('kytos_gallery',payload); if(fid)local.id=fid;
+    // Edit one existing image
+    if(editId){
+      let imageUrl=galleryPosts.find(p=>String(p.id)===String(editId))?.imageUrl||'';
+      if(files[0]){
+        if(!window.firebaseUploadFile)throw new Error('Shared image storage is not available.');
+        imageUrl=await window.firebaseUploadFile(files[0],'gallery-images');
+      }
+      const payload={...base,youtube:'',imageUrl,driveUrl};
+      galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
+      if(window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(editId),payload);
+    }else{
+      // Multiple selected images become individual media cards in the same folder.
+      if(files.length){
+        for(let i=0;i<files.length;i++){
+          if(!window.firebaseUploadFile)throw new Error('Shared image storage is not available.');
+          const imageUrl=await window.firebaseUploadFile(files[i],'gallery-images');
+          const payload={...base,title:files.length>1?`${title} — ${files[i].name}`:title,youtube:'',imageUrl,driveUrl:''};
+          const local={id:Date.now().toString()+'_'+i,...payload};galleryPosts.unshift(local);
+          if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_gallery',payload);if(fid)local.id=fid;}
+        }
+      }else{
+        const payload={...base,youtube:'',imageUrl:'',driveUrl};
+        const local={id:Date.now().toString(),...payload};galleryPosts.unshift(local);
+        if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_gallery',payload);if(fid)local.id=fid;}
+      }
     }
   }
   localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
-  closeGalleryModal(); renderPlaylistsAndGallery(); updateLiveSyncTime();
+  closeGalleryModal();renderPlaylistsAndGallery();updateLiveSyncTime();
 }
 async function deleteGallery(id){
   if(!isAdmin){alert('Admin only');return;}
-  const item=galleryPosts.find(p=>String(p.id)===String(id)); if(!item)return;
+  const item=galleryPosts.find(p=>String(p.id)===String(id));if(!item)return;
   if(!confirm(`Delete "${item.title}"?`))return;
   galleryPosts=galleryPosts.filter(p=>String(p.id)!==String(id));
   localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
-  if(window.firebaseDelete) await window.firebaseDelete('kytos_gallery',String(id));
-  renderPlaylistsAndGallery(); updateLiveSyncTime();
-}
-function setActivityViewButtons(){
-  ['card','table','timeline'].forEach(m=>{
-    const b=document.getElementById('actView'+m.charAt(0).toUpperCase()+m.slice(1)+'Btn');
-    if(b)b.className=m===activityViewMode?'px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow':'px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium';
-  });
-  ['month','week','list'].forEach(m=>{
-    const b=document.getElementById('calView'+m.charAt(0).toUpperCase()+m.slice(1)+'Btn');
-    if(b)b.className=m===calendarViewMode?'px-3 py-1.5 text-[11px] rounded-lg bg-cyan-600 text-white font-bold shadow':'px-3 py-1.5 text-[11px] rounded-lg bg-white border font-medium';
-  });
-}
-function renderActivities(){
-  setActivityViewButtons();
-  const panel=document.getElementById('calendarPanel'), activityPanel=document.getElementById('activityPanel'), container=document.getElementById('activityList');
-  if(calendarViewMode==='list'){panel.classList.add('hidden');activityPanel.classList.remove('lg:col-span-2');activityPanel.classList.add('lg:col-span-3');}
-  else{panel.classList.remove('hidden');activityPanel.classList.remove('lg:col-span-3');activityPanel.classList.add('lg:col-span-2');}
-  container.innerHTML='';
-  const sorted=[...activities].sort((a,b)=>String(a.startDate).localeCompare(String(b.startDate)));
-  if(!sorted.length){container.innerHTML='<p class="text-xs text-slate-400 py-8 text-center">No activities scheduled.</p>';renderCalendar();return;}
-  const controls=a=>isAdmin?`<div class="flex items-center gap-1 ml-auto"><button onclick="openEditActivityModal('${a.id}')" class="p-1.5 text-cyan-600" title="Edit"><i class="fa-solid fa-pen"></i></button><button onclick="deleteActivityItem('${a.id}')" class="p-1.5 text-red-500" title="Delete"><i class="fa-solid fa-trash"></i></button></div>`:'';
-  if(activityViewMode==='card'){
-    container.className='space-y-3';
-    sorted.forEach(a=>{const el=document.createElement('article');el.className='p-4 rounded-2xl border bg-slate-50 flex items-start gap-3';el.innerHTML=`<div class="bg-cyan-600 text-white rounded-xl p-2.5 text-center min-w-[78px]"><span class="block text-[9px] uppercase font-bold">${escapeHtml(a.type||'Activity')}</span><span class="block text-[12px] font-black mt-1">${escapeHtml(a.startDate)}</span><span class="block text-[9px] opacity-80">to</span><span class="block text-[11px] font-bold">${escapeHtml(a.endDate)}</span></div><div class="flex-1 min-w-0"><div class="flex gap-2 items-start"><div><h4 class="font-black text-sm text-slate-900">${escapeHtml(a.title)}</h4><p class="text-xs text-slate-600 mt-1">${escapeHtml(a.description||'No remarks.')}</p><p class="text-[11px] text-slate-500 mt-2"><strong>Lead:</strong> ${escapeHtml(a.person||'Unassigned')}</p></div>${controls(a)}</div></div>`;container.appendChild(el)});
-  }else if(activityViewMode==='table'){
-    const table=document.createElement('div');table.className='overflow-x-auto rounded-2xl border';table.innerHTML='<table class="w-full text-xs"><thead class="bg-slate-50"><tr><th class="text-left p-3">Date</th><th class="text-left p-3">Activity</th><th class="text-left p-3">Type</th><th class="text-left p-3">Lead</th><th class="text-left p-3">Remarks</th><th class="p-3"></th></tr></thead><tbody></tbody></table>';const tb=table.querySelector('tbody');sorted.forEach(a=>{const tr=document.createElement('tr');tr.className='border-t hover:bg-slate-50';tr.innerHTML=`<td class="p-3 whitespace-nowrap">${escapeHtml(a.startDate)} → ${escapeHtml(a.endDate)}</td><td class="p-3 font-bold">${escapeHtml(a.title)}</td><td class="p-3">${escapeHtml(a.type||'')}</td><td class="p-3">${escapeHtml(a.person||'')}</td><td class="p-3">${escapeHtml(a.description||'')}</td><td class="p-3">${controls(a)}</td>`;tb.appendChild(tr)});container.appendChild(table);
-  }else{
-    container.className='relative space-y-3 pl-6 border-l-2 border-cyan-100';
-    sorted.forEach(a=>{const el=document.createElement('article');el.className='relative bg-white border rounded-2xl p-4';el.innerHTML=`<span class="absolute -left-[31px] top-5 w-3 h-3 rounded-full bg-cyan-600 border-2 border-white"></span><div class="flex gap-2 items-start"><div class="flex-1"><p class="text-[10px] font-bold uppercase text-cyan-700">${escapeHtml(a.startDate)} → ${escapeHtml(a.endDate)} • ${escapeHtml(a.type||'')}</p><h4 class="font-black text-slate-900 mt-1">${escapeHtml(a.title)}</h4><p class="text-xs text-slate-600 mt-1">${escapeHtml(a.description||'')}</p><p class="text-[11px] text-slate-500 mt-2">Lead: ${escapeHtml(a.person||'Unassigned')}</p></div>${controls(a)}</div>`;container.appendChild(el)});
-  }
-  renderCalendar();
-}
-function renderCalendar(){
-  const title=document.getElementById('calendarMonthYear'),days=document.getElementById('calendarDays');
-  if(!title||!days)return;days.innerHTML='';
-  const y=currentCalendarDate.getFullYear(),m=currentCalendarDate.getMonth();
-  title.innerText=currentCalendarDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
-  if(calendarViewMode==='week'){
-    const base=new Date(currentCalendarDate);const day=base.getDay();base.setDate(base.getDate()-day);
-    days.className='grid grid-cols-7 gap-2';
-    for(let i=0;i<7;i++){const d=new Date(base);d.setDate(base.getDate()+i);const key=d.toISOString().slice(0,10);const acts=activities.filter(a=>key>=a.startDate&&key<=a.endDate);const cell=document.createElement('div');cell.className='min-h-[150px] rounded-xl border bg-slate-50 p-2';cell.innerHTML=`<div class="font-black text-[11px] text-slate-700 mb-2">${d.toLocaleDateString('en-US',{weekday:'short'})}<br><span class="text-cyan-700">${d.getDate()}</span></div>${acts.map(a=>`<div class="text-[9px] font-bold bg-cyan-100 text-cyan-800 rounded-lg p-1.5 mb-1">${escapeHtml(a.title)}</div>`).join('')}`;days.appendChild(cell)}
-    return;
-  }
-  if(calendarViewMode==='list'){
-    days.className='grid grid-cols-1 gap-2';days.innerHTML='<div class="text-xs text-slate-500 p-3 bg-slate-50 rounded-xl">Use the activity panel for the full list.</div>';return;
-  }
-  days.className='grid grid-cols-7 gap-1 text-xs';
-  const first=new Date(y,m,1).getDay(),total=new Date(y,m+1,0).getDate();
-  for(let i=0;i<first;i++)days.appendChild(document.createElement('div'));
-  for(let day=1;day<=total;day++){
-    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const count=activities.filter(a=>key>=a.startDate&&key<=a.endDate).length;
-    const cell=document.createElement('div');cell.className=count?'h-10 flex flex-col items-center justify-center rounded-lg bg-cyan-600 text-white font-bold cursor-pointer':'h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700';cell.innerHTML=count?`${day}<span class="text-[8px] opacity-80">${count} item${count>1?'s':''}</span}`:`${day}`;days.appendChild(cell);
-  }
-}
-function changeMonth(delta){currentCalendarDate.setMonth(currentCalendarDate.getMonth()+delta); renderCalendar();}
-function openAddActivityModal(){document.getElementById('editActivityId').value=""; document.getElementById('activityModalTitle').innerText="Schedule Activity"; document.getElementById('activityForm').reset(); document.getElementById('activityModal').classList.remove('hidden');}
-function openEditActivityModal(id){ const act=activities.find(a=>String(a.id)===String(id)); if(!act){ alert('Activity not found: '+id); return; } document.getElementById('editActivityId').value=String(act.id); document.getElementById('activityModalTitle').innerText="Edit Activity Schedule"; document.getElementById('addActStart').value=act.startDate; document.getElementById('addActEnd').value=act.endDate; document.getElementById('addActTitle').value=act.title; document.getElementById('addActType').value=act.type; document.getElementById('addActLead').value=act.person||""; document.getElementById('addActDesc').value=act.description||""; document.getElementById('activityModal').classList.remove('hidden');}
-function closeActivityModal(){document.getElementById('activityModal').classList.add('hidden');}
-async function saveNewActivity(e){
-  e.preventDefault();
-  const editId=document.getElementById('editActivityId').value.trim();
-  const startDate=document.getElementById('addActStart').value;
-  const endDate=document.getElementById('addActEnd').value;
-  const title=document.getElementById('addActTitle').value.trim();
-  const type=document.getElementById('addActType').value;
-  const person=document.getElementById('addActLead').value.trim();
-  const description=document.getElementById('addActDesc').value.trim();
-  if(!title){ alert('Title required'); return; }
-  
-  // SAVE LOCAL FIRST - this is king
-  if(editId){
-    const idx=activities.findIndex(a=>String(a.id)===String(editId));
-    if(idx>-1){
-      activities[idx]={...activities[idx], startDate, endDate, title, type, person, description};
-      console.log('Updated activity locally:', editId);
-    }
-  } else {
-    const newId=Date.now().toString();
-    activities.push({id:newId, startDate, endDate, title, type, person, description});
-    console.log('Added activity locally:', newId, title);
-  }
-  
-  // Save to localStorage immediately
-  try{
-    localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));
-    console.log('Saved activities to localStorage, total:', activities.length);
-  }catch(e){
-    console.error('localStorage save failed', e);
-    alert('Storage error: '+e.message);
-    return;
-  }
-  
-  // Backup to Firebase (if available, but don't fail if not)
-  if(window.firebaseAdd || window.firebaseUpdate){
-    try{
-      if(editId && String(editId).length>=10){
-        if(window.firebaseUpdate) await window.firebaseUpdate('kytos_activities', editId, {startDate, endDate, title, type, person, description});
-      } else if(!editId){
-        if(window.firebaseAdd) await window.firebaseAdd('kytos_activities', {startDate, endDate, title, type, person, description});
-      }
-    }catch(e){ console.log('Firebase backup failed, but local saved', e); }
-  }
-  
-  closeActivityModal();
-  renderActivities();
-  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
-  alert(editId?'✅ Calendar updated - saved locally ('+activities.length+' total)':'✅ Calendar added - saved locally ('+activities.length+' total)');
-}
-async function deleteActivityItem(id){
-  if(!isAdmin){alert('Admin only');return;}
-  const act=activities.find(a=>String(a.id)===String(id));
-  if(!act){ alert('Not found: '+id); return; }
-  if(!confirm('Delete activity: '+act.title+'?')) return;
-  
-  // Delete local first
-  activities=activities.filter(a=>String(a.id)!==String(id));
-  try{
-    localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));
-    console.log('Deleted activity locally, remaining:', activities.length);
-  }catch(e){}
-  
-  // Backup delete to Firebase
-  if(window.firebaseDelete){
-    try{ await window.firebaseDelete('kytos_activities', String(id)); }catch(e){}
-  }
-  
-  renderActivities();
-  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
-  alert('✅ Activity deleted - '+act.title+' (remaining: '+activities.length+')');
+  if(window.firebaseDelete)await window.firebaseDelete('kytos_gallery',String(id));
+  renderPlaylistsAndGallery();updateLiveSyncTime();
 }
 function handleAdminButtonClick(){if(isAdmin){if(confirm("Log out of Admin mode?")){isAdmin=false; document.getElementById('adminStatusText').innerText="Admin"; document.getElementById('adminLockIcon').className="fa-solid fa-lock text-yellow-400"; document.getElementById('adminActionBtn').classList.add('hidden'); document.getElementById('adminActivityAction').classList.add('hidden'); document.getElementById('adminDocAction').classList.add('hidden'); document.getElementById('adminGalleryAction').classList.add('hidden'); document.getElementById('saveButtonMain').classList.add('hidden'); document.getElementById('homeAdminAction').classList.add('hidden'); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();}} else {document.getElementById('adminPassInput').value=''; document.getElementById('loginModal').classList.remove('hidden');}}
 function closeAdminModal(){document.getElementById('loginModal').classList.add('hidden');}

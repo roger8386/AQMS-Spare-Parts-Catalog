@@ -146,7 +146,7 @@ function getDrivePreviewLink(url){
 </div>
 
 
-<main id="partsView" class="hidden" class="max-w-7xl mx-auto px-4 py-6">
+<main id="partsView" class="hidden max-w-7xl mx-auto px-4 py-6" data-dup="max-w-7xl mx-auto px-4 py-6">
   <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
     <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100"><h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-sliders text-cyan-600"></i> Search & Filter Controls</h2><button onclick="resetAllFilters()" class="text-xs text-cyan-600 hover:underline font-semibold flex items-center gap-1"><i class="fa-solid fa-rotate-left text-[10px]"></i> Reset Filters</button></div>
     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
@@ -826,7 +826,53 @@ function verifyAdminPass(){
     alert("Incorrect password!");
   }
 }
-function switchTab(tab){const hv=document.getElementById('homeView'); if(hv) hv.classList.add('hidden'); document.getElementById('partsView').classList.add('hidden'); document.getElementById('activitiesView').classList.add('hidden'); document.getElementById('documentsView').classList.add('hidden'); document.getElementById('galleryView').classList.add('hidden'); const homeBtn=document.getElementById('tabHomeBtn'); if(homeBtn) homeBtn.className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabPartsBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabActivitiesBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabDocsBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; document.getElementById('tabGalleryBtn').className="px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium"; if(tab==='home'){const hv=document.getElementById('homeView'); if(hv) hv.classList.remove('hidden'); if(homeBtn) homeBtn.className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium";} else if(tab==='parts'){document.getElementById('partsView').classList.remove('hidden'); document.getElementById('tabPartsBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium";} else if(tab==='activities'){document.getElementById('activitiesView').classList.remove('hidden'); document.getElementById('tabActivitiesBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium"; renderActivities();} else if(tab==='documents'){document.getElementById('documentsView').classList.remove('hidden'); document.getElementById('tabDocsBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium"; renderFoldersAndDocs();} else if(tab==='gallery'){document.getElementById('galleryView').classList.remove('hidden'); document.getElementById('tabGalleryBtn').className="px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium"; renderPlaylistsAndGallery();}}
+function switchTab(tab){
+  const hv=document.getElementById('homeView'); if(hv) hv.classList.add('hidden');
+  document.getElementById('partsView').classList.add('hidden');
+  document.getElementById('activitiesView').classList.add('hidden');
+  document.getElementById('documentsView').classList.add('hidden');
+  document.getElementById('galleryView').classList.add('hidden');
+  
+  const baseClass="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 font-medium flex items-center gap-1.5 whitespace-nowrap transition";
+  const activeClass="px-3 py-2 rounded-lg bg-cyan-600 text-white font-bold flex items-center gap-1.5 whitespace-nowrap shadow-sm";
+  const adminBase="px-3 py-2 rounded-lg border border-slate-600 bg-slate-700 text-slate-300 hover:border-yellow-400 hover:text-white font-bold flex items-center gap-1.5 whitespace-nowrap ml-1 transition";
+  const adminActive="px-3 py-2 rounded-lg border border-emerald-500 bg-emerald-600 text-white font-bold flex items-center gap-1.5 whitespace-nowrap ml-1 shadow-sm";
+  
+  const homeBtn=document.getElementById('tabHomeBtn');
+  const partsBtn=document.getElementById('tabPartsBtn');
+  const actBtn=document.getElementById('tabActivitiesBtn');
+  const docsBtn=document.getElementById('tabDocsBtn');
+  const galBtn=document.getElementById('tabGalleryBtn');
+  const adminBtn=document.getElementById('adminLoginBtn');
+  
+  if(homeBtn) homeBtn.className=baseClass;
+  if(partsBtn) partsBtn.className=baseClass;
+  if(actBtn) actBtn.className=baseClass;
+  if(docsBtn) docsBtn.className=baseClass;
+  if(galBtn) galBtn.className=baseClass;
+  if(adminBtn) adminBtn.className= isAdmin ? adminActive : adminBase;
+  
+  if(tab==='home'){
+    const hv2=document.getElementById('homeView'); if(hv2) hv2.classList.remove('hidden');
+    if(homeBtn) homeBtn.className=activeClass;
+  } else if(tab==='parts'){
+    document.getElementById('partsView').classList.remove('hidden');
+    if(partsBtn) partsBtn.className=activeClass;
+  } else if(tab==='activities'){
+    document.getElementById('activitiesView').classList.remove('hidden');
+    if(actBtn) actBtn.className=activeClass;
+    renderActivities();
+  } else if(tab==='documents'){
+    document.getElementById('documentsView').classList.remove('hidden');
+    if(docsBtn) docsBtn.className=activeClass;
+    renderFoldersAndDocs();
+  } else if(tab==='gallery'){
+    document.getElementById('galleryView').classList.remove('hidden');
+    if(galBtn) galBtn.className=activeClass;
+    renderPlaylistsAndGallery();
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
 // close modals on overlay click and ESC
 document.querySelectorAll('[id$="Modal"]').forEach(m=>{m.addEventListener('click', e=>{if(e.target===m) m.classList.add('hidden');});});
 document.addEventListener('keydown', e=>{if(e.key==='Escape'){document.querySelectorAll('[id$="Modal"]').forEach(m=>m.classList.add('hidden'));}});

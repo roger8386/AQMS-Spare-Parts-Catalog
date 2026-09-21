@@ -1730,6 +1730,11 @@ function driveImagePreviewUrl(url){
   return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1600` : String(url||'');
 }
 let galleryImageZoom=1;
+let galleryPanX=0;
+let galleryPanY=0;
+let galleryDragging=false;
+let galleryDragStartX=0;
+let galleryDragStartY=0;
 
 function openGalleryImage(id){
   const post=galleryPosts.find(p=>String(p.id)===String(id));
@@ -1745,6 +1750,9 @@ function openGalleryImage(id){
   if(!img||!modal)return;
 
   galleryImageZoom=1;
+  galleryPanX=0;
+  galleryPanY=0;
+
   img.src=src;
   img.alt=post.title||'Image';
 
@@ -1758,17 +1766,28 @@ function updateGalleryImageZoom(){
   const img=document.getElementById('galleryPreviewImg');
   const text=document.getElementById('galleryZoomText');
 
-  if(img)img.style.transform=`scale(${galleryImageZoom})`;
+  if(img){
+    img.style.transform=`translate(${galleryPanX}px,${galleryPanY}px) scale(${galleryImageZoom})`;
+  }
+
   if(text)text.innerText=Math.round(galleryImageZoom*100)+'%';
 }
 
 function zoomGalleryImage(amount){
   galleryImageZoom=Math.max(.2,Math.min(5,galleryImageZoom+amount));
+
+  if(galleryImageZoom<=1){
+    galleryPanX=0;
+    galleryPanY=0;
+  }
+
   updateGalleryImageZoom();
 }
 
 function resetGalleryImage(){
   galleryImageZoom=1;
+  galleryPanX=0;
+  galleryPanY=0;
   updateGalleryImageZoom();
 }
 
@@ -1778,8 +1797,36 @@ function closeGalleryImage(){
 
   const img=document.getElementById('galleryPreviewImg');
   if(img)img.src='';
+
+  galleryImageZoom=1;
+  galleryPanX=0;
+  galleryPanY=0;
 }
 
+const galleryImageStage=document.getElementById('galleryImageStage');
+
+if(galleryImageStage){
+  galleryImageStage.addEventListener('mousedown',function(e){
+    if(galleryImageZoom<=1)return;
+
+    galleryDragging=true;
+    galleryDragStartX=e.clientX-galleryPanX;
+    galleryDragStartY=e.clientY-galleryPanY;
+  });
+
+  window.addEventListener('mousemove',function(e){
+    if(!galleryDragging)return;
+
+    galleryPanX=e.clientX-galleryDragStartX;
+    galleryPanY=e.clientY-galleryDragStartY;
+
+    updateGalleryImageZoom();
+  });
+
+  window.addEventListener('mouseup',function(){
+    galleryDragging=false;
+  });
+}
 async function openEditPlaylistModal(oldName){
   const newName=prompt('Edit Playlist Name:',oldName);if(newName===null)return;
   const name=newName.trim();if(!name||name===oldName)return;

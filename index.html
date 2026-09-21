@@ -2271,7 +2271,93 @@ window.addHomeShortcutDraft = addHomeShortcutDraft;
 window.toggleBatchShortcutUrl = toggleBatchShortcutUrl;
 window.toggleBatchShortcutDelete = toggleBatchShortcutDelete;
 window.saveAllHomeChanges = saveAllHomeChanges;
+// Home Image Preview, Zoom, and Pan Handler Functions
+let homeCurrentScale = 1;
+let homeIsDragging = false;
+let homeStartX = 0, homeStartY = 0;
+let homeTranslateX = 0, homeTranslateY = 0;
 
+function openHomeImage(imgSrc, titleText) {
+    const modal = document.getElementById('homeImageModal');
+    const img = document.getElementById('homePreviewImg');
+    const title = document.getElementById('homePreviewTitle');
+    if (!modal || !img) return;
+    
+    img.src = imgSrc;
+    if (title) title.textContent = titleText || 'Home Image Preview';
+    modal.classList.remove('hidden');
+    
+    homeCurrentScale = 1;
+    homeTranslateX = 0;
+    homeTranslateY = 0;
+    updateHomeTransform();
+}
+
+function closeHomeImage() {
+    const modal = document.getElementById('homeImageModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function zoomHomeImage(amount) {
+    homeCurrentScale += amount;
+    if (homeCurrentScale < 0.5) homeCurrentScale = 0.5;
+    if (homeCurrentScale > 5) homeCurrentScale = 5;
+    updateHomeTransform();
+}
+
+function resetHomeImage() {
+    homeCurrentScale = 1;
+    homeTranslateX = 0;
+    homeTranslateY = 0;
+    updateHomeTransform();
+}
+
+function updateHomeTransform() {
+    const img = document.getElementById('homePreviewImg');
+    const zoomText = document.getElementById('homeZoomText');
+    if (img) {
+        img.style.transform = `translate(${homeTranslateX}px, ${homeTranslateY}px) scale(${homeCurrentScale})`;
+    }
+    if (zoomText) {
+        zoomText.textContent = Math.round(homeCurrentScale * 100) + '%';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const stage = document.getElementById('homeImageStage');
+    const img = document.getElementById('homePreviewImg');
+    
+    if (stage && img) {
+        stage.addEventListener('mousedown', (e) => {
+            homeIsDragging = true;
+            homeStartX = e.clientX - homeTranslateX;
+            homeStartY = e.clientY - homeTranslateY;
+            stage.classList.add('active');
+            e.preventDefault();
+        });
+        
+        window.addEventListener('mousemove', (e) => {
+            if (!homeIsDragging) return;
+            homeTranslateX = e.clientX - homeStartX;
+            homeTranslateY = e.clientY - homeStartY;
+            updateHomeTransform();
+        });
+        
+        window.addEventListener('mouseup', () => {
+            homeIsDragging = false;
+            stage.classList.remove('active');
+        });
+        
+        stage.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomHomeImage(0.2);
+            } else {
+                zoomHomeImage(-0.2);
+            }
+        }, { passive: false });
+    }
+});
 </script>
 
 </body>

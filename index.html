@@ -471,23 +471,7 @@
     </div>
   </div>
 </div>
-  <div id="homeImageModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-  <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col bg-white rounded-xl overflow-hidden shadow-2xl">
-    <div class="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
-      <h3 id="homePreviewTitle" class="font-semibold text-gray-800">Home Image Preview</h3>
-      <div class="flex items-center gap-2">
-        <span id="homeZoomText" class="text-xs text-gray-500 font-mono">100%</span>
-        <button type="button" onclick="zoomHomeImage(0.25)" class="px-2 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300">+</button>
-        <button type="button" onclick="zoomHomeImage(-0.25)" class="px-2 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300">-</button>
-        <button type="button" onclick="resetHomeImage()" class="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300">Reset</button>
-        <button type="button" onclick="closeHomeImage()" class="ml-2 text-gray-500 hover:text-gray-700 font-bold text-lg">✕</button>
-      </div>
-    </div>
-    <div id="homeImageStage" class="relative flex-1 overflow-hidden bg-gray-900 flex items-center justify-center min-h-[350px] cursor-grab active:cursor-grabbing">
-      <img id="homePreviewImg" src="" alt="Preview" class="max-h-[70vh] transition-transform duration-75 select-none" />
-    </div>
-  </div>
-</div>
+  
 <div id="filePreviewModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50"><div class="bg-white rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden"><div class="flex justify-between items-center px-5 py-3 border-b bg-slate-50"><div class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-cyan-600 text-base"></i><h3 id="previewModalTitle" class="text-xs sm:text-sm font-bold text-slate-800 truncate max-w-md">Document Preview</h3></div><div class="flex items-center gap-2"><button id="previewDownloadBtn" class="bg-cyan-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-cyan-700 flex items-center gap-1 shadow"><i class="fa-solid fa-download"></i> Download</button><button onclick="closePreviewModal()" class="p-1.5 px-2.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 text-sm font-bold">&times;</button></div></div><div id="previewModalBody" class="flex-1 bg-slate-100 p-2 flex items-center justify-center overflow-hidden"></div></div></div>
 
 <script>
@@ -1746,11 +1730,6 @@ function driveImagePreviewUrl(url){
   return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1600` : String(url||'');
 }
 let galleryImageZoom=1;
-let galleryPanX=0;
-let galleryPanY=0;
-let galleryDragging=false;
-let galleryDragStartX=0;
-let galleryDragStartY=0;
 
 function openGalleryImage(id){
   const post=galleryPosts.find(p=>String(p.id)===String(id));
@@ -1766,9 +1745,6 @@ function openGalleryImage(id){
   if(!img||!modal)return;
 
   galleryImageZoom=1;
-  galleryPanX=0;
-  galleryPanY=0;
-
   img.src=src;
   img.alt=post.title||'Image';
 
@@ -1782,28 +1758,17 @@ function updateGalleryImageZoom(){
   const img=document.getElementById('galleryPreviewImg');
   const text=document.getElementById('galleryZoomText');
 
-  if(img){
-    img.style.transform=`translate(${galleryPanX}px,${galleryPanY}px) scale(${galleryImageZoom})`;
-  }
-
+  if(img)img.style.transform=`scale(${galleryImageZoom})`;
   if(text)text.innerText=Math.round(galleryImageZoom*100)+'%';
 }
 
 function zoomGalleryImage(amount){
   galleryImageZoom=Math.max(.2,Math.min(5,galleryImageZoom+amount));
-
-  if(galleryImageZoom<=1){
-    galleryPanX=0;
-    galleryPanY=0;
-  }
-
   updateGalleryImageZoom();
 }
 
 function resetGalleryImage(){
   galleryImageZoom=1;
-  galleryPanX=0;
-  galleryPanY=0;
   updateGalleryImageZoom();
 }
 
@@ -1813,36 +1778,8 @@ function closeGalleryImage(){
 
   const img=document.getElementById('galleryPreviewImg');
   if(img)img.src='';
-
-  galleryImageZoom=1;
-  galleryPanX=0;
-  galleryPanY=0;
 }
 
-const galleryImageStage=document.getElementById('galleryImageStage');
-
-if(galleryImageStage){
-  galleryImageStage.addEventListener('mousedown',function(e){
-    if(galleryImageZoom<=1)return;
-
-    galleryDragging=true;
-    galleryDragStartX=e.clientX-galleryPanX;
-    galleryDragStartY=e.clientY-galleryPanY;
-  });
-
-  window.addEventListener('mousemove',function(e){
-    if(!galleryDragging)return;
-
-    galleryPanX=e.clientX-galleryDragStartX;
-    galleryPanY=e.clientY-galleryDragStartY;
-
-    updateGalleryImageZoom();
-  });
-
-  window.addEventListener('mouseup',function(){
-    galleryDragging=false;
-  });
-}
 async function openEditPlaylistModal(oldName){
   const newName=prompt('Edit Playlist Name:',oldName);if(newName===null)return;
   const name=newName.trim();if(!name||name===oldName)return;
@@ -2170,96 +2107,7 @@ function renderHomeBatchEditor(){
     html+=`<div class="home-batch-slot ${src?'has-image':''}" data-slot="${i}">
       <div class="flex items-center justify-between mb-2"><div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Image ${i+1}</div>
       <label class="inline-flex items-center gap-1 text-[10px] text-red-600 font-bold cursor-pointer"><input type="checkbox" id="homeRemove_${i}" class="rounded" ${s.id?'':'disabled'}> Remove</label></div>
-     <div class="home-batch-preview mb-2" id="homePreview_${i}" ${src?`onclick="openHomeImage('${escapeHtml(src)}')" style="cursor:pointer;"`:''}>let homeImageZoom=1;
-let homePanX=0;
-let homePanY=0;
-let homeDragging=false;
-let homeDragStartX=0;
-let homeDragStartY=0;
-
-function openHomeImage(src){
-  const realSrc=normalizePartImageUrl(src);
-  if(!realSrc)return;
-
-  const img=document.getElementById('homePreviewImg');
-  const modal=document.getElementById('homeImageModal');
-
-  if(!img||!modal)return;
-
-  homeImageZoom=1;
-  homePanX=0;
-  homePanY=0;
-
-  img.src=realSrc;
-  updateHomeImageZoom();
-  modal.classList.remove('hidden');
-}
-
-function updateHomeImageZoom(){
-  const img=document.getElementById('homePreviewImg');
-  const text=document.getElementById('homeZoomText');
-
-  if(img){
-    img.style.transform=`translate(${homePanX}px,${homePanY}px) scale(${homeImageZoom})`;
-  }
-
-  if(text)text.innerText=Math.round(homeImageZoom*100)+'%';
-}
-
-function zoomHomeImage(amount){
-  homeImageZoom=Math.max(.2,Math.min(5,homeImageZoom+amount));
-
-  if(homeImageZoom<=1){
-    homePanX=0;
-    homePanY=0;
-  }
-
-  updateHomeImageZoom();
-}
-
-function resetHomeImage(){
-  homeImageZoom=1;
-  homePanX=0;
-  homePanY=0;
-  updateHomeImageZoom();
-}
-
-function closeHomeImage(){
-  const modal=document.getElementById('homeImageModal');
-  if(modal)modal.classList.add('hidden');
-
-  const img=document.getElementById('homePreviewImg');
-  if(img)img.src='';
-
-  homeImageZoom=1;
-  homePanX=0;
-  homePanY=0;
-}
-
-const homeImageStage=document.getElementById('homeImageStage');
-
-if(homeImageStage){
-  homeImageStage.addEventListener('mousedown',function(e){
-    if(homeImageZoom<=1)return;
-
-    homeDragging=true;
-    homeDragStartX=e.clientX-homePanX;
-    homeDragStartY=e.clientY-homePanY;
-  });
-
-  window.addEventListener('mousemove',function(e){
-    if(!homeDragging)return;
-
-    homePanX=e.clientX-homeDragStartX;
-    homePanY=e.clientY-homeDragStartY;
-
-    updateHomeImageZoom();
-  });
-
-  window.addEventListener('mouseup',function(){
-    homeDragging=false;
-  });
-}${src?`<img src="${escapeHtml(normalizePartImageUrl(src))}" alt="">`:'<span class="text-[10px] text-slate-400"><i class="fa-solid fa-image text-lg block text-center mb-1"></i>No image selected</span>'}</div>
+      <div class="home-batch-preview mb-2" id="homePreview_${i}">${src?`<img src="${escapeHtml(normalizePartImageUrl(src))}" alt="">`:'<span class="text-[10px] text-slate-400"><i class="fa-solid fa-image text-lg block text-center mb-1"></i>No image selected</span>'}</div>
       <input type="hidden" id="homeSlotId_${i}" value="${escapeHtml(s.id||'')}">
       <input type="text" id="homeTitle_${i}" value="${escapeHtml(s.title||'')}" class="w-full p-2 border rounded-lg mb-2 bg-white" placeholder="Activity title">
       <input type="text" id="homeSubtitle_${i}" value="${escapeHtml(s.subtitle||'')}" class="w-full p-2 border rounded-lg mb-2 bg-white" placeholder="Short caption / activity description">
@@ -2376,96 +2224,7 @@ window.addHomeShortcutDraft = addHomeShortcutDraft;
 window.toggleBatchShortcutUrl = toggleBatchShortcutUrl;
 window.toggleBatchShortcutDelete = toggleBatchShortcutDelete;
 window.saveAllHomeChanges = saveAllHomeChanges;
-let homeImageZoom=1;
-let homePanX=0;
-let homePanY=0;
-let homeDragging=false;
-let homeDragStartX=0;
-let homeDragStartY=0;
 
-function openHomeImage(src){
-  const realSrc=normalizePartImageUrl(src);
-  if(!realSrc)return;
-
-  const img=document.getElementById('homePreviewImg');
-  const modal=document.getElementById('homeImageModal');
-
-  if(!img||!modal)return;
-
-  homeImageZoom=1;
-  homePanX=0;
-  homePanY=0;
-
-  img.src=realSrc;
-  updateHomeImageZoom();
-  modal.classList.remove('hidden');
-}
-
-function updateHomeImageZoom(){
-  const img=document.getElementById('homePreviewImg');
-  const text=document.getElementById('homeZoomText');
-
-  if(img){
-    img.style.transform=`translate(${homePanX}px,${homePanY}px) scale(${homeImageZoom})`;
-  }
-
-  if(text)text.innerText=Math.round(homeImageZoom*100)+'%';
-}
-
-function zoomHomeImage(amount){
-  homeImageZoom=Math.max(.2,Math.min(5,homeImageZoom+amount));
-
-  if(homeImageZoom<=1){
-    homePanX=0;
-    homePanY=0;
-  }
-
-  updateHomeImageZoom();
-}
-
-function resetHomeImage(){
-  homeImageZoom=1;
-  homePanX=0;
-  homePanY=0;
-  updateHomeImageZoom();
-}
-
-function closeHomeImage(){
-  const modal=document.getElementById('homeImageModal');
-  if(modal)modal.classList.add('hidden');
-
-  const img=document.getElementById('homePreviewImg');
-  if(img)img.src='';
-
-  homeImageZoom=1;
-  homePanX=0;
-  homePanY=0;
-}
-
-const homeImageStage=document.getElementById('homeImageStage');
-
-if(homeImageStage){
-  homeImageStage.addEventListener('mousedown',function(e){
-    if(homeImageZoom<=1)return;
-
-    homeDragging=true;
-    homeDragStartX=e.clientX-homePanX;
-    homeDragStartY=e.clientY-homePanY;
-  });
-
-  window.addEventListener('mousemove',function(e){
-    if(!homeDragging)return;
-
-    homePanX=e.clientX-homeDragStartX;
-    homePanY=e.clientY-homeDragStartY;
-
-    updateHomeImageZoom();
-  });
-
-  window.addEventListener('mouseup',function(){
-    homeDragging=false;
-  });
-}
 </script>
 
 </body>

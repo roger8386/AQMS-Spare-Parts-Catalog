@@ -2146,9 +2146,24 @@ function openHomeEditor(){
 }
 function renderHomeBatchEditor(){
   const box=document.getElementById('homeBatchSlides'); if(!box)return;
+    const box=document.getElementById('homeBatchSlides'); if(!box)return;
+  let html='';
+  html+=`<div class="p-4 mb-4 border rounded-xl bg-slate-50 col-span-full">
+    <h4 class="font-bold text-sm text-slate-800 mb-2">Edit Home Purpose Text</h4>
+    <div class="space-y-2 mb-3">
+      <label class="block text-xs font-bold text-slate-700 uppercase">Portal Purpose Title</label>
+      <input type="text" id="batchPortalTitle" value="${escapeHtml(homeData && homeData.portalTitle ? homeData.portalTitle : 'What this portal is for')}" class="w-full p-2 border rounded-lg text-sm bg-white">
+    </div>
+    <div class="space-y-2">
+      <label class="block text-xs font-bold text-slate-700 uppercase">Portal Purpose Description</label>
+      <textarea id="batchPortalDesc" class="w-full p-2 border rounded-lg text-sm h-24 bg-white" placeholder="Enter description...">${escapeHtml(homeData && homeData.portalDesc ? homeData.portalDesc : '')}</textarea>
+    </div>
+  </div>`;
   const slides=Array.isArray(homeSlides)?homeSlides.slice(0,10):[];
   let html='';
   for(let i=0;i<10;i++){
+  const slides=Array.isArray(homeSlides)?homeSlides.slice(0,10):[];
+  
     const s=slides[i]||{};
     const src=s.imageUrl||'';
     html+=`<div class="home-batch-slot ${src?'has-image':''}" data-slot="${i}">

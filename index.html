@@ -1220,7 +1220,7 @@ function previewSelectedPartImage(file){
 
 function handlePartPhotoUpload(file){if(!file)return; currentPartPhoto=null; document.getElementById('addImageUrlInput').value=''; previewSelectedPartImage(file);}
 document.getElementById('partPhotoInput').addEventListener('change', e=>{if(e.target.files[0]) handlePartPhotoUpload(e.target.files[0]);});
-function openAddModal(){currentPartPhoto=null; document.getElementById('editPartId').value=""; document.getElementById('partModalTitle').innerText="Add New Spare Part"; document.getElementById('partForm').reset(); document.getElementById('partPhotoDisplay').innerText="Click to browse file from device"; document.getElementById('addImageUrlInput').value=""; document.getElementById('partModal').classList.remove('hidden');document.getElementById('partModal').style.display='flex';
+function openAddModal(){currentPartPhoto=null; document.getElementById('editPartId').value=""; document.getElementById('partModalTitle').innerText="Add New Spare Part"; document.getElementById('partForm').reset(); document.getElementById('partPhotoDisplay').innerText="Click to browse file from device"; document.getElementById('addImageUrlInput').value="";{ document.getElementById('partModal').classList.remove('hidden');document.getElementById('partModal').style.display='flex';
 
 
 

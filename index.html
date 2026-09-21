@@ -47,6 +47,12 @@
     .company-logo-frame img{display:block;width:116px;height:72px;object-fit:contain;border-radius:10px}
     .search-panel-sticky{position:sticky;top:72px;z-index:35}
     .live-search-popover{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:70;background:#fff;border:1px solid #cbd5e1;border-radius:16px;box-shadow:0 18px 45px rgba(15,23,42,.18);height:60vh;overflow-y:auto;overflow-x:hidden}
+    .gallery-image-overlay{position:fixed;inset:0;z-index:80;background:rgba(2,6,23,.94);display:flex;align-items:center;justify-content:center;padding:20px}
+.gallery-image-panel{width:100%;height:100%;display:flex;flex-direction:column}
+.gallery-image-toolbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0}
+.gallery-image-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:grab}
+.gallery-image-stage:active{cursor:grabbing}
+#galleryPreviewImg{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center center;user-select:none;-webkit-user-drag:none}
     .live-search-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer}
     .live-search-item:last-child{border-bottom:0}
     .live-search-item:hover{background:#ecfeff}
@@ -434,6 +440,38 @@
     </div>
   </div>
 </div>
+  <div id="galleryImageModal" class="hidden gallery-image-overlay">
+  <div class="gallery-image-panel">
+    <div class="gallery-image-toolbar">
+      <h3 id="galleryPreviewTitle" class="text-white font-bold text-sm truncate"></h3>
+
+      <div class="flex items-center gap-2">
+        <button onclick="zoomGalleryImage(-0.2)" class="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" title="Zoom Out">
+          <i class="fa-solid fa-magnifying-glass-minus"></i>
+        </button>
+
+        <span id="galleryZoomText" class="text-white text-xs font-bold min-w-[48px] text-center">100%</span>
+
+        <button onclick="zoomGalleryImage(0.2)" class="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" title="Zoom In">
+          <i class="fa-solid fa-magnifying-glass-plus"></i>
+        </button>
+
+        <button onclick="resetGalleryImage()" class="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold">
+          Reset
+        </button>
+
+        <button onclick="closeGalleryImage()" class="w-9 h-9 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center ml-2" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="galleryImageStage" class="gallery-image-stage">
+      <img id="galleryPreviewImg" alt="">
+    </div>
+  </div>
+</div>
+  
 <div id="filePreviewModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50"><div class="bg-white rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden"><div class="flex justify-between items-center px-5 py-3 border-b bg-slate-50"><div class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-cyan-600 text-base"></i><h3 id="previewModalTitle" class="text-xs sm:text-sm font-bold text-slate-800 truncate max-w-md">Document Preview</h3></div><div class="flex items-center gap-2"><button id="previewDownloadBtn" class="bg-cyan-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-cyan-700 flex items-center gap-1 shadow"><i class="fa-solid fa-download"></i> Download</button><button onclick="closePreviewModal()" class="p-1.5 px-2.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 text-sm font-bold">&times;</button></div></div><div id="previewModalBody" class="flex-1 bg-slate-100 p-2 flex items-center justify-center overflow-hidden"></div></div></div>
 
 <script>
@@ -1691,10 +1729,55 @@ function driveImagePreviewUrl(url){
   const id=extractDriveId(url||'');
   return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1600` : String(url||'');
 }
+let galleryImageZoom=1;
+
 function openGalleryImage(id){
-  const post=galleryPosts.find(p=>String(p.id)===String(id));if(!post)return;
-  const src=post.imageUrl||driveImagePreviewUrl(post.driveUrl||'');if(!src)return;
-  const win=window.open('','_blank','noopener,noreferrer');if(win)win.document.write(`<title>${escapeHtml(post.title||'Image')}</title><style>body{margin:0;background:#0f172a;display:flex;align-items:center;justify-content:center;min-height:100vh}img{max-width:96vw;max-height:96vh;object-fit:contain}</style><img src="${escapeHtml(src)}" alt="${escapeHtml(post.title||'Image')}">`);
+  const post=galleryPosts.find(p=>String(p.id)===String(id));
+  if(!post)return;
+
+  const src=post.imageUrl||driveImagePreviewUrl(post.driveUrl||'');
+  if(!src)return;
+
+  const img=document.getElementById('galleryPreviewImg');
+  const modal=document.getElementById('galleryImageModal');
+  const title=document.getElementById('galleryPreviewTitle');
+
+  if(!img||!modal)return;
+
+  galleryImageZoom=1;
+  img.src=src;
+  img.alt=post.title||'Image';
+
+  if(title)title.innerText=post.title||'Image';
+
+  updateGalleryImageZoom();
+  modal.classList.remove('hidden');
+}
+
+function updateGalleryImageZoom(){
+  const img=document.getElementById('galleryPreviewImg');
+  const text=document.getElementById('galleryZoomText');
+
+  if(img)img.style.transform=`scale(${galleryImageZoom})`;
+  if(text)text.innerText=Math.round(galleryImageZoom*100)+'%';
+}
+
+function zoomGalleryImage(amount){
+  galleryImageZoom=Math.max(.2,Math.min(5,galleryImageZoom+amount));
+  updateGalleryImageZoom();
+}
+
+function resetGalleryImage(){
+  galleryImageZoom=1;
+  updateGalleryImageZoom();
+}
+
+function closeGalleryImage(){
+  const modal=document.getElementById('galleryImageModal');
+  if(modal)modal.classList.add('hidden');
+
+  const img=document.getElementById('galleryPreviewImg');
+  if(img)img.src='';
 }
 
 async function openEditPlaylistModal(oldName){

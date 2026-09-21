@@ -1004,7 +1004,35 @@ function hideLiveSearchSuggestions(){
 }
 
 function applyFilters(){
-  const catVal=document.getElementById('categoryDropdown').value; const modVal=document.getElementById('modelDropdown').value; const searchVal=document.getElementById('searchInput').value.trim().toLowerCase();
+  const modelDropdown=document.getElementById('modelDropdown');
+  const currentModel=modelDropdown ? modelDropdown.value : 'ALL';
+
+  if(modelDropdown){
+    const models=[...new Set(
+      parts
+        .map(p=>String(p.model||'').trim())
+        .filter(Boolean)
+    )].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
+
+    modelDropdown.innerHTML='<option value="ALL">All Models ('+models.length+' Models)</option>';
+
+    models.forEach(model=>{
+      const option=document.createElement('option');
+      option.value=model;
+      option.textContent=model;
+      modelDropdown.appendChild(option);
+    });
+
+    if(models.includes(currentModel)){
+      modelDropdown.value=currentModel;
+    }else{
+      modelDropdown.value='ALL';
+    }
+  }
+
+  const catVal=document.getElementById('categoryDropdown').value;
+  const modVal=document.getElementById('modelDropdown').value;
+  const searchVal=document.getElementById('searchInput').value.trim().toLowerCase();
   const sortVal=(document.getElementById('sortDropdown')||{}).value||'default';
   const container=document.getElementById('partsCardsContainer'); const emptyNotice=document.getElementById('emptyResultNotice'); const countElem=document.getElementById('totalCountDisplay');
   let matched=parts.filter(item=>{const pn=String(item.pn||'').toLowerCase(); const name=String(item.name||'').toLowerCase(); const model=String(item.model||'').toLowerCase(); const matchCat=(catVal==='ALL'||item.cat===catVal); const matchMod=(modVal==='ALL'||item.model===modVal); const matchSearch=!searchVal||pn.includes(searchVal)||name.includes(searchVal)||model.includes(searchVal); return matchCat&&matchMod&&matchSearch;});

@@ -144,22 +144,19 @@
 <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importAllData(event)">
 </div>
 <div class="flex flex-col">
-  <div class="flex items-center gap-2">
-    <h1 class="text-base md:text-lg font-bold tracking-tight">AQMS Technical Portal</h1>
-    <span class="bg-cyan-950 text-cyan-300 border border-cyan-700/50 text-[10px] font-bold px-2 py-0.5 rounded-full" id="headerBadge">366 Items</span>
-  </div>
-  <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
-    <span class="text-xs text-slate-300 font-semibold">Abdul Karim H. Al-Sinan for Trading and Contracting Company</span>
-    <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span id="liveSyncIndicator" title="Live team synchronization" class="inline-flex items-center gap-1.5">
-        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
-        <span class="text-emerald-400 font-bold">Live Sync</span>
-        <span class="text-[9px] text-slate-400" id="lastSyncTime"></span>
-      </span>
-    </p>
-  </div>
-</div>
-      </div>
+    <div class="flex items-center gap-2">
+        <h1 class="text-base md:text-lg font-bold tracking-tight">AQMS Technical Portal</h1>
+        <span class="bg-cyan-950 text-cyan-300 border border-cyan-700/50 text-[10px] font-bold px-2 py-0.5 rounded-full" id="headerBadge">366 Items</span>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
+        <span class="text-xs text-slate-300 font-semibold">Abdul Karim H. Al-Sinan for Trading and Contracting Company</span>
+        <div id="liveSyncIndicator" title="Live team synchronization" class="inline-flex items-center gap-1.5 text-xs">
+            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+            <span class="text-emerald-400 font-bold">Live Sync</span>
+            <span class="text-[9px] text-slate-400" id="lastSyncTime"></span>
+        </div>
+    </div>
+  
     </div>
     <div class="flex items-center gap-2 ml-auto">
       <div class="mobile-scroll-tabs soft-scroll flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-nowrap">

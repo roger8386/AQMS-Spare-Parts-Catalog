@@ -1546,21 +1546,73 @@ function openPartImagePreview(title,imgSrc){
 function closePartImageModal(){ document.getElementById('partImageModal').classList.add('hidden'); }
 function zoomPartImage(delta){
   const imgEl = document.getElementById('partImageModalImg');
-  let scale = parseFloat(imgEl.dataset.scale||'1');
-  scale = Math.max(0.5, Math.min(3, scale+delta));
-  imgEl.dataset.scale=scale;
-  imgEl.style.transform=`scale(${scale}) rotate(${imgEl.dataset.rotate||0}deg)`;
+  let scale = parseFloat(imgEl.dataset.scale || '1');
+
+  scale = Math.max(0.5, Math.min(3, scale + delta));
+
+  imgEl.dataset.scale = scale;
+  updatePartImageTransform();
 }
 function rotatePartImage(){
-  const imgEl = document.getElementById('partImageModalImg');
-  let rot = parseInt(imgEl.dataset.rotate||'0')+90;
-  imgEl.dataset.rotate=rot%360;
-  imgEl.style.transform=`scale(${imgEl.dataset.scale||1}) rotate(${rot}deg)`;
-}
 function resetPartImage(){
   const imgEl = document.getElementById('partImageModalImg');
-  imgEl.dataset.scale='1'; imgEl.dataset.rotate='0';
-  imgEl.style.transform='scale(1) rotate(0deg)';
+
+  partImagePosX = 0;
+  partImagePosY = 0;
+
+  imgEl.dataset.scale = '1';
+  imgEl.dataset.rotate = '0';
+
+  updatePartImageTransform();
+}
+  let partImageDragging = false;
+let partImageStartX = 0;
+let partImageStartY = 0;
+let partImagePosX = 0;
+let partImagePosY = 0;
+
+function updatePartImageTransform(){
+  const imgEl = document.getElementById('partImageModalImg');
+  const scale = parseFloat(imgEl.dataset.scale || '1');
+  const rotate = parseInt(imgEl.dataset.rotate || '0');
+
+  imgEl.style.transform =
+    `translate(${partImagePosX}px, ${partImagePosY}px) scale(${scale}) rotate(${rotate}deg)`;
+}
+
+function startPartImageDrag(e){
+  if(e.button !== 0) return;
+
+  partImageDragging = true;
+  partImageStartX = e.clientX - partImagePosX;
+  partImageStartY = e.clientY - partImagePosY;
+
+  const imgEl = document.getElementById('partImageModalImg');
+  imgEl.style.cursor = 'grabbing';
+}
+
+function movePartImageDrag(e){
+  if(!partImageDragging) return;
+
+  partImagePosX = e.clientX - partImageStartX;
+  partImagePosY = e.clientY - partImageStartY;
+
+  updatePartImageTransform();
+}
+
+function endPartImageDrag(){
+  partImageDragging = false;
+
+  const imgEl = document.getElementById('partImageModalImg');
+  imgEl.style.cursor = 'grab';
+}
+  const partImageEl = document.getElementById('partImageModalImg');
+
+if (partImageEl) {
+  partImageEl.style.cursor = 'grab';
+  partImageEl.addEventListener('mousedown', startPartImageDrag);
+  document.addEventListener('mousemove', movePartImageDrag);
+  document.addEventListener('mouseup', endPartImageDrag);
 }
 function copySparePartDetails(pn, name, model, cat){
   const text = `Part Number: ${pn}\nName: ${name}\nModel: ${model}\nCategory: ${cat}`;

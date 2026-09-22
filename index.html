@@ -1394,136 +1394,26 @@ function copyText(t){navigator.clipboard.writeText(t).then(()=>{const el=documen
 function resetAllFilters(){document.getElementById('categoryDropdown').value='ALL'; document.getElementById('modelDropdown').value='ALL'; document.getElementById('searchInput').value=''; applyFilters();}
 function triggerSearch(){applyFilters();}
 function openPartImagePreview(title,imgSrc){
-  const titleEl=document.getElementById('partImageModalTitle');
-  const imgEl=document.getElementById('partImageModalImg');
-  const modal=document.getElementById('partImageModal');
-
-  if(titleEl)titleEl.innerText=title;
-
-  if(!imgEl||!modal)return;
-
-  imgEl.onerror=()=>{
-    imgEl.alt='Image unavailable. Check that the Google Drive file is shared as Anyone with the link (Viewer), or replace the image.';
-  };
-
+  document.getElementById('partImageModalTitle').innerText=title;
+  const imgEl = document.getElementById('partImageModalImg');
+  imgEl.onerror=()=>{ imgEl.alt='Image unavailable. Check that the Google Drive file is shared as Anyone with the link (Viewer), or replace the image.'; };
   imgEl.src=normalizePartImageUrl(imgSrc);
-
+  imgEl.style.transform='scale(1)';
   imgEl.dataset.scale='1';
   imgEl.dataset.rotate='0';
-  imgEl.dataset.panX='0';
-  imgEl.dataset.panY='0';
-
-  imgEl.style.transform='translate(0px,0px) scale(1) rotate(0deg)';
-
-  modal.classList.remove('hidden');
+  document.getElementById('partImageModal').classList.remove('hidden');
 }
-
-function closePartImageModal(){
-  const modal=document.getElementById('partImageModal');
-  if(modal)modal.classList.add('hidden');
-}
-
-function updatePartImageTransform(){
-  const imgEl=document.getElementById('partImageModalImg');
-  if(!imgEl)return;
-
-  const scale=parseFloat(imgEl.dataset.scale||'1');
-  const rotate=parseInt(imgEl.dataset.rotate||'0');
-  const panX=parseFloat(imgEl.dataset.panX||'0');
-  const panY=parseFloat(imgEl.dataset.panY||'0');
-
-  imgEl.style.transform=
-    `translate(${panX}px,${panY}px) scale(${scale}) rotate(${rotate}deg)`;
-}
-
+function closePartImageModal(){ document.getElementById('partImageModal').classList.add('hidden'); }
 function zoomPartImage(delta){
-  const imgEl=document.getElementById('partImageModalImg');
-  if(!imgEl)return;
-
-  let scale=parseFloat(imgEl.dataset.scale||'1');
-
-  scale=Math.max(0.5,Math.min(3,scale+delta));
-
+  const imgEl = document.getElementById('partImageModalImg');
+  let scale = parseFloat(imgEl.dataset.scale||'1');
+  scale = Math.max(0.5, Math.min(3, scale+delta));
   imgEl.dataset.scale=scale;
-
-  if(scale<=1){
-    imgEl.dataset.panX='0';
-    imgEl.dataset.panY='0';
-  }
-
-  updatePartImageTransform();
+  imgEl.style.transform=`scale(${scale}) rotate(${imgEl.dataset.rotate||0}deg)`;
 }
-
 function rotatePartImage(){
-  const imgEl=document.getElementById('partImageModalImg');
-  if(!imgEl)return;
-
-  let rot=parseInt(imgEl.dataset.rotate||'0')+90;
-
-  imgEl.dataset.rotate=rot%360;
-
-  updatePartImageTransform();
-}
-
-function resetPartImage(){
-  const imgEl=document.getElementById('partImageModalImg');
-  if(!imgEl)return;
-
-  imgEl.dataset.scale='1';
-  imgEl.dataset.rotate='0';
-  imgEl.dataset.panX='0';
-  imgEl.dataset.panY='0';
-
-  updatePartImageTransform();
-}
-
-let partImageDragging=false;
-let partImageDragStartX=0;
-let partImageDragStartY=0;
-
-const partImageStage=document.querySelector('#partImageModal .flex-1');
-
-if(partImageStage){
-  partImageStage.addEventListener('mousedown',function(e){
-    const imgEl=document.getElementById('partImageModalImg');
-
-    if(!imgEl)return;
-
-    const scale=parseFloat(imgEl.dataset.scale||'1');
-
-    if(scale<=1)return;
-
-    partImageDragging=true;
-
-    partImageDragStartX=
-      e.clientX-parseFloat(imgEl.dataset.panX||'0');
-
-    partImageDragStartY=
-      e.clientY-parseFloat(imgEl.dataset.panY||'0');
-
-    e.preventDefault();
-  });
-
-  window.addEventListener('mousemove',function(e){
-    if(!partImageDragging)return;
-
-    const imgEl=document.getElementById('partImageModalImg');
-
-    if(!imgEl)return;
-
-    imgEl.dataset.panX=
-      e.clientX-partImageDragStartX;
-
-    imgEl.dataset.panY=
-      e.clientY-partImageDragStartY;
-
-    updatePartImageTransform();
-  });
-
-  window.addEventListener('mouseup',function(){
-    partImageDragging=false;
-  });
-}  let rot = parseInt(imgEl.dataset.rotate||'0')+90;
+  const imgEl = document.getElementById('partImageModalImg');
+  let rot = parseInt(imgEl.dataset.rotate||'0')+90;
   imgEl.dataset.rotate=rot%360;
   imgEl.style.transform=`scale(${imgEl.dataset.scale||1}) rotate(${rot}deg)`;
 }

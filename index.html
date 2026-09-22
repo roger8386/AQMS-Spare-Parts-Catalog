@@ -1638,22 +1638,58 @@ async function deleteActivityItem(id){
 }
 function renderFoldersAndDocs(){
   const nav=document.getElementById('folderNav'); nav.innerHTML='';
-  folders.forEach(folder=>{
-    const active=currentFolder===folder;
-    const wrapper=document.createElement('div'); wrapper.className='flex items-center gap-1';
-    const btn=document.createElement('button');
-    btn.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm ${active?'bg-cyan-600 text-white':'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`;
-    btn.innerHTML=`<i class="fa-solid fa-folder${active?'-open':''}"></i> ${escapeHtml(folder)}`;
-    btn.onclick=()=>{currentFolder=folder;renderFoldersAndDocs();}; wrapper.appendChild(btn);
-    if(isAdmin&&folder!=='All Documents'){
-      const eb=document.createElement('button');eb.className='p-1 text-cyan-600';eb.title='Edit folder';eb.innerHTML='<i class="fa-solid fa-pen-to-square text-[10px]"></i>';eb.onclick=e=>{e.stopPropagation();openEditFolderModal(folder)};wrapper.appendChild(eb);
-      const db=document.createElement('button');db.className='p-1 text-red-400';db.title='Delete folder';db.innerHTML='<i class="fa-solid fa-trash-can text-[10px]"></i>';db.onclick=e=>{e.stopPropagation();deleteFolder(folder)};wrapper.appendChild(db);
-    }
-    nav.appendChild(wrapper);
-  });
+ folders.forEach(folder=>{
+  const active=currentFolder===folder;
+
+  const wrapper=document.createElement('div');
+  wrapper.className='flex items-center gap-1';
+
+  const btn=document.createElement('button');
+
+  btn.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm ${
+    active
+      ? 'bg-cyan-600 text-white'
+      : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+  }`;
+
+  btn.innerHTML=`<i class="fa-solid fa-folder${active?'-open':''}"></i> ${escapeHtml(folder)}`;
+
+  btn.onclick=()=>{
+    currentFolder=folder;
+    renderFoldersAndDocs();
+  };
+
+  wrapper.appendChild(btn);
+
+  if(isAdmin && folder!=='All Documents'){
+    const eb=document.createElement('button');
+    eb.className='p-1 text-cyan-600';
+    eb.title='Edit folder';
+    eb.innerHTML='<i class="fa-solid fa-pen-to-square text-[10px]"></i>';
+    eb.onclick=e=>{
+      e.stopPropagation();
+      openEditFolderModal(folder);
+    };
+    wrapper.appendChild(eb);
+
+    const db=document.createElement('button');
+    db.className='p-1 text-red-400';
+    db.title='Delete folder';
+    db.innerHTML='<i class="fa-solid fa-trash-can text-[10px]"></i>';
+    db.onclick=e=>{
+      e.stopPropagation();
+      deleteFolder(folder);
+    };
+    wrapper.appendChild(db);
+  }
+
+  nav.appendChild(wrapper);
+});
 
   const container=document.getElementById('docsContainer'), empty=document.getElementById('emptyDocsNotice'), header=document.getElementById('docsHeader');
-  const list=currentFolder==='All Documents'?documents:documents.filter(d=>d.folder===currentFolder);
+  const list=currentFolder==='All Documents'
+  ? documents
+  : documents.filter(d=>d.folder===currentFolder);
   container.innerHTML='';
   if(!list.length){header.classList.add('hidden');empty.classList.remove('hidden');return;}
   header.classList.remove('hidden');empty.classList.add('hidden');
@@ -1818,11 +1854,28 @@ async function deleteFolder(name){
 }
 
 async function saveNewFolder(e){
-  e.preventDefault();const name=document.getElementById('newFolderName').value.trim();
-  if(!name||folders.includes(name))return;
-  folders.push(name);localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
-  if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_folders',name);
-  closeAddFolderModal();renderFoldersAndDocs();
+  e.preventDefault();
+
+  const name=document.getElementById('newFolderName').value.trim();
+  if(!name) return;
+
+  const parent=currentFolder==='All Documents' ? '' : currentFolder;
+  const fullName=parent ? `${parent} / ${name}` : name;
+
+  if(folders.includes(fullName)){
+    alert('Folder already exists');
+    return;
+  }
+
+  folders.push(fullName);
+  localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
+
+  if(window.firebaseSetNamed){
+    await window.firebaseSetNamed('kytos_folders',fullName);
+  }
+
+  closeAddFolderModal();
+  renderFoldersAndDocs();
 }
 function openAddDocModal(){currentSelectedFile=null; document.getElementById('editDocId').value=""; document.getElementById('docModalTitle').innerText="Add Technical Document"; document.getElementById('fileNameDisplay').innerText="Drag & drop file or click to browse"; document.getElementById('docForm').reset(); const select=document.getElementById('docFolderSelect'); select.innerHTML=''; folders.filter(f=>f!=="All Documents").forEach(f=>{select.innerHTML+=`<option value="${escapeHtml(f)}" ${currentFolder===f?'selected':''}>${escapeHtml(f)}</option>`;}); document.getElementById('docModal').classList.remove('hidden');}
 

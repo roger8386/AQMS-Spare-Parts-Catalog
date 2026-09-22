@@ -1957,6 +1957,65 @@ function renderPlaylistsAndGallery(){
     : '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-700 text-[9px] font-bold"><i class="fa-brands fa-youtube"></i> VIDEO</span>';
   const actions=post=>isAdmin?`<div class="flex gap-2 mt-3"><button onclick="openEditGalleryModal('${post.id}')" class="text-xs font-bold text-cyan-700 bg-cyan-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-pen"></i> Edit</button><button onclick="deleteGallery('${post.id}')" class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-trash"></i> Delete</button></div>`:'';
 
+ // Universal Media Render Helper para sa anumang video/media link o embed code
+  const renderUniversalMedia = (mediaUrl, title = 'Media Video') => {
+    if (!mediaUrl) return '<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">No media link</div>';
+    
+    // 1. Raw Iframe o Embed HTML Code
+    if (mediaUrl.trim().startsWith('<iframe') || mediaUrl.trim().startsWith('<embed') || mediaUrl.trim().startsWith('<video')) {
+      return `<div class="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center">${mediaUrl}</div>`;
+    }
+
+    // 2. YouTube Links
+    const ytRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const ytMatch = mediaUrl.match(ytRegExp);
+    if (ytMatch && ytMatch[2].length === 11) {
+      return `<div class="aspect-video bg-black rounded-xl overflow-hidden"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytMatch[2]}?rel=0&modestbranding=1" title="${escapeHtml(title)}" allowfullscreen></iframe></div>`;
+    }
+
+    // 3. Vimeo Links
+    const vimeoRegExp = /(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/;
+    const vimeoMatch = mediaUrl.match(vimeoRegExp);
+    if (vimeoMatch && vimeoMatch[1]) {
+      return `<div class="aspect-video bg-black rounded-xl overflow-hidden"><iframe class="w-full h-full border-0" src="https://player.vimeo.com/video/${vimeoMatch[1]}" title="${escapeHtml(title)}" allowfullscreen></iframe></div>`;
+    }
+
+    // 4. Facebook Video Links
+    if (mediaUrl.includes('facebook.com') || mediaUrl.includes('fb.watch')) {
+      const encodedUrl = encodeURIComponent(mediaUrl);
+      return `<div class="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center"><iframe class="w-full h-full border-0" src="https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=500" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe></div>`;
+    }
+
+    // 5. Direct Video Files (.mp4, .webm, .ogg, .mov)
+    if (mediaUrl.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) || mediaUrl.startsWith('blob:')) {
+      return `<div class="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center"><video controls class="w-full h-full object-contain"><source src="${mediaUrl}" type="video/mp4">Your browser does not support the video tag.</video></div>`;
+    }
+
+    // 6. Image URL fallback
+    if (mediaUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i)) {
+      return `<div class="aspect-video bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center"><img src="${mediaUrl}" alt="${escapeHtml(title)}" class="w-full h-full object-cover"></div>`;
+    }
+
+    // 7. General External Link fallback
+    return `<div class="aspect-video bg-slate-900 text-white rounded-xl flex flex-col items-center justify-center p-4 text-center"><p class="text-xs text-slate-300 mb-2">External Link:</p><a href="${mediaUrl}" target="_blank" class="text-xs text-blue-400 underline break-all">${mediaUrl}</a></div>`;
+  };
+
+  const media = post => {
+    const targetUrl = post.youtube || post.url || post.mediaUrl || '';
+    return renderUniversalMedia(targetUrl, post.title);
+  };
+
+  const typeBadge = post => {
+    const targetUrl = post.youtube || post.url || post.mediaUrl || '';
+    const isVid = targetUrl && !targetUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i);
+    
+    return (post.mediaType === 'image' || (!post.mediaType && !isVid))
+      ? '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[9px] font-bold"><i class="fa-solid fa-image"></i> IMAGE</span>'
+      : '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-700 text-[9px] font-bold"><i class="fa-solid fa-video"></i> VIDEO</span>';
+  };
+
+  const actions = post => isAdmin ? `<div class="flex gap-2 mt-3"><button onclick="openEditGalleryModal('${post.id}')" class="text-xs font-bold text-cyan-700 bg-cyan-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-pen"></i> Edit</button><button onclick="deleteGallery('${post.id}')" class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-trash"></i> Delete</button></div>` : '';
+
   if(galleryViewMode==='grid'){
     const grid=document.createElement('div');grid.className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5';
     list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border overflow-hidden shadow-sm';el.innerHTML=`${media(post)}<div class="p-5"><div class="flex items-center justify-between gap-2">${typeBadge(post)}<div class="text-[10px] text-slate-400">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</div></div><h3 class="font-black text-slate-900 mt-2">${escapeHtml(post.title)}</h3><p class="text-xs text-slate-600 mt-2 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;grid.appendChild(el)});container.appendChild(grid);
@@ -1965,12 +2024,11 @@ function renderPlaylistsAndGallery(){
     list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-4 flex gap-4';el.innerHTML=`<div class="w-56 max-w-[42%] shrink-0">${media(post)}</div><div class="min-w-0">${typeBadge(post)}<h3 class="font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h3><p class="text-[11px] text-slate-500 mt-1">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-xs text-slate-600 mt-2">${escapeHtml(post.description||'')}</p>${actions(post)}</div>`;wrap.appendChild(el)});container.appendChild(wrap);
   }else if(galleryViewMode==='list'){
     const table=document.createElement('div');table.className='bg-white rounded-2xl border divide-y overflow-hidden';
-    list.forEach(post=>{const row=document.createElement('div');row.className='p-4 flex items-center justify-between gap-3 flex-wrap';const isImg=(post.mediaType==='image'||(!post.mediaType&&!post.youtube));row.innerHTML=`<div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0">${isImg && (post.imageUrl||post.driveUrl)?`<img src="${escapeHtml(post.imageUrl||driveImagePreviewUrl(post.driveUrl))}" class="w-full h-full object-cover">`:'<i class="fa-solid fa-photo-film text-slate-300 flex items-center justify-center h-full"></i>'}</div><div><div class="flex items-center gap-2">${typeBadge(post)}<h4 class="font-bold text-sm">${escapeHtml(post.title)}</h4></div><p class="text-[11px] text-slate-500">${escapeHtml(post.playlist||'General')} • ${escapeHtml(post.location||'')} • ${escapeHtml(post.date||'')}</p></div></div><div class="flex gap-3">${isImg?(post.driveUrl?`<a href="${escapeHtml(post.driveUrl)}" target="_blank" rel="noopener" class="text-emerald-600 text-xs font-bold">Drive</a>`:''):`<a href="${escapeHtml(post.youtube||'#')}" target="_blank" rel="noopener" class="text-red-600 text-xs font-bold">YouTube</a>`}${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 text-xs font-bold">Edit</button><button onclick="deleteGallery('${post.id}')" class="text-red-500 text-xs font-bold">Delete</button>`:''}</div>`;table.appendChild(row)});container.appendChild(table);
+    list.forEach(post=>{const row=document.createElement('div');row.className='p-4 flex items-center justify-between gap-3 flex-wrap';const targetUrl=post.youtube||post.url||post.mediaUrl||'';const isImg=(post.mediaType==='image'||(!post.mediaType&&targetUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i)));row.innerHTML=`<div class="flex items-center gap-3"><div class="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0">${isImg && (post.imageUrl||post.driveUrl)?`<img src="${escapeHtml(post.imageUrl||driveImagePreviewUrl(post.driveUrl))}" class="w-full h-full object-cover">`:'<i class="fa-solid fa-photo-film text-slate-300 flex items-center justify-center h-full"></i>'}</div><div><div class="flex items-center gap-2">${typeBadge(post)}<h4 class="font-bold text-sm">${escapeHtml(post.title)}</h4></div><p class="text-[11px] text-slate-500">${escapeHtml(post.playlist||'General')} • ${escapeHtml(post.location||'')} • ${escapeHtml(post.date||'')}</p></div></div><div class="flex gap-3">${isImg?(post.driveUrl?`<a href="${escapeHtml(post.driveUrl)}" target="_blank" rel="noopener" class="text-emerald-600 text-xs font-bold">Drive</a>`:''):`<a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener" class="text-red-600 text-xs font-bold">Watch</a>`}${isAdmin?`<button onclick="openEditGalleryModal('${post.id}')" class="text-cyan-600 text-xs font-bold">Edit</button><button onclick="deleteGallery('${post.id}')" class="text-red-500 text-xs font-bold">Delete</button>`:''}</div>`;table.appendChild(row)});container.appendChild(table);
   }else{
     const wrap=document.createElement('div');wrap.className='space-y-5';
     list.forEach(post=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border p-6';el.innerHTML=`<div class="grid lg:grid-cols-[420px_1fr] gap-6 items-start">${media(post)}<div>${typeBadge(post)}<p class="text-[10px] uppercase tracking-wider font-bold text-cyan-700 mt-2">${escapeHtml(post.playlist||'General')}</p><h2 class="text-xl font-black text-slate-900 mt-1">${escapeHtml(post.title)}</h2><p class="text-xs text-slate-500 mt-2">${escapeHtml(post.date||'')} • ${escapeHtml(post.location||'')}</p><p class="text-sm text-slate-700 mt-4 whitespace-pre-line">${escapeHtml(post.description||'')}</p>${actions(post)}</div></div>`;wrap.appendChild(el)});container.appendChild(wrap);
   }
-}
 function driveImagePreviewUrl(url){
   const id=extractDriveId(url||'');
   return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1600` : String(url||'');

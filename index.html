@@ -2108,22 +2108,15 @@ function populateGalleryPlaylistSelect(selected){
   if(selected && !opts.includes(selected))opts.push(selected);
   opts.forEach(pl=>{select.innerHTML+=`<option value="${escapeHtml(pl)}" ${selected===pl?'selected':''}>${escapeHtml(pl)}</option>`;});
 }
-function toggleGalleryMediaFields(){
-  const type=document.getElementById('galleryMediaType')?.value||'video';
-  const vf=document.getElementById('galleryVideoField'),im=document.getElementById('galleryImageFields');
-  if(vf)vf.classList.toggle('hidden',type!=='video');if(im)im.classList.toggle('hidden',type!=='image');
-  const y=document.getElementById('galleryYoutube');if(y)y.required=(type==='video');
-}
 function openAddGalleryModal(){
   document.getElementById('editGalleryId').value="";
   document.getElementById('galleryModalTitle').innerText="Add Media";
   document.getElementById('galleryForm').reset();
   document.getElementById('galleryDate').value=new Date().toISOString().slice(0,10);
   populateGalleryPlaylistSelect(selectedPlaylist!=='All Playlists'?selectedPlaylist:'');
-  document.getElementById('galleryMediaType').value='video';
-  toggleGalleryMediaFields();
   document.getElementById('galleryModal').classList.remove('hidden');
 }
+
 function openEditGalleryModal(id){
   const post=galleryPosts.find(p=>String(p.id)===String(id));if(!post){alert("Media not found: "+id);return;}
   document.getElementById('editGalleryId').value=String(post.id);
@@ -2131,12 +2124,10 @@ function openEditGalleryModal(id){
   document.getElementById('galleryDate').value=post.date||"";
   document.getElementById('galleryLocation').value=post.location||"";
   document.getElementById('galleryTitle').value=post.title||"";
-  document.getElementById('galleryYoutube').value=post.youtube||"";
+  document.getElementById('galleryYoutube').value=post.youtube||post.url||post.mediaUrl||"";
   document.getElementById('galleryDesc').value=post.description||"";
   document.getElementById('galleryDriveImage').value=post.driveUrl||"";
-  document.getElementById('galleryMediaType').value=post.mediaType||(post.youtube?'video':'image');
   populateGalleryPlaylistSelect(post.playlist||'General');
-  toggleGalleryMediaFields();
   document.getElementById('galleryModal').classList.remove('hidden');
 }
 function closeGalleryModal(){document.getElementById('galleryModal').classList.add('hidden');}

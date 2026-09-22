@@ -857,7 +857,7 @@ function openEditPartModal(id){
           ${parts.map(item=>`
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
               ${item.img
-                ? `<div class="h-48 bg-slate-50 flex items-center justify-center cursor-pointer group" onclick="onclick="openWithImagesPreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})">
+                ? `<div class="h-48 bg-slate-50 flex items-center justify-center cursor-pointer group" onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})">
                     <img src="${escapeHtml(normalizePartImageUrl(item.img))}" class="w-full h-full object-contain p-3 group-hover:scale-105 transition" loading="lazy">
                   </div>`
                 : `<div class="h-24 bg-slate-50 flex items-center justify-center text-slate-300">
@@ -1077,146 +1077,6 @@ function openEditPartModal(id){
   `;
 
   document.body.appendChild(modal);
-}function openWithImagesPreview(title,imgSrc){
-  const old=document.getElementById('withImagesPreviewModal');
-  if(old) old.remove();
-
-  const modal=document.createElement('div');
-  modal.id='withImagesPreviewModal';
-  modal.className='fixed inset-0 z-[100] bg-slate-950/95 flex flex-col';
-
-  modal.innerHTML=`
-    <div class="flex items-center justify-between gap-3 px-4 py-3 bg-slate-900 border-b border-white/10">
-      <div class="min-w-0">
-        <h3 class="text-white font-bold text-sm truncate">${escapeHtml(title||'Image')}</h3>
-        <div class="text-[10px] text-slate-400">Drag kapag naka-zoom</div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button id="withImagesZoomOut"
-          class="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
-          −
-        </button>
-
-        <span id="withImagesZoomText"
-          class="text-white text-xs font-bold min-w-[48px] text-center">
-          100%
-        </span>
-
-        <button id="withImagesZoomIn"
-          class="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
-          +
-        </button>
-
-        <button id="withImagesReset"
-          class="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold">
-          Reset
-        </button>
-
-        <button id="withImagesPreviewClose"
-          class="w-9 h-9 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center">
-          ×
-        </button>
-      </div>
-    </div>
-
-    <div id="withImagesPreviewStage"
-      class="flex-1 min-h-0 overflow-hidden flex items-center justify-center cursor-grab touch-none">
-
-      <img id="withImagesPreviewImg"
-        src="${escapeHtml(normalizePartImageUrl(imgSrc))}"
-        class="max-w-full max-h-full object-contain select-none"
-        draggable="false"
-        alt="">
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  const stage=modal.querySelector('#withImagesPreviewStage');
-  const img=modal.querySelector('#withImagesPreviewImg');
-  const zoomText=modal.querySelector('#withImagesZoomText');
-
-  let scale=1;
-  let x=0;
-  let y=0;
-  let dragging=false;
-  let startX=0;
-  let startY=0;
-
-  function render(){
-    img.style.transform=`translate(${x}px,${y}px) scale(${scale})`;
-    zoomText.textContent=Math.round(scale*100)+'%';
-  }
-
-  function setZoom(delta){
-    scale=Math.max(1,Math.min(5,scale+delta));
-
-    if(scale===1){
-      x=0;
-      y=0;
-    }
-
-    render();
-  }
-
-  function reset(){
-    scale=1;
-    x=0;
-    y=0;
-    render();
-  }
-
-  modal.querySelector('#withImagesZoomIn').onclick=()=>setZoom(0.25);
-  modal.querySelector('#withImagesZoomOut').onclick=()=>setZoom(-0.25);
-  modal.querySelector('#withImagesReset').onclick=reset;
-  modal.querySelector('#withImagesPreviewClose').onclick=()=>modal.remove();
-
-  stage.addEventListener('pointerdown',e=>{
-    if(scale<=1)return;
-
-    dragging=true;
-    startX=e.clientX-x;
-    startY=e.clientY-y;
-
-    stage.setPointerCapture(e.pointerId);
-    stage.style.cursor='grabbing';
-  });
-
-  stage.addEventListener('pointermove',e=>{
-    if(!dragging)return;
-
-    x=e.clientX-startX;
-    y=e.clientY-startY;
-
-    render();
-  });
-
-  stage.addEventListener('pointerup',e=>{
-    dragging=false;
-
-    try{
-      stage.releasePointerCapture(e.pointerId);
-    }catch(_){}
-
-    stage.style.cursor='grab';
-  });
-
-  stage.addEventListener('pointercancel',()=>{
-    dragging=false;
-    stage.style.cursor='grab';
-  });
-
-  stage.addEventListener('wheel',e=>{
-    e.preventDefault();
-    setZoom(e.deltaY<0?0.25:-0.25);
-  },{passive:false});
-
-  modal.addEventListener('click',e=>{
-    if(e.target===modal) modal.remove();
-  });
-
-  render();
 }
 function openAddModal(){
   currentPartPhoto=null;
@@ -1546,73 +1406,21 @@ function openPartImagePreview(title,imgSrc){
 function closePartImageModal(){ document.getElementById('partImageModal').classList.add('hidden'); }
 function zoomPartImage(delta){
   const imgEl = document.getElementById('partImageModalImg');
-  let scale = parseFloat(imgEl.dataset.scale || '1');
-
-  scale = Math.max(0.5, Math.min(3, scale + delta));
-
-  imgEl.dataset.scale = scale;
-  updatePartImageTransform();
+  let scale = parseFloat(imgEl.dataset.scale||'1');
+  scale = Math.max(0.5, Math.min(3, scale+delta));
+  imgEl.dataset.scale=scale;
+  imgEl.style.transform=`scale(${scale}) rotate(${imgEl.dataset.rotate||0}deg)`;
 }
 function rotatePartImage(){
+  const imgEl = document.getElementById('partImageModalImg');
+  let rot = parseInt(imgEl.dataset.rotate||'0')+90;
+  imgEl.dataset.rotate=rot%360;
+  imgEl.style.transform=`scale(${imgEl.dataset.scale||1}) rotate(${rot}deg)`;
+}
 function resetPartImage(){
   const imgEl = document.getElementById('partImageModalImg');
-
-  partImagePosX = 0;
-  partImagePosY = 0;
-
-  imgEl.dataset.scale = '1';
-  imgEl.dataset.rotate = '0';
-
-  updatePartImageTransform();
-}
-  let partImageDragging = false;
-let partImageStartX = 0;
-let partImageStartY = 0;
-let partImagePosX = 0;
-let partImagePosY = 0;
-
-function updatePartImageTransform(){
-  const imgEl = document.getElementById('partImageModalImg');
-  const scale = parseFloat(imgEl.dataset.scale || '1');
-  const rotate = parseInt(imgEl.dataset.rotate || '0');
-
-  imgEl.style.transform =
-    `translate(${partImagePosX}px, ${partImagePosY}px) scale(${scale}) rotate(${rotate}deg)`;
-}
-
-function startPartImageDrag(e){
-  if(e.button !== 0) return;
-
-  partImageDragging = true;
-  partImageStartX = e.clientX - partImagePosX;
-  partImageStartY = e.clientY - partImagePosY;
-
-  const imgEl = document.getElementById('partImageModalImg');
-  imgEl.style.cursor = 'grabbing';
-}
-
-function movePartImageDrag(e){
-  if(!partImageDragging) return;
-
-  partImagePosX = e.clientX - partImageStartX;
-  partImagePosY = e.clientY - partImageStartY;
-
-  updatePartImageTransform();
-}
-
-function endPartImageDrag(){
-  partImageDragging = false;
-
-  const imgEl = document.getElementById('partImageModalImg');
-  imgEl.style.cursor = 'grab';
-}
-  const partImageEl = document.getElementById('partImageModalImg');
-
-if (partImageEl) {
-  partImageEl.style.cursor = 'grab';
-  partImageEl.addEventListener('mousedown', startPartImageDrag);
-  document.addEventListener('mousemove', movePartImageDrag);
-  document.addEventListener('mouseup', endPartImageDrag);
+  imgEl.dataset.scale='1'; imgEl.dataset.rotate='0';
+  imgEl.style.transform='scale(1) rotate(0deg)';
 }
 function copySparePartDetails(pn, name, model, cat){
   const text = `Part Number: ${pn}\nName: ${name}\nModel: ${model}\nCategory: ${cat}`;

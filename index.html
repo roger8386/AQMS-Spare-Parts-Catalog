@@ -230,22 +230,22 @@
       </div>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-     <div onclick="filterCatalogSummary('all')" class="cursor-pointer stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">Total Parts</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-cyan-50 text-cyan-600"><i class="fa-solid fa-boxes-stacked text-xs"></i></span></div>
-        <div id="statTotalParts" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Catalog records</div>
-    </div>
-    <div onclick="filterCatalogSummary('models')" class="cursor-pointer stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">Models</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600"><i class="fa-solid fa-microchip text-xs"></i></span></div>
-        <div id="statModels" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Unique models</div>
-    </div>
-    <div onclick="filterCatalogSummary('categories')" class="cursor-pointer stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">Categories</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-amber-50 text-amber-600"><i class="fa-solid fa-layer-group text-xs"></i></span></div>
-        <div id="statCategories" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Part categories</div>
-    </div>
-    <div onclick="filterCatalogSummary('images')" class="cursor-pointer stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
-        <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">With Images</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600"><i class="fa-solid fa-image text-xs"></i></span></div>
-        <div id="statImages" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Image references</div>
-    </div>
+    <div onclick="filterCatalogSummary('all')" style="cursor: pointer;" class="stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
+    <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">Total Parts</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-cyan-50 text-cyan-600"><i class="fa-solid fa-boxes-stacked text-xs"></i></span></div>
+    <div id="statTotalParts" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Catalog records</div>
+</div>
+<div onclick="filterCatalogSummary('models')" style="cursor: pointer;" class="stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
+    <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">Models</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-indigo-50 text-indigo-600"><i class="fa-solid fa-microchip text-xs"></i></span></div>
+    <div id="statModels" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Unique models</div>
+</div>
+<div onclick="filterCatalogSummary('categories')" style="cursor: pointer;" class="stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
+    <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">Categories</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-amber-50 text-amber-600"><i class="fa-solid fa-layer-group text-xs"></i></span></div>
+    <div id="statCategories" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Part categories</div>
+</div>
+<div onclick="filterCatalogSummary('images')" style="cursor: pointer;" class="stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm">
+    <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">With Images</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600"><i class="fa-solid fa-image text-xs"></i></span></div>
+    <div id="statImages" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Image references</div>
+</div>
   </section>
   <div id="sparePartsSearchPanel" class="glass-panel p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 no-print search-panel-sticky">
     <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100"><h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-sliders text-cyan-600"></i> Search & Filter Controls</h2><button onclick="resetAllFilters()" class="text-xs text-cyan-600 hover:underline font-semibold flex items-center gap-1"><i class="fa-solid fa-rotate-left text-[10px]"></i> Reset Filters</button></div>
@@ -2357,26 +2357,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
     }
 });
-  function filterCatalogSummary(type) {
+function filterCatalogSummary(type) {
     if (type === 'all') {
         const searchEl = document.getElementById('searchInput');
         if(searchEl) searchEl.value = '';
-        const catEl = document.getElementById('categoryFilter');
-        if(catEl) catEl.value = '';
-        const modEl = document.getElementById('modelFilter');
-        if(modEl) modEl.value = '';
         if(typeof renderSparePartsTable === 'function') renderSparePartsTable();
     } else if (type === 'images') {
         if(typeof sparePartsData !== 'undefined') {
-            const filtered = sparePartsData.filter(item => item.imageUrl && item.imageUrl.trim() !== '');
+            const filtered = sparePartsData.filter(item => item.imageUrl && item.imageUrl.trim() !== '' && !item.imageUrl.includes('placeholder'));
             if(typeof renderSparePartsTable === 'function') renderSparePartsTable(filtered);
         }
     }
-    const catalogSec = document.querySelector('.master-catalog-section') || document.getElementById('masterCatalogContainer');
-    if(catalogSec) {
-        catalogSec.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        window.scrollTo({ top: 600, behavior: 'smooth' });
+    const targetSec = document.querySelector('.master-catalog-section') || document.getElementById('masterCatalogContainer') || document.querySelector('table');
+    if(targetSec) {
+        targetSec.scrollIntoView({ behavior: 'smooth' });
     }
 }
 </script>

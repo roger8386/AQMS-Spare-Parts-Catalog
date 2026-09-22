@@ -2131,35 +2131,43 @@ function openEditGalleryModal(id){
   document.getElementById('galleryModal').classList.remove('hidden');
 }
 function closeGalleryModal(){document.getElementById('galleryModal').classList.add('hidden');}
-async function saveNewGallery(e){
+async async function saveNewGallery(e){
   e.preventDefault();
   if(!isAdmin){alert('Admin only');return;}
   const editId=document.getElementById('editGalleryId').value;
-  const mediaType=document.getElementById('galleryMediaType').value;
   const date=document.getElementById('galleryDate').value;
   const location=document.getElementById('galleryLocation').value.trim();
   const playlist=document.getElementById('galleryPlaylistSelect').value;
   const title=document.getElementById('galleryTitle').value.trim();
-  const youtube=document.getElementById('galleryYoutube').value.trim();
+  const mediaUrl=document.getElementById('galleryYoutube').value.trim();
   const driveInput=(document.getElementById('galleryDriveImage').value||'').trim();
   const driveUrl=driveInput?normalizeDriveUrl(driveInput):'';
   const description=document.getElementById('galleryDesc').value.trim();
   const files=[...(document.getElementById('galleryImageFile')?.files||[])];
 
   if(!title||!date||!location||!playlist){alert('Please complete the required fields.');return;}
-  if(mediaType==='video' && !getYouTubeId(youtube)){alert('Please enter a valid YouTube link.');return;}
-  if(mediaType==='image' && !editId && !driveUrl && !files.length){alert('For an image, select a file or enter a Google Drive image link.');return;}
+  if(!mediaUrl && !driveUrl && !files.length){alert('Please enter a Media URL/Link, upload an image file, or provide a Google Drive link.');return;}
+
+  // Auto-detect mediaType based on what was provided
+  let mediaType = 'video';
+  if (driveUrl || files.length || mediaUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i)) {
+    mediaType = 'image';
+  }
 
   const base={date,location,playlist,title,description,mediaType};
-  if(mediaType==='video'){
-    const payload={...base,youtube,imageUrl:'',driveUrl:''};
-    if(editId){
-      galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
-      if(window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(editId),payload);
-    }else{
-      const local={id:Date.now().toString(),...payload};galleryPosts.unshift(local);
-      if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_gallery',payload);if(fid)local.id=fid;}
-    }
+  const payload={...base, youtube: mediaUrl, imageUrl:'', driveUrl};
+
+  if(editId){
+    galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
+    if(window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(editId),payload);
+  }else{
+    const local={id:Date.now().toString(),...payload};galleryPosts.unshift(local);
+    if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_gallery',payload);if(fid)local.id=fid;}
+  }
+
+  closeGalleryModal();
+  if(typeof renderGallery==='function') renderGallery();
+}
   }else{
     // Edit one existing image
     if(editId){

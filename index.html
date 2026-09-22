@@ -407,14 +407,12 @@
     <form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs">
       <input type="hidden" id="editGalleryId">
       <div><label class="font-bold text-slate-700 block mb-1">Folder / Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div>
-      <div><label class="font-bold text-slate-700 block mb-1">Media Type *</label><select id="galleryMediaType" onchange="toggleGalleryMediaFields()" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"><option value="video">YouTube Video</option><option value="image">Image / Photo</option></select></div>
       <div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div>
-      <div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Photo" class="w-full p-2.5 border rounded-lg"></div>
-      <div id="galleryVideoField"><label class="font-bold text-slate-600 block mb-1">YouTube Link</label><input type="text" id="galleryYoutube" placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div>
-      <div id="galleryImageFields" class="hidden space-y-2">
-        <div><label class="font-bold text-slate-600 block mb-1">Upload Image(s) from PC</label><input type="file" id="galleryImageFile" accept="image/*" multiple class="w-full p-2 border rounded-lg bg-slate-50"></div>
+      <div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. Maintenance Photo" class="w-full p-2.5 border rounded-lg"></div>
+      <div><label class="font-bold text-slate-600 block mb-1">Media URL / Embed Link *</label><input type="text" id="galleryYoutube" placeholder="YouTube, Vimeo, Facebook video link, MP4 link, o Image link..." class="w-full p-2.5 border rounded-lg"><p class="text-[10px] text-slate-400 mt-1">Pwede kang mag-paste ng kahit anong link dito nang direkta.</p></div>
+      <div class="space-y-2">
+        <div><label class="font-bold text-slate-600 block mb-1">O kaya ay Upload Image mula sa PC</label><input type="file" id="galleryImageFile" accept="image/*" multiple class="w-full p-2 border rounded-lg bg-slate-50"></div>
         <div><label class="font-bold text-slate-600 block mb-1">Google Drive Image Link</label><input type="url" id="galleryDriveImage" placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 border rounded-lg"></div>
-        <p class="text-[10px] text-slate-400">For Drive images, share the file as “Anyone with the link” so the portal can display it.</p>
       </div>
       <div><label class="font-bold text-slate-600 block mb-1">Story / Details</label><textarea id="galleryDesc" rows="3" class="w-full p-2.5 border rounded-lg" placeholder="Description, work performed, equipment, etc."></textarea></div>
       <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Media</button></div>

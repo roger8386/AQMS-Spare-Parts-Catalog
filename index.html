@@ -2146,10 +2146,16 @@ function openAddGalleryModal(){
   document.getElementById('editGalleryId').value="";
   document.getElementById('galleryModalTitle').innerText="Add Media";
   document.getElementById('galleryForm').reset();
-  document.getElementById('galleryDate').value=new Date().toISOString().slice(0,10);
-  populateGalleryPlaylistSelect(selectedPlaylist!=='All Playlists'?selectedPlaylist:'');
-  document.getElementById('galleryMediaType').value='video';
-  toggleGalleryMediaFields();
+
+  document.getElementById('galleryDate').value=
+    new Date().toISOString().slice(0,10);
+
+  populateGalleryPlaylistSelect(
+    selectedPlaylist!=='All Playlists'
+      ? selectedPlaylist
+      : ''
+  );
+
   document.getElementById('galleryModal').classList.remove('hidden');
 }
 function openEditGalleryModal(id){

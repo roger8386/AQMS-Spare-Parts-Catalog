@@ -335,6 +335,24 @@
         <button onclick="setGalleryViewMode('list')" id="gModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list"></i> List</button>
         <button onclick="setGalleryViewMode('content')" id="gModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-newspaper"></i> Content</button>
       </div>
+      <div class="flex items-center gap-2">
+  <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+    Sort By
+  </label>
+
+  <select
+    id="gallerySortSelect"
+    onchange="setGallerySort(this.value)"
+    class="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-200">
+    <option value="date-desc">Newest</option>
+    <option value="date-asc">Oldest</option>
+    <option value="title-asc">Title A–Z</option>
+    <option value="title-desc">Title Z–A</option>
+    <option value="location-asc">Location A–Z</option>
+    <option value="location-desc">Location Z–A</option>
+    <option value="type">Media Type</option>
+  </select>
+</div>
       <div id="adminGalleryAction" class="hidden flex gap-2">
         <button onclick="openAddPlaylistModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-folder-plus"></i> New Folder</button>
         <button onclick="openAddGalleryModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-cloud-arrow-up"></i> Add Media</button>
@@ -644,6 +662,7 @@ let currentFolder="All Documents";
 let partsViewMode=localStorage.getItem('p_v_mode_fixed')||'grid';
 let docsViewMode=localStorage.getItem('d_v_mode_fixed')||'grid';
 let galleryViewMode=localStorage.getItem('g_v_mode_fixed')||'grid';
+  let gallerySortMode=localStorage.getItem('gallery_sort_mode')||'date-desc';
 let currentSelectedFile=null; let currentPartPhoto=null; let activePreviewBlobUrl=null; let isAdmin=false; let currentCalendarDate=new Date();
 let homeSlides = JSON.parse(localStorage.getItem('kytos_home_slides')||'null') || [];
 let homeShortcuts = JSON.parse(localStorage.getItem('kytos_home_shortcuts')||'null') || [
@@ -833,7 +852,11 @@ document.addEventListener('change',e=>{
 function setPartsViewMode(mode){partsViewMode=mode;localStorage.setItem('p_v_mode_fixed',mode);['grid','details','list','content'].forEach(m=>{const btn=document.getElementById('pMode'+m.charAt(0).toUpperCase()+m.slice(1));if(btn)btn.className=(m===mode)?"px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700":"px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900";});applyFilters();}
 function setDocsViewMode(mode){docsViewMode=mode;localStorage.setItem('d_v_mode_fixed',mode);['grid','details','list','content'].forEach(m=>{const btn=document.getElementById('dMode'+m.charAt(0).toUpperCase()+m.slice(1));if(btn)btn.className=(m===mode)?"px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700":"px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900";});renderFoldersAndDocs();}
 function setGalleryViewMode(mode){galleryViewMode=mode;localStorage.setItem('g_v_mode_fixed',mode);['grid','details','list','content'].forEach(m=>{const btn=document.getElementById('gMode'+m.charAt(0).toUpperCase()+m.slice(1));if(btn)btn.className=(m===mode)?"px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700":"px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900";});renderPlaylistsAndGallery();}
-
+function setGallerySort(mode){
+  gallerySortMode=mode;
+  localStorage.setItem('gallery_sort_mode',mode);
+  renderPlaylistsAndGallery();
+}
 // === SPARE PARTS FIX - 100% WORKING ===
 function openEditPartModal(id){
   console.log('Edit clicked id:', id);
@@ -1956,6 +1979,8 @@ async function deleteDocument(id){
   renderFoldersAndDocs(); updateLiveSyncTime();
 }
 function renderPlaylistsAndGallery(){
+  const sortSelect=document.getElementById('gallerySortSelect');
+if(sortSelect)sortSelect.value=gallerySortMode;
   const nav=document.getElementById('playlistNav');nav.innerHTML='';
   playlists.forEach(pl=>{
     const active=selectedPlaylist===pl,wrap=document.createElement('div');wrap.className='flex items-center gap-1';
@@ -1964,7 +1989,56 @@ function renderPlaylistsAndGallery(){
     nav.appendChild(wrap);
   });
   const container=document.getElementById('galleryContainer'),empty=document.getElementById('emptyGalleryNotice');container.innerHTML='';
-  const list=selectedPlaylist==='All Playlists'?galleryPosts:galleryPosts.filter(p=>p.playlist===selectedPlaylist);
+  let list=selectedPlaylist==='All Playlists'
+  ? [...galleryPosts]
+  : galleryPosts.filter(p=>p.playlist===selectedPlaylist);
+
+list.sort((a,b)=>{
+  switch(gallerySortMode){
+
+    case 'date-asc':
+      return String(a.date||'').localeCompare(String(b.date||''));
+
+    case 'date-desc':
+      return String(b.date||'').localeCompare(String(a.date||''));
+
+    case 'title-asc':
+      return String(a.title||'').localeCompare(
+        String(b.title||''),
+        undefined,
+        {sensitivity:'base'}
+      );
+
+    case 'title-desc':
+      return String(b.title||'').localeCompare(
+        String(a.title||''),
+        undefined,
+        {sensitivity:'base'}
+      );
+
+    case 'location-asc':
+      return String(a.location||'').localeCompare(
+        String(b.location||''),
+        undefined,
+        {sensitivity:'base'}
+      );
+
+    case 'location-desc':
+      return String(b.location||'').localeCompare(
+        String(a.location||''),
+        undefined,
+        {sensitivity:'base'}
+      );
+
+    case 'type':
+      return String(a.mediaType||'').localeCompare(
+        String(b.mediaType||'')
+      );
+
+    default:
+      return 0;
+  }
+});
   if(!list.length){empty.classList.remove('hidden');return}empty.classList.add('hidden');
 
  const media=post=>{
@@ -1990,23 +2064,24 @@ function renderPlaylistsAndGallery(){
   }
 
   // Google Drive media
-  if(post.driveUrl){
-    const driveId=extractDriveId(post.driveUrl);
+ if(post.driveUrl){
+  const driveId=extractDriveId(post.driveUrl);
 
-    return driveId
-      ? `<div class="aspect-video bg-black rounded-xl overflow-hidden">
-          <iframe
-            class="w-full h-full"
-            src="https://drive.google.com/file/d/${driveId}/preview"
-            title="${escapeHtml(post.title)}"
-            allow="autoplay"
-            allowfullscreen>
-          </iframe>
-        </div>`
-      : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">
-          Invalid Google Drive link
-        </div>`;
-  }
+  return driveId
+    ? `<div class="aspect-video bg-black rounded-xl overflow-hidden relative">
+        <iframe
+          class="absolute inset-0 w-full h-full"
+          src="https://drive.google.com/file/d/${driveId}/preview"
+          title="${escapeHtml(post.title)}"
+          allow="autoplay"
+          allowfullscreen
+          style="transform:scale(1.12);transform-origin:center;">
+        </iframe>
+      </div>`
+    : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">
+        Invalid Google Drive link
+      </div>`;
+}
 
   // Direct online image
   const src=post.imageUrl || post.url || '';

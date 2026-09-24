@@ -407,12 +407,14 @@
     <form id="galleryForm" onsubmit="saveNewGallery(event)" class="space-y-3 text-xs">
       <input type="hidden" id="editGalleryId">
       <div><label class="font-bold text-slate-700 block mb-1">Folder / Playlist *</label><select id="galleryPlaylistSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div>
+      <div><label class="font-bold text-slate-700 block mb-1">Media Type *</label><select id="galleryMediaType" onchange="toggleGalleryMediaFields()" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"><option value="video">YouTube Video</option><option value="image">Image / Photo</option></select></div>
       <div class="grid grid-cols-2 gap-3"><div><label class="font-bold text-slate-600 block mb-1">Date *</label><input type="date" id="galleryDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold text-slate-600 block mb-1">Location / Plant *</label><input type="text" id="galleryLocation" required placeholder="e.g. Jubail Plant" class="w-full p-2.5 border rounded-lg"></div></div>
-      <div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. Maintenance Photo" class="w-full p-2.5 border rounded-lg"></div>
-      <div><label class="font-bold text-slate-600 block mb-1">Media URL / Embed Link *</label><input type="text" id="galleryYoutube" placeholder="YouTube, Vimeo, Facebook video link, MP4 link, o Image link..." class="w-full p-2.5 border rounded-lg"><p class="text-[10px] text-slate-400 mt-1">Pwede kang mag-paste ng kahit anong link dito nang direkta.</p></div>
-      <div class="space-y-2">
-        <div><label class="font-bold text-slate-600 block mb-1">O kaya ay Upload Image mula sa PC</label><input type="file" id="galleryImageFile" accept="image/*" multiple class="w-full p-2 border rounded-lg bg-slate-50"></div>
+      <div><label class="font-bold text-slate-600 block mb-1">Title *</label><input type="text" id="galleryTitle" required placeholder="e.g. CEMS Maintenance Photo" class="w-full p-2.5 border rounded-lg"></div>
+      <div id="galleryVideoField"><label class="font-bold text-slate-600 block mb-1">YouTube Link</label><input type="text" id="galleryYoutube" placeholder="https://www.youtube.com/watch?v=XXXXX" class="w-full p-2.5 border rounded-lg"></div>
+      <div id="galleryImageFields" class="hidden space-y-2">
+        <div><label class="font-bold text-slate-600 block mb-1">Upload Image(s) from PC</label><input type="file" id="galleryImageFile" accept="image/*" multiple class="w-full p-2 border rounded-lg bg-slate-50"></div>
         <div><label class="font-bold text-slate-600 block mb-1">Google Drive Image Link</label><input type="url" id="galleryDriveImage" placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 border rounded-lg"></div>
+        <p class="text-[10px] text-slate-400">For Drive images, share the file as “Anyone with the link” so the portal can display it.</p>
       </div>
       <div><label class="font-bold text-slate-600 block mb-1">Story / Details</label><textarea id="galleryDesc" rows="3" class="w-full p-2.5 border rounded-lg" placeholder="Description, work performed, equipment, etc."></textarea></div>
       <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Media</button></div>
@@ -2108,15 +2110,22 @@ function populateGalleryPlaylistSelect(selected){
   if(selected && !opts.includes(selected))opts.push(selected);
   opts.forEach(pl=>{select.innerHTML+=`<option value="${escapeHtml(pl)}" ${selected===pl?'selected':''}>${escapeHtml(pl)}</option>`;});
 }
+function toggleGalleryMediaFields(){
+  const type=document.getElementById('galleryMediaType')?.value||'video';
+  const vf=document.getElementById('galleryVideoField'),im=document.getElementById('galleryImageFields');
+  if(vf)vf.classList.toggle('hidden',type!=='video');if(im)im.classList.toggle('hidden',type!=='image');
+  const y=document.getElementById('galleryYoutube');if(y)y.required=(type==='video');
+}
 function openAddGalleryModal(){
   document.getElementById('editGalleryId').value="";
   document.getElementById('galleryModalTitle').innerText="Add Media";
   document.getElementById('galleryForm').reset();
   document.getElementById('galleryDate').value=new Date().toISOString().slice(0,10);
   populateGalleryPlaylistSelect(selectedPlaylist!=='All Playlists'?selectedPlaylist:'');
+  document.getElementById('galleryMediaType').value='video';
+  toggleGalleryMediaFields();
   document.getElementById('galleryModal').classList.remove('hidden');
 }
-
 function openEditGalleryModal(id){
   const post=galleryPosts.find(p=>String(p.id)===String(id));if(!post){alert("Media not found: "+id);return;}
   document.getElementById('editGalleryId').value=String(post.id);
@@ -2124,50 +2133,44 @@ function openEditGalleryModal(id){
   document.getElementById('galleryDate').value=post.date||"";
   document.getElementById('galleryLocation').value=post.location||"";
   document.getElementById('galleryTitle').value=post.title||"";
-  document.getElementById('galleryYoutube').value=post.youtube||post.url||post.mediaUrl||"";
+  document.getElementById('galleryYoutube').value=post.youtube||"";
   document.getElementById('galleryDesc').value=post.description||"";
   document.getElementById('galleryDriveImage').value=post.driveUrl||"";
+  document.getElementById('galleryMediaType').value=post.mediaType||(post.youtube?'video':'image');
   populateGalleryPlaylistSelect(post.playlist||'General');
+  toggleGalleryMediaFields();
   document.getElementById('galleryModal').classList.remove('hidden');
 }
 function closeGalleryModal(){document.getElementById('galleryModal').classList.add('hidden');}
-async async function saveNewGallery(e){
+async function saveNewGallery(e){
   e.preventDefault();
   if(!isAdmin){alert('Admin only');return;}
   const editId=document.getElementById('editGalleryId').value;
+  const mediaType=document.getElementById('galleryMediaType').value;
   const date=document.getElementById('galleryDate').value;
   const location=document.getElementById('galleryLocation').value.trim();
   const playlist=document.getElementById('galleryPlaylistSelect').value;
   const title=document.getElementById('galleryTitle').value.trim();
-  const mediaUrl=document.getElementById('galleryYoutube').value.trim();
+  const youtube=document.getElementById('galleryYoutube').value.trim();
   const driveInput=(document.getElementById('galleryDriveImage').value||'').trim();
   const driveUrl=driveInput?normalizeDriveUrl(driveInput):'';
   const description=document.getElementById('galleryDesc').value.trim();
   const files=[...(document.getElementById('galleryImageFile')?.files||[])];
 
   if(!title||!date||!location||!playlist){alert('Please complete the required fields.');return;}
-  if(!mediaUrl && !driveUrl && !files.length){alert('Please enter a Media URL/Link, upload an image file, or provide a Google Drive link.');return;}
-
-  // Auto-detect mediaType based on what was provided
-  let mediaType = 'video';
-  if (driveUrl || files.length || mediaUrl.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i)) {
-    mediaType = 'image';
-  }
+  if(mediaType==='video' && !getYouTubeId(youtube)){alert('Please enter a valid YouTube link.');return;}
+  if(mediaType==='image' && !editId && !driveUrl && !files.length){alert('For an image, select a file or enter a Google Drive image link.');return;}
 
   const base={date,location,playlist,title,description,mediaType};
-  const payload={...base, youtube: mediaUrl, imageUrl:'', driveUrl};
-
-  if(editId){
-    galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
-    if(window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(editId),payload);
-  }else{
-    const local={id:Date.now().toString(),...payload};galleryPosts.unshift(local);
-    if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_gallery',payload);if(fid)local.id=fid;}
-  }
-
-  closeGalleryModal();
-  if(typeof renderGallery==='function') renderGallery();
-}
+  if(mediaType==='video'){
+    const payload={...base,youtube,imageUrl:'',driveUrl:''};
+    if(editId){
+      galleryPosts=galleryPosts.map(p=>String(p.id)===String(editId)?{...p,...payload}:p);
+      if(window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(editId),payload);
+    }else{
+      const local={id:Date.now().toString(),...payload};galleryPosts.unshift(local);
+      if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_gallery',payload);if(fid)local.id=fid;}
+    }
   }else{
     // Edit one existing image
     if(editId){

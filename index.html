@@ -2068,14 +2068,14 @@ list.sort((a,b)=>{
   const driveId=extractDriveId(post.driveUrl);
 
   return driveId
-    ? `<div class="aspect-video bg-black rounded-xl overflow-hidden relative">
+    ? `<div class="w-full h-[420px] bg-black rounded-xl overflow-hidden relative">
         <iframe
           class="absolute inset-0 w-full h-full"
           src="https://drive.google.com/file/d/${driveId}/preview"
           title="${escapeHtml(post.title)}"
           allow="autoplay"
           allowfullscreen
-          style="transform:scale(1.12);transform-origin:center;">
+          style="border:0;">
         </iframe>
       </div>`
     : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">

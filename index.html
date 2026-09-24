@@ -321,59 +321,8 @@
 </main>
 
 <main id="documentsView" class="hidden max-w-7xl mx-auto px-4 py-6">
-  <!-- Header at View Mode Toggles -->
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div>
-      <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-        <i class="fa-solid fa-folder-tree text-cyan-600"></i> Technical Folders & Documents
-      </h2>
-      <p class="text-xs text-slate-500">Organized technical folders for manuals, calibration sheets, and SOPs.</p>
-    </div>
-    <div class="flex items-center gap-3 flex-wrap">
-      <div class="flex bg-slate-100 p-1 rounded-xl text-xs gap-1">
-        <button onclick="setDocsViewMode('grid')" id="dModeGrid" class="px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700">
-          <i class="fa-solid fa-table-cells-large"></i> Grid
-        </button>
-        <button onclick="setDocsViewMode('details')" id="dModeDetails" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900">
-          <i class="fa-solid fa-circle-info"></i> Details
-        </button>
-        <button onclick="setDocsViewMode('list')" id="dModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900">
-          <i class="fa-solid fa-list"></i> List
-        </button>
-        <button onclick="setDocsViewMode('content')" id="dModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900">
-          <i class="fa-solid fa-newspaper"></i> Content
-        </button>
-      </div>
-      <div id="adminDocAction" class="hidden flex gap-2">
-        <button onclick="openAddFolderModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5">
-          <i class="fa-solid fa-folder-plus"></i> New Folder
-        </button>
-        <button onclick="openAddDocModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5">
-          <i class="fa-solid fa-file-arrow-up"></i> Upload File
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Folder Navigation / Filter Pills (Google Drive style) -->
-  <div id="folderNav" class="flex flex-wrap items-center gap-2 mb-5">
-    <button onclick="filterDocuments('all')" class="doc-pill px-4 py-2 rounded-full text-xs font-bold bg-cyan-600 text-white shadow-sm transition">All Documents</button>
-    <button onclick="filterDocuments('customer')" class="doc-pill px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition">CUSTOMER</button>
-    <button onclick="filterDocuments('spare-parts')" class="doc-pill px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition">Spare Parts</button>
-    <button onclick="filterDocuments('diagram')" class="doc-pill px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition">DIAGRAM</button>
-  </div>
-
-  <div id="docsHeader" class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Files in Folder</div>
-  
-  <!-- Main Container -->
-  <div id="docsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <!-- Dito papasok ang mga item galing sa JavaScript -->
-  </div>
-
-  <div id="emptyDocsNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200">
-    <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i>
-    <h4 class="text-sm font-bold text-slate-700">This folder is empty.</h4>
-  </div>
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"><div><h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-folder-tree text-cyan-600"></i> Technical Folders & Documents</h2><p class="text-xs text-slate-500">Organized technical folders for manuals, calibration sheets, and SOPs.</p></div><div class="flex items-center gap-3 flex-wrap"><div class="flex bg-slate-100 p-1 rounded-xl text-xs gap-1"><button onclick="setDocsViewMode('grid')" id="dModeGrid" class="px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700"><i class="fa-solid fa-table-cells-large"></i> Grid</button><button onclick="setDocsViewMode('details')" id="dModeDetails" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-circle-info"></i> Details</button><button onclick="setDocsViewMode('list')" id="dModeList" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-list"></i> List</button><button onclick="setDocsViewMode('content')" id="dModeContent" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900"><i class="fa-solid fa-newspaper"></i> Content</button></div><div id="adminDocAction" class="hidden flex gap-2"><button onclick="openAddFolderModal()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-folder-plus"></i> New Folder</button><button onclick="openAddDocModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow flex items-center gap-1.5"><i class="fa-solid fa-file-arrow-up"></i> Upload File</button></div></div></div>
+  <div id="folderNav" class="flex flex-wrap items-center gap-2 mb-5"></div><div id="docsHeader" class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 hidden">Files in Folder</div><div id="docsContainer"></div><div id="emptyDocsNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200"><i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">This folder is empty.</h4></div>
 </main>
 
 <main id="galleryView" class="hidden max-w-7xl mx-auto px-4 py-6">

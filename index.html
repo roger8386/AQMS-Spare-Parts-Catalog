@@ -1967,17 +1967,62 @@ function renderPlaylistsAndGallery(){
   const list=selectedPlaylist==='All Playlists'?galleryPosts:galleryPosts.filter(p=>p.playlist===selectedPlaylist);
   if(!list.length){empty.classList.remove('hidden');return}empty.classList.add('hidden');
 
-  const media=post=>{
-    const type=post.mediaType || (post.youtube ? 'video' : 'image');
-    if(type==='image'){
-      const src=post.imageUrl || post.url || (post.driveUrl ? driveImagePreviewUrl(post.driveUrl) : '');
-      return src
-        ? `<div class="aspect-video bg-slate-100 rounded-xl overflow-hidden cursor-pointer" onclick="openGalleryImage('${escapeHtml(post.id)}')"><img src="${escapeHtml(src)}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover"></div>`
-        : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400"><i class="fa-solid fa-image text-2xl mr-2"></i>No image</div>`;
-    }
+ const media=post=>{
+  const type=post.mediaType || (post.youtube ? 'video' : 'image');
+
+  // YouTube video
+  if(type==='video'){
     const vid=getYouTubeId(post.youtube||'');
-    return vid?`<div class="aspect-video bg-black rounded-xl overflow-hidden"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1" title="${escapeHtml(post.title)}" allowfullscreen></iframe></div>`:`<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">No video link</div>`;
-  };
+
+    return vid
+      ? `<div class="aspect-video bg-black rounded-xl overflow-hidden">
+          <iframe
+            class="w-full h-full"
+            src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1"
+            title="${escapeHtml(post.title)}"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        </div>`
+      : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">
+          No video link
+        </div>`;
+  }
+
+  // Google Drive media
+  if(post.driveUrl){
+    const driveId=extractDriveId(post.driveUrl);
+
+    return driveId
+      ? `<div class="aspect-video bg-black rounded-xl overflow-hidden">
+          <iframe
+            class="w-full h-full"
+            src="https://drive.google.com/file/d/${driveId}/preview"
+            title="${escapeHtml(post.title)}"
+            allow="autoplay"
+            allowfullscreen>
+          </iframe>
+        </div>`
+      : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">
+          Invalid Google Drive link
+        </div>`;
+  }
+
+  // Direct online image
+  const src=post.imageUrl || post.url || '';
+
+  return src
+    ? `<div class="aspect-video bg-slate-100 rounded-xl overflow-hidden cursor-pointer"
+         onclick="openGalleryImage('${escapeHtml(post.id)}')">
+        <img
+          src="${escapeHtml(src)}"
+          alt="${escapeHtml(post.title)}"
+          class="w-full h-full object-cover">
+      </div>`
+    : `<div class="aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-xs text-slate-400">
+        <i class="fa-solid fa-image text-2xl mr-2"></i>No image
+      </div>`;
+};
   const typeBadge=post=>(post.mediaType==='image'||(!post.mediaType&&!post.youtube))
     ? '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[9px] font-bold"><i class="fa-solid fa-image"></i> IMAGE</span>'
     : '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-700 text-[9px] font-bold"><i class="fa-brands fa-youtube"></i> VIDEO</span>';

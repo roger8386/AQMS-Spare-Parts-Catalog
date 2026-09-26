@@ -1707,69 +1707,53 @@ async function deleteActivityItem(id){
   alert('✅ Activity deleted - '+act.title+' (remaining: '+activities.length+')');
 }
 function renderFoldersAndDocs(){
-  const nav=document.getElementById('folderNav'); if(nav) nav.innerHTML='';
-  const container=document.getElementById('docsContainer'), empty=document.getElementById('emptyDocsNotice'), header=document.getElementById('docsHeader');
-  if(!container) return; container.innerHTML='';
+  const nav=document.getElementById('folderNav'); 
+  if(nav) nav.innerHTML=''; // Itinatago o nililinis ang lumang nav buttons sa taas
 
-  // 1. KUNG NASA "ALL DOCUMENTS" KA (Folder Explorer View)
+  const container=document.getElementById('docsContainer'); 
+  const empty=document.getElementById('emptyDocsNotice'); 
+  const header=document.getElementById('docsHeader');
+  if(!container) return;
+  
+  container.innerHTML='';
+
+  // --- KUNG NASA "ALL DOCUMENTS" KA: Ipakita ang mga Folder Explorer Cards ---
   if(currentFolder==='All Documents'){
     if(header) header.classList.add('hidden');
     if(empty) empty.classList.add('hidden');
 
-    const wrapper=document.createElement('div');
-    wrapper.className='mb-6';
-    wrapper.innerHTML=`<div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Select a Folder</div>`;
+    const folderCardsSection=document.createElement('div');
+    folderCardsSection.className='mb-6';
+    folderCardsSection.innerHTML=`<div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Select a Folder</div>`;
     
-    const foldersList = folders.filter(f=>f!=='All Documents');
     const fGrid=document.createElement('div');
-
-    if(docsViewMode==='list'){
-      fGrid.className='bg-white rounded-2xl border overflow-hidden divide-y';
-      foldersList.forEach(folderName=>{
-        const count=documents.filter(d=>d.folder===folderName).length;
-        const row=document.createElement('div');
-        row.className='p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition';
-        row.onclick=()=>{ currentFolder=folderName; renderFoldersAndDocs(); };
-        row.innerHTML=`<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center"><i class="fa-solid fa-folder"></i></div><div><h4 class="font-bold text-sm text-slate-900">${escapeHtml(folderName)}</h4><p class="text-[11px] text-slate-400">${count} file${count===1?'':'s'}</p></div></div><i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>`;
-        fGrid.appendChild(row);
-      });
-    }else{
-      fGrid.className=docsViewMode==='details'?'grid grid-cols-1 lg:grid-cols-2 gap-4':'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
-      foldersList.forEach(folderName=>{
-        const count=documents.filter(d=>d.folder===folderName).length;
-        const card=document.createElement('div');
-        card.className='bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-cyan-400 transition cursor-pointer flex items-center gap-4';
-        card.onclick=()=>{ currentFolder=folderName; renderFoldersAndDocs(); };
-        card.innerHTML=`<div class="w-14 h-14 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-folder"></i></div><div class="min-w-0 flex-1"><h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(folderName)}</h4><p class="text-xs text-slate-500 mt-0.5">${count} file${count===1?'':'s'}</p><span class="inline-block mt-2 text-[11px] font-bold text-cyan-700">Open Folder →</span></div>`;
-        fGrid.appendChild(card);
-      });
-    }
-    wrapper.appendChild(fGrid); container.appendChild(wrapper); return;
+    fGrid.className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4';
+    
+    folders.filter(f=>f!=='All Documents').forEach(folderName=>{
+      const fileCount=documents.filter(d=>d.folder===folderName).length;
+      const fCard=document.createElement('div');
+      fCard.className='bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-cyan-400 hover:shadow-md transition cursor-pointer flex items-center gap-3';
+      fCard.onclick=()=>{
+        currentFolder=folderName; 
+        renderFoldersAndDocs();
+      };
+      fCard.innerHTML=`
+        <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl shrink-0">
+          <i class="fa-solid fa-folder"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <h4 class="font-bold text-slate-800 text-xs truncate">${escapeHtml(folderName)}</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">${fileCount} file${fileCount===1?'':'s'}</p>
+        </div>
+      `;
+      fGrid.appendChild(fCard);
+    });
+    
+    folderCardsSection.appendChild(fGrid);
+    container.appendChild(folderCardsSection);
+    return; // Tumigil muna rito para puro folders lang muna ang makita sa All Documents
   }
 
-  // 2. KUNG NASA LOOB NA NG FOLDER (Files View)
-  const list=documents.filter(d=>d.folder===currentFolder);
-  if(!list.length){
-    if(header) header.classList.add('hidden');
-    if(empty){ empty.classList.remove('hidden'); empty.innerHTML=`<i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">This folder is empty.</h4><button onclick="currentFolder='All Documents'; renderFoldersAndDocs();" class="mt-3 text-xs font-bold text-white bg-cyan-600 px-3 py-1.5 rounded-xl">← Back to Folders</button>`; }
-    return;
-  }
-  
-  if(empty) empty.classList.add('hidden');
-  if(header){ header.classList.remove('hidden'); header.innerHTML=`<div class="flex items-center justify-between mb-3"><span class="text-xs font-bold uppercase tracking-wider text-slate-500">Files in ${escapeHtml(currentFolder)}</span><button onclick="currentFolder='All Documents'; renderFoldersAndDocs();" class="text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-3 py-1.5 rounded-xl hover:bg-cyan-100 transition"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Folders</button></div>`; }
-
-  const action=(doc)=>`<div class="flex flex-wrap items-center gap-2 mt-3"><button onclick="previewFileById('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-eye"></i> Preview</button><button onclick="downloadFileById('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-white bg-cyan-600 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-download"></i> Download</button>${isAdmin?`<button onclick="openEditDocModal('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-pen"></i> Edit</button><button onclick="deleteDocument('${doc.id}')" class="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl"><i class="fa-solid fa-trash"></i> Delete</button>`:''}</div>`;
-  const icon=doc=>({PDF:'fa-file-pdf text-red-500',EXCEL:'fa-file-excel text-emerald-500',WORD:'fa-file-word text-blue-500',IMAGE:'fa-file-image text-violet-500',POWERPOINT:'fa-file-powerpoint text-orange-500'}[doc.type]||'fa-file-lines text-slate-400');
-
-  if(docsViewMode==='grid'||docsViewMode==='details'||docsViewMode==='content'){
-    const grid=document.createElement('div');
-    grid.className=docsViewMode==='details'?'grid grid-cols-1 lg:grid-cols-2 gap-4':'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5';
-    list.forEach(doc=>{const el=document.createElement('article');el.className='bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition';el.innerHTML=`<div class="h-32 rounded-xl bg-slate-50 border flex items-center justify-center mb-4"><i class="fa-solid ${icon(doc)} text-5xl"></i></div><div class="flex justify-between gap-2"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-600">${escapeHtml(doc.type||'FILE')}</span><span class="text-[10px] text-slate-400">${escapeHtml(doc.folder||'')}</span></div><h4 class="font-bold text-slate-800 text-sm mt-2">${escapeHtml(doc.title)}</h4><p class="text-xs text-slate-500 mt-1 line-clamp-3">${escapeHtml(doc.description||'No description')}</p>${action(doc)}`;grid.appendChild(el)});container.appendChild(grid);
-  }else{
-    const table=document.createElement('div');table.className='bg-white rounded-2xl border overflow-hidden divide-y';
-    list.forEach(doc=>{const row=document.createElement('div');row.className='p-4 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50';row.innerHTML=`<div class="flex items-center gap-3 min-w-0"><i class="fa-solid ${icon(doc)} text-xl"></i><div><h4 class="font-bold text-sm text-slate-900">${escapeHtml(doc.title)}</h4><p class="text-[11px] text-slate-500">${escapeHtml(doc.type||'FILE')} • ${escapeHtml(doc.folder||'')}</p></div></div><div class="flex gap-2"><button onclick="previewFileById('${doc.id}')" class="text-cyan-700 text-xs font-bold">Preview</button><button onclick="downloadFileById('${doc.id}')" class="text-slate-700 text-xs font-bold">Download</button>${isAdmin?`<button onclick="openEditDocModal('${doc.id}')" class="text-cyan-600 text-xs font-bold">Edit</button>`:''}</div>`;table.appendChild(row)});container.appendChild(table);
-  }
-}
   // --- KUNG NAKA-SELECT NA NG TIYAK NA FOLDER: Ipakita ang mga files sa loob gamit ang piniling View Style ---
   const list=documents.filter(d=>d.folder===currentFolder);
   

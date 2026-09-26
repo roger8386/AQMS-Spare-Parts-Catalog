@@ -1707,29 +1707,25 @@ async function deleteActivityItem(id){
   alert('✅ Activity deleted - '+act.title+' (remaining: '+activities.length+')');
 }
 function renderFoldersAndDocs(){
-  const nav=document.getElementById('folderNav'); nav.innerHTML='';
-  folders.forEach(folder=>{
-    const active=currentFolder===folder;
-    const wrapper=document.createElement('div'); wrapper.className='flex items-center gap-1';
-    const btn=document.createElement('button');
-    btn.className=`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm ${active?'bg-cyan-600 text-white':'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`;
-    btn.innerHTML=`<i class="fa-solid fa-folder${active?'-open':''}"></i> ${escapeHtml(folder)}`;
-    btn.onclick=()=>{currentFolder=folder;renderFoldersAndDocs();}; wrapper.appendChild(btn);
-    if(isAdmin&&folder!=='All Documents'){
-      const eb=document.createElement('button');eb.className='p-1 text-cyan-600';eb.title='Edit folder';eb.innerHTML='<i class="fa-solid fa-pen-to-square text-[10px]"></i>';eb.onclick=e=>{e.stopPropagation();openEditFolderModal(folder)};wrapper.appendChild(eb);
-      const db=document.createElement('button');db.className='p-1 text-red-400';db.title='Delete folder';db.innerHTML='<i class="fa-solid fa-trash-can text-[10px]"></i>';db.onclick=e=>{e.stopPropagation();deleteFolder(folder)};wrapper.appendChild(db);
-    }
-    nav.appendChild(wrapper);
-  });
+  const nav=document.getElementById('folderNav'); 
+  if(nav) nav.innerHTML=''; // Itinatago o nililinis ang lumang nav buttons sa taas
 
-  const container=document.getElementById('docsContainer'), empty=document.getElementById('emptyDocsNotice'), header=document.getElementById('docsHeader');
+  const container=document.getElementById('docsContainer'); 
+  const empty=document.getElementById('emptyDocsNotice'); 
+  const header=document.getElementById('docsHeader');
+  if(!container) return;
+  
   container.innerHTML='';
 
-  // --- FILE EXPLORER STYLE: Ipakita ang mga Folders bilang Cards kapag nasa "All Documents" ---
+  // --- KUNG NASA "ALL DOCUMENTS" KA: Ipakita ang mga Folder Explorer Cards ---
   if(currentFolder==='All Documents'){
+    if(header) header.classList.add('hidden');
+    if(empty) empty.classList.add('hidden');
+
     const folderCardsSection=document.createElement('div');
-    folderCardsSection.className='mb-8';
-    folderCardsSection.innerHTML=`<div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Folders (${folders.length-1})</div>`;
+    folderCardsSection.className='mb-6';
+    folderCardsSection.innerHTML=`<div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Select a Folder</div>`;
+    
     const fGrid=document.createElement('div');
     fGrid.className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4';
     
@@ -1737,34 +1733,53 @@ function renderFoldersAndDocs(){
       const fileCount=documents.filter(d=>d.folder===folderName).length;
       const fCard=document.createElement('div');
       fCard.className='bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-cyan-400 hover:shadow-md transition cursor-pointer flex items-center gap-3';
-      fCard.onclick=()=>{currentFolder=folderName; renderFoldersAndDocs();};
+      fCard.onclick=()=>{
+        currentFolder=folderName; 
+        renderFoldersAndDocs();
+      };
       fCard.innerHTML=`
         <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl shrink-0">
           <i class="fa-solid fa-folder"></i>
         </div>
         <div class="min-w-0 flex-1">
           <h4 class="font-bold text-slate-800 text-xs truncate">${escapeHtml(folderName)}</h4>
-          <p class="text-[10px] text-slate-400 mt-0.5">${fileCount} item${fileCount===1?'':'s'}</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">${fileCount} file${fileCount===1?'':'s'}</p>
         </div>
       `;
       fGrid.appendChild(fCard);
     });
+    
     folderCardsSection.appendChild(fGrid);
     container.appendChild(folderCardsSection);
+    return; // Tumigil muna rito para puro folders lang muna ang makita sa All Documents
   }
 
-  const list=currentFolder==='All Documents'?documents:documents.filter(d=>d.folder===currentFolder);
+  // --- KUNG NAKA-SELECT NA NG TIYAK NA FOLDER: Ipakita ang mga files sa loob gamit ang piniling View Style ---
+  const list=documents.filter(d=>d.folder===currentFolder);
   
-  if(!list.length && currentFolder!=='All Documents'){
-    header.classList.add('hidden');empty.classList.remove('hidden');return;
+  if(!list.length){
+    if(header) header.classList.add('hidden');
+    if(empty){
+      empty.classList.remove('hidden');
+      // Maglagay ng "Back to Folders" button sa empty notice para madaling makabalik
+      empty.innerHTML=`
+        <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i>
+        <h4 class="text-sm font-bold text-slate-700">This folder is empty.</h4>
+        <button onclick="currentFolder='All Documents'; renderFoldersAndDocs();" class="mt-3 text-xs font-bold text-white bg-cyan-600 px-3 py-1.5 rounded-xl">← Back to Folders</button>
+      `;
+    }
+    return;
   }
   
-  if(list.length>0){
-    empty.classList.add('hidden');
+  if(empty) empty.classList.add('hidden');
+  if(header){
     header.classList.remove('hidden');
-    header.innerText = currentFolder==='All Documents' ? 'All Files' : `Files in ${currentFolder}`;
-  } else {
-    header.classList.add('hidden');
+    header.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Files in ${escapeHtml(currentFolder)}</span>
+        <button onclick="currentFolder='All Documents'; renderFoldersAndDocs();" class="text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-3 py-1.5 rounded-xl hover:bg-cyan-100 transition"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Folders</button>
+      </div>
+    `;
   }
 
   const action=(doc)=>`<div class="flex flex-wrap items-center gap-2 mt-3">

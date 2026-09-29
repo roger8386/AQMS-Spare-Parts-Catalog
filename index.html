@@ -1612,12 +1612,85 @@ function renderCalendar(){
   if(!title||!days)return;days.innerHTML='';
   const y=currentCalendarDate.getFullYear(),m=currentCalendarDate.getMonth();
   title.innerText=currentCalendarDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+
   if(calendarViewMode==='week'){
     const base=new Date(currentCalendarDate);const day=base.getDay();base.setDate(base.getDate()-day);
     days.className='grid grid-cols-7 gap-2';
-    for(let i=0;i<7;i++){const d=new Date(base);d.setDate(base.getDate()+i);const key=d.toISOString().slice(0,10);const acts=activities.filter(a=>key>=a.startDate&&key<=a.endDate);const cell=document.createElement('div');cell.className='min-h-[150px] rounded-xl border bg-slate-50 p-2';cell.innerHTML=`<div class="font-black text-[11px] text-slate-700 mb-2">${d.toLocaleDateString('en-US',{weekday:'short'})}<br><span class="text-cyan-700">${d.getDate()}</span></div>${acts.map(a=>`<div class="text-[9px] font-bold bg-cyan-100 text-cyan-800 rounded-lg p-1.5 mb-1">${escapeHtml(a.title)}</div>`).join('')}`;days.appendChild(cell)}
+    for(let i=0;i<7;i++){
+      const d=new Date(base);d.setDate(base.getDate()+i);
+      const key=d.toISOString().slice(0,10);
+      const acts=activities.filter(a=>key>=a.startDate&&key<=a.endDate);
+      const cell=document.createElement('div');
+      // --- BINAGO KO DITO: nilagyan ng onclick ---
+      cell.className='min-h- rounded-xl border bg-slate-50 p-2 cursor-pointer hover:ring-2 hover:ring-cyan-400 transition-all';
+      cell.setAttribute('data-date', key);
+      cell.onclick = () => viewDayEvents(key);
+      cell.innerHTML=`<div class="font-black text- text-slate-700 mb-2">${d.toLocaleDateString('en-US',{weekday:'short'})}<br><span class="text-cyan-700">${d.getDate()}</span></div>${acts.map(a=>`<div class="text- font-bold bg-cyan-100 text-cyan-800 rounded-lg p-1.5 mb-1">${escapeHtml(a.title)}</div>`).join('')}`;
+      days.appendChild(cell)
+    }
     return;
   }
+
+  // --- MONTH VIEW ---
+  days.className='grid grid-cols-7 gap-1 text-xs';
+  const firstDay=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+
+  // empty cells
+  for(let i=0;i<firstDay;i++){
+    const empty=document.createElement('div');
+    empty.className='p-2';
+    days.appendChild(empty);
+  }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateObj=new Date(y,m,d);
+    const key=dateObj.toISOString().slice(0,10);
+    const acts=activities.filter(a=>key>=a.startDate&&key<=a.endDate);
+    const hasEvent=acts.length>0;
+
+    const cell=document.createElement('div');
+    // --- BINAGO KO DITO: nilagyan ng onclick at data-date ---
+    cell.setAttribute('data-date', key);
+    cell.onclick = () => viewDayEvents(key);
+    cell.className=`cursor-pointer p-2 rounded-lg text-center transition-all hover:ring-2 hover:ring-cyan-400 ${hasEvent? 'bg-cyan-600 text-white font-bold shadow' : 'bg-white border text-slate-700 hover:bg-slate-50'}`;
+    cell.innerHTML=`<div>${d}</div>${hasEvent? `<div class="text- mt-0.5 opacity-90">${acts.length} item</div>` : ''}`;
+    days.appendChild(cell);
+  }
+}
+
+// --- DAGDAG MO SA PINAKA BABA NG FILE NA YAN, BAGONG FUNCTION ---
+window.viewDayEvents = function(dateStr) {
+  // tanggalin highlight ng iba, highlight yung na-click
+  document.querySelectorAll('#calendarDays [data-date]').forEach(el => {
+    el.classList.remove('ring-2','ring-black','ring-offset-1');
+  });
+  let clicked = document.querySelector(`#calendarDays [data-date="${dateStr}"]`);
+  if(clicked) clicked.classList.add('ring-2','ring-black','ring-offset-1');
+
+  // filter activities
+  let filtered = activities.filter(a => dateStr >= a.startDate && dateStr <= a.endDate);
+
+  // gamitin yung existing render mo para sa listahan
+  // hanapin mo function renderActivities() - tawagin natin
+  const list = document.getElementById('activityList');
+  if(!list) return;
+
+  if(filtered.length === 0) {
+    list.innerHTML = `<div class="text-center p-6 text-xs text-slate-400">No activity on <b>${dateStr}</b><br><button onclick="renderActivityList()" class="mt-2 text-cyan-600 underline font-bold">Show all</button></div>`;
+  } else {
+    // kung may renderActivityList ka na tumatanggap ng array, gamitin mo yun
+    // kung wala, manual render:
+    list.innerHTML = filtered.map(ev => `
+      <div class="border border-slate-200 p-3 rounded-xl bg-white shadow-sm">
+        <div class="text- font-bold text-cyan-700">${ev.startDate} — ${ev.endDate} • PM</div>
+        <div class="font-black text-sm text-slate-800 mt-1">${escapeHtml(ev.title)}</div>
+        <div class="text-xs text-slate-500 mt-1">Lead: ${escapeHtml(ev.lead||'')}</div>
+        ${ev.description? `<div class="text-xs text-slate-600 mt-1">${escapeHtml(ev.description)}</div>`:''}
+      </div>
+    `).join('');
+  }
+}
   if(calendarViewMode==='list'){
     days.className='grid grid-cols-1 gap-2';days.innerHTML='<div class="text-xs text-slate-500 p-3 bg-slate-50 rounded-xl">Use the activity panel for the full list.</div>';return;
   }

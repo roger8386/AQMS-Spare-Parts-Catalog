@@ -1620,10 +1620,10 @@ function renderCalendar(){
       const key=d.toISOString().slice(0,10);
       const acts=activities.filter(a=>key>=a.startDate&&key<=a.endDate);
       const cell=document.createElement('div');
-      cell.className='min-h- rounded-xl border bg-slate-50 p-2 cursor-pointer hover:ring-2 hover:ring-cyan-400';
+      cell.className='min-h-[150px] rounded-xl border bg-slate-50 p-2 cursor-pointer hover:ring-2 hover:ring-cyan-400';
       cell.setAttribute('data-date',key);
       cell.onclick=()=>viewDayEvents(key);
-      cell.innerHTML=`<div class="font-black text- text-slate-700 mb-2">${d.toLocaleDateString('en-US',{weekday:'short'})}<br><span class="text-cyan-700">${d.getDate()}</span></div>${acts.map(a=>`<div class="text- font-bold bg-cyan-100 text-cyan-800 rounded-lg p-1.5 mb-1">${escapeHtml(a.title)}</div>`).join('')}`;
+      cell.innerHTML=`<div class="font-black text-[11px] text-slate-700 mb-2">${d.toLocaleDateString('en-US',{weekday:'short'})}<br><span class="text-cyan-700">${d.getDate()}</span></div>${acts.map(a=>`<div class="text-[9px] font-bold bg-cyan-100 text-cyan-800 rounded-lg p-1.5 mb-1">${escapeHtml(a.title)}</div>`).join('')}`;
       days.appendChild(cell)
     }
     return;
@@ -1641,11 +1641,11 @@ function renderCalendar(){
     cell.className=count?'h-10 flex flex-col items-center justify-center rounded-lg bg-cyan-600 text-white font-bold cursor-pointer hover:ring-2 hover:ring-black':'h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-700 cursor-pointer hover:ring-1 hover:ring-slate-300';
     cell.setAttribute('data-date',key);
     cell.onclick=()=>viewDayEvents(key);
-    cell.innerHTML=count?`${day}<span class="text- opacity-80">${count} item${count>1?'s':''}</span>`:`${day}`;
+    cell.innerHTML=count?`${day}<span class="text-[8px] opacity-80">${count} item${count>1?'s':''}</span>`:`${day}`;
     days.appendChild(cell);
   }
 }
-  }
+
 function changeMonth(delta){currentCalendarDate.setMonth(currentCalendarDate.getMonth()+delta); renderCalendar();}
 
 window.viewDayEvents = function(dateStr){
@@ -1664,7 +1664,7 @@ window.viewDayEvents = function(dateStr){
   }else{
     list.innerHTML = filtered.map(ev=>`
       <div class="border p-3 rounded-xl bg-white">
-        <div class="text- font-bold text-cyan-700">${ev.startDate} to ${ev.endDate} • ${ev.type}</div>
+        <div class="text-[9px] font-bold text-cyan-700">${ev.startDate} to ${ev.endDate} • ${ev.type}</div>
         <div class="font-bold text-sm mt-1">${ev.title}</div>
         <div class="text-xs text-slate-500">Lead: ${ev.person||''}</div>
         <div class="flex gap-2 mt-2">

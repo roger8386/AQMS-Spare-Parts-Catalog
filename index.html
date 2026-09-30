@@ -1810,41 +1810,72 @@ function renderFoldersAndDocs(){
   
   container.innerHTML='';
 
-  // --- KUNG NASA "ALL DOCUMENTS" KA: Ipakita ang mga Folder Explorer Cards ---
+  // FOLDER OVERVIEW - Respects view mode
   if(currentFolder==='All Documents'){
     if(header) header.classList.add('hidden');
     if(empty) empty.classList.add('hidden');
 
     const folderCardsSection=document.createElement('div');
     folderCardsSection.className='mb-6';
-    folderCardsSection.innerHTML=`<div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Select a Folder</div>`;
+    folderCardsSection.innerHTML=`<div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Select a Folder - ${folders.filter(f=>f!=='All Documents').length} folders</div>`;
     
-    const fGrid=document.createElement('div');
-    fGrid.className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4';
+    let fGrid;
+    if(docsViewMode==='grid'){
+      fGrid=document.createElement('div');
+      fGrid.className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4';
+    } else if(docsViewMode==='details'){
+      fGrid=document.createElement('div');
+      fGrid.className='grid grid-cols-1 lg:grid-cols-2 gap-4';
+    } else if(docsViewMode==='list'){
+      fGrid=document.createElement('div');
+      fGrid.className='bg-white rounded-2xl border overflow-hidden divide-y';
+    } else {
+      fGrid=document.createElement('div');
+      fGrid.className='space-y-4';
+    }
     
     folders.filter(f=>f!=='All Documents').forEach(folderName=>{
       const fileCount=documents.filter(d=>d.folder===folderName).length;
       const fCard=document.createElement('div');
-      fCard.className='bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-cyan-400 hover:shadow-md transition cursor-pointer flex items-center gap-3';
+      if(docsViewMode==='grid'){
+        fCard.className='bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-cyan-400 hover:shadow-md transition cursor-pointer flex items-center gap-3';
+        fCard.innerHTML=`
+          <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-folder"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 class="font-bold text-slate-800 text-xs truncate">${escapeHtml(folderName)}</h4>
+            <p class="text-[10px] text-slate-400 mt-0.5">${fileCount} file${fileCount===1?'':'s'}</p>
+          </div>
+        `;
+      } else if(docsViewMode==='details'){
+        fCard.className='bg-white p-4 rounded-2xl border flex gap-4 hover:border-cyan-300 transition cursor-pointer';
+        fCard.innerHTML=`
+          <div class="w-16 h-16 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-folder"></i></div>
+          <div class="min-w-0 flex-1"><h4 class="font-bold text-sm text-slate-900">${escapeHtml(folderName)}</h4><p class="text-[11px] text-slate-500 mt-1">${fileCount} files - Click to open</p><p class="text-xs text-slate-600 mt-2">Contains ${fileCount} document${fileCount===1?'':'s'}</p></div>
+        `;
+      } else if(docsViewMode==='list'){
+        fCard.className='p-4 flex items-center justify-between gap-3 hover:bg-slate-50 transition cursor-pointer';
+        fCard.innerHTML=`
+          <div class="flex items-center gap-3"><i class="fa-solid fa-folder text-xl text-cyan-600"></i><div><h4 class="font-bold text-sm text-slate-900">${escapeHtml(folderName)}</h4><p class="text-[11px] text-slate-500">${fileCount} files</p></div></div>
+          <span class="text-xs font-bold text-cyan-600">Open →</span>
+        `;
+      } else {
+        fCard.className='bg-white rounded-2xl border p-6 hover:border-cyan-300 transition cursor-pointer';
+        fCard.innerHTML=`
+          <div class="flex items-start gap-4"><i class="fa-solid fa-folder text-3xl text-cyan-600 mt-1"></i><div class="flex-1"><p class="text-[10px] uppercase tracking-wider font-bold text-cyan-700">FOLDER</p><h3 class="text-lg font-black text-slate-900 mt-1">${escapeHtml(folderName)}</h3><p class="text-sm text-slate-600 mt-2">${fileCount} document${fileCount===1?'':'s'} inside. Click to view files.</p></div></div>
+        `;
+      }
       fCard.onclick=()=>{
         currentFolder=folderName; 
         renderFoldersAndDocs();
       };
-      fCard.innerHTML=`
-        <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl shrink-0">
-          <i class="fa-solid fa-folder"></i>
-        </div>
-        <div class="min-w-0 flex-1">
-          <h4 class="font-bold text-slate-800 text-xs truncate">${escapeHtml(folderName)}</h4>
-          <p class="text-[10px] text-slate-400 mt-0.5">${fileCount} file${fileCount===1?'':'s'}</p>
-        </div>
-      `;
       fGrid.appendChild(fCard);
     });
     
     folderCardsSection.appendChild(fGrid);
     container.appendChild(folderCardsSection);
-    return; // Tumigil muna rito para puro folders lang muna ang makita sa All Documents
+    return;
   }
 
   // --- KUNG NAKA-SELECT NA NG TIYAK NA FOLDER: Ipakita ang mga files sa loob gamit ang piniling View Style ---
@@ -2056,15 +2087,28 @@ function openEditDocModal(id){
   const fn=document.getElementById('fileNameDisplay');
   if(fn) fn.innerHTML = `<span class="text-cyan-700 font-bold">${doc.fileName||doc.title} (Click to replace)</span>`;
   const select=document.getElementById('docFolderSelect');
-  select.innerHTML='';
-  const folderOpts = folders.filter(f=>f!=="All Documents");
-  if(folderOpts.length===0){ select.innerHTML='<option value="Manuals">Manuals</option>'; }
-  folderOpts.forEach(f=>{
-    const opt=document.createElement('option');
-    opt.value=f; opt.textContent=f;
-    if(doc.folder===f) opt.selected=true;
-    select.appendChild(opt);
-  });
+  if(select){
+    const label = select.previousElementSibling || document.querySelector('label[for="docFolderSelect"]');
+    // Add hint to label if exists
+    if(select.parentElement){
+      let hint = select.parentElement.querySelector('.move-hint');
+      if(!hint){
+        hint = document.createElement('p');
+        hint.className='move-hint text-[10px] text-cyan-600 font-bold mt-1';
+        hint.innerHTML='<i class=\"fa-solid fa-right-left mr-1\"></i>You can move this file to another folder by changing the selection below';
+        select.parentElement.appendChild(hint);
+      }
+    }
+    select.innerHTML='';
+    const folderOpts = folders.filter(f=>f!=="All Documents");
+    if(folderOpts.length===0){ select.innerHTML='<option value="Manuals">Manuals</option>'; }
+    folderOpts.forEach(f=>{
+      const opt=document.createElement('option');
+      opt.value=f; opt.textContent=f;
+      if(doc.folder===f) opt.selected=true;
+      select.appendChild(opt);
+    });
+  }
   document.getElementById('docModal').classList.remove('hidden');
 }
 

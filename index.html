@@ -159,7 +159,7 @@
       <div class="mobile-scroll-tabs soft-scroll flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-nowrap">
         <button id="tabHomeBtn" onclick="switchTab('home')" class="tab-btn px-3 py-1.5 rounded-md bg-cyan-600 text-white font-medium"><i class="fa-solid fa-house mr-1"></i> Home</button>
          <button id="tabPartsBtn" onclick="switchTab('parts')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-boxes-stacked mr-1"></i> Spare Parts</button>
-        <button id="tabStationBtn" onclick="switchTab('station')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-industry mr-1"></i> Stationss</button>
+        <button id="tabStationBtn" onclick="switchTab('station')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-industry mr-1"></i> Stations</button>
         <button id="tabActivitiesBtn" onclick="switchTab('activities')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-calendar-days mr-1"></i> Calendar</button>
         <button id="tabDocsBtn" onclick="switchTab('documents')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-folder-tree mr-1"></i> Documents</button>
         <button id="tabGalleryBtn" onclick="switchTab('gallery')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-photo-film mr-1"></i> Gallery</button>
@@ -1810,7 +1810,7 @@ function renderFoldersAndDocs(){
       const safeName = escapeHtml(folderName);
       let btns = '';
       if(isAdmin){
-        btns = '<div class="flex gap-1 ml-auto"><button onclick="event.stopPropagation(); openEditFolderModal(\''+folderName.replace(/\'/g,"\\'")+ '\')" class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center" title="Rename"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="event.stopPropagation(); deleteFolder(\''+folderName.replace(/\'/g,"\\'")+ '\')" class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center" title="Delete"><i class="fa-solid fa-trash text-[10px]"></i></button></div>';
+        btns = '<div class="flex gap-1 ml-auto"><button onclick="event.stopPropagation(); openEditFolderModal(\''+folderName.replace(/\'/g,"\'")+ '\')" class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center" title="Rename"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="event.stopPropagation(); deleteFolder(\''+folderName.replace(/\'/g,"\'")+ '\')" class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center" title="Delete"><i class="fa-solid fa-trash text-[10px]"></i></button></div>';
       }
       fCard.innerHTML='<div class="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center"><i class="fa-solid fa-folder"></i></div><div class="flex-1"><h4 class="font-bold text-xs">'+safeName+'</h4><p class="text-[10px] text-slate-400">'+fileCount+' files</p></div>'+btns;
       fCard.onclick=()=>{ currentFolder=folderName; renderFoldersAndDocs(); };
@@ -3170,7 +3170,7 @@ function filterCatalogSummary(type) {
               <div id="stationDetailIcon" class="w-14 h-14 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl"><i class="fa-solid fa-industry"></i></div>
               <div>
                 <h3 id="stationDetailName" class="text-lg font-black text-slate-900">Station Name</h3>
-                <p id="stationDetailCustomer" class="text-xs text-slate-500">Customer</p>
+                <p id="stationDetailCustomer" class="text-xs text-slate-500">Shelter / Customer</p>
                 <p id="stationDetailLocation" class="text-[11px] text-slate-400 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> Location</p>
               </div>
             </div>
@@ -3184,7 +3184,7 @@ function filterCatalogSummary(type) {
           </div>
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4 text-[11px]">
             <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-[9px] uppercase font-bold text-slate-400">Status</p><p id="stationDetailStatus" class="font-bold mt-1">Active</p></div>
-            <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-[9px] uppercase font-bold text-slate-400">Shelter ID</p><p id="stationDetailShelter" class="font-bold mt-1">--</p></div>
+            <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-[9px] uppercase font-bold text-slate-400">Station No.</p><p id="stationDetailShelter" class="font-bold mt-1">--</p></div>
             <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-[9px] uppercase font-bold text-slate-400">Commissioned</p><p id="stationDetailDate" class="font-bold mt-1">--</p></div>
             <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-[9px] uppercase font-bold text-slate-400">Contact</p><p id="stationDetailContact" class="font-bold mt-1">--</p></div>
           </div>
@@ -3222,14 +3222,15 @@ function filterCatalogSummary(type) {
       <input type="hidden" id="editStationId">
       <div><label class="font-bold text-slate-600 block mb-1">Station Name *</label><input type="text" id="stName" required placeholder="e.g. KAUST CEMS #1 - Thuwal" class="w-full p-2.5 border rounded-lg"></div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="font-bold text-slate-600 block mb-1">Customer *</label><input type="text" id="stCustomer" required placeholder="e.g. KAUST, SABIC" class="w-full p-2.5 border rounded-lg"></div>
+        <div><label class="font-bold text-slate-600 block mb-1">Shelter / Customer Name *</label><input type="text" id="stShelter" required placeholder="e.g. KAUST, SABIC" class="w-full p-2.5 border rounded-lg"></div>
         <div><label class="font-bold text-slate-600 block mb-1">Location *</label><input type="text" id="stLocation" required placeholder="e.g. Thuwal, Jeddah" class="w-full p-2.5 border rounded-lg"></div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="font-bold text-slate-600 block mb-1">Shelter ID</label><input type="text" id="stShelter" placeholder="e.g. SH-01" class="w-full p-2.5 border rounded-lg"></div>
+      <div class="grid grid-cols-3 gap-3">
+        <div><label class="font-bold text-slate-600 block mb-1">No. of Stations to Create</label><select id="stStationCount" class="w-full p-2.5 border rounded-lg"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></div>
         <div><label class="font-bold text-slate-600 block mb-1">Status</label>
           <select id="stStatus" class="w-full p-2.5 border rounded-lg"><option>Active</option><option>Maintenance</option><option>Shutdown</option><option>Commissioning</option></select>
         </div>
+        <div><label class="font-bold text-slate-600 block mb-1">Shelter ID</label><input type="text" id="stShelterId" placeholder="e.g. SH-01" class="w-full p-2.5 border rounded-lg"></div>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="font-bold text-slate-600 block mb-1">Commission Date</label><input type="date" id="stDate" class="w-full p-2.5 border rounded-lg"></div>
@@ -3254,75 +3255,121 @@ let stations = JSON.parse(localStorage.getItem('kytos_stations_fixed')||'null') 
 let selectedStationId = null;
 let stationSubTab = 'overview';
 function ensureStationArrays(st){
+  if(!st.shelter && st.customer) st.shelter=st.customer;
+  if(!st.customer && st.shelter) st.customer=st.shelter;
+  if(!st.stationCount) st.stationCount=1;
+  if(!st.stationNumber) st.stationNumber=1;
+  if(!st.shelterId) st.shelterId='';
   if(!st.parts) st.parts=[];
   if(!st.activities) st.activities=[];
   if(!st.docs) st.docs=[];
   if(!st.gallery) st.gallery=[];
-  if(!st.analyzersList) {
-    const arr = (st.analyzers||'').split(',').map(s=>s.trim()).filter(Boolean).map((name,i)=>({id:'an_'+i+'_'+Date.now(), name, sn:'', range:'', status:'Active'}));
-    st.analyzersList = arr;
+  if(!st.analyzersList){
+    const arr=(st.analyzers||'').split(',').map(x=>x.trim()).filter(Boolean).map((name,i)=>({id:'an_'+Date.now()+'_'+i,name,sn:'',range:'',rack:'',status:'Active'}));
+    st.analyzersList=arr;
   }
+  // Every saved station record is now one physical/editable station.
+  st.stationCount=1;
+  st.isStationUnit=true;
   return st;
 }
-stations = stations.map(ensureStationArrays);
+
+function migrateStationRecords(){
+  const migrated=[];
+  let changed=false;
+  (stations||[]).forEach(original=>{
+    // Old records may represent several stations with one numeric stationCount.
+    // Preserve all existing history on Station 1, then create empty individual records.
+    const count=Math.max(1,parseInt(original.stationCount)||1);
+    if(count<=1 || original.isStationUnit){
+      migrated.push(ensureStationArrays(original));
+      return;
+    }
+    changed=true;
+    for(let n=1;n<=count;n++){
+      const copy=n===1 ? {...original} : {
+        id:String(Date.now())+'_'+n+'_'+Math.random().toString(36).slice(2,7),
+        name:original.name+' - Station '+n,
+        customer:original.customer||original.shelter||'',
+        shelter:original.shelter||original.customer||'',
+        shelterId:original.shelterId ? original.shelterId+'-'+String(n).padStart(2,'0') : '',
+        location:original.location||'', status:original.status||'Active', date:original.date||'', contact:original.contact||'',
+        notes:original.notes||'', analyzers:'', analyzersList:[], parts:[], activities:[], docs:[], gallery:[]
+      };
+      if(n===1){
+        copy.name=(original.name||'Station')+' - Station 1';
+        copy.stationNumber=1;
+      } else { copy.stationNumber=n; }
+      copy.stationCount=1; copy.isStationUnit=true;
+      migrated.push(ensureStationArrays(copy));
+    }
+  });
+  stations=migrated;
+  if(changed) localStorage.setItem('kytos_stations_fixed',JSON.stringify(stations));
+}
+
+stations=stations.map(ensureStationArrays);
+migrateStationRecords();
 
 function renderStationView(){
-  const adminBtn = document.getElementById('stationAdminAction');
-  if(adminBtn) adminBtn.classList.toggle('hidden', !isAdmin);
-  document.getElementById('statTotalStations').innerText = stations.length;
-  document.getElementById('statActiveStations').innerText = stations.filter(s=>s.status==='Active').length;
-  let totalAn = 0; stations.forEach(s=>{ totalAn += (s.analyzersList||[]).length; });
-  document.getElementById('statTotalAnalyzers').innerText = totalAn;
-  document.getElementById('statLastUpdate').innerText = new Date().toLocaleDateString();
-  document.getElementById('stationCountBadge').innerText = stations.length + ' stations';
+  const adminBtn=document.getElementById('stationAdminAction');
+  if(adminBtn) adminBtn.classList.toggle('hidden',!isAdmin);
+  const totalEl=document.getElementById('statTotalStations');
+  const activeEl=document.getElementById('statActiveStations');
+  const anEl=document.getElementById('statTotalAnalyzers');
+  const updEl=document.getElementById('statLastUpdate');
+  const badge=document.getElementById('stationCountBadge');
+  if(totalEl) totalEl.innerText=stations.length;
+  if(activeEl) activeEl.innerText=stations.filter(s=>(s.status||'Active')==='Active').length;
+  let totalAn=0; stations.forEach(s=>totalAn+=(s.analyzersList||[]).length);
+  if(anEl) anEl.innerText=totalAn;
+  if(updEl) updEl.innerText=new Date().toLocaleDateString();
+  if(badge) badge.innerText=stations.length+' stations';
   filterStations();
   if(selectedStationId){
-    const st = stations.find(s=>String(s.id)===String(selectedStationId));
+    const st=stations.find(s=>String(s.id)===String(selectedStationId));
     if(st) showStationDetail(st.id);
   }
 }
 function filterStations(){
-  const q = (document.getElementById('stationSearch')?.value||'').toLowerCase();
-  const listEl = document.getElementById('stationList');
-  const emptyEl = document.getElementById('emptyStationList');
+  const q=(document.getElementById('stationSearch')?.value||'').toLowerCase().trim();
+  const listEl=document.getElementById('stationList');
+  const emptyEl=document.getElementById('emptyStationList');
   if(!listEl) return;
   listEl.innerHTML='';
-  const filtered = stations.filter(s=>{
+  const filtered=stations.filter(s=>{
     if(!q) return true;
-    return (s.name+' '+s.customer+' '+s.location+' '+(s.analyzers||'')).toLowerCase().includes(q);
+    return [s.name,s.shelter,s.customer,s.location,s.stationNumber,s.analyzers].join(' ').toLowerCase().includes(q);
   });
-  if(filtered.length===0){
-    emptyEl.classList.remove('hidden');
-  } else {
-    emptyEl.classList.add('hidden');
-    filtered.forEach(st=>{
-      const card=document.createElement('div');
-      const isSel = String(st.id)===String(selectedStationId);
-      card.className='p-3 rounded-xl border cursor-pointer transition '+(isSel?'bg-cyan-50 border-cyan-300 shadow-sm':'bg-white hover:border-cyan-200');
-      const initials = (st.customer||'ST').substring(0,2).toUpperCase();
-      const anCount = (st.analyzersList||[]).length;
-      card.innerHTML='<div class="flex gap-2.5"><div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-[11px] font-black">'+initials+'</div><div class="flex-1 min-w-0"><p class="font-bold text-xs text-slate-900 truncate">'+escapeHtml(st.name)+'</p><p class="text-[10px] text-slate-500 truncate">'+escapeHtml(st.customer)+' • '+escapeHtml(st.location)+'</p><div class="flex items-center gap-2 mt-1"><span class="text-[9px] px-1.5 py-0.5 rounded-full '+(st.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700')+' font-bold">'+escapeHtml(st.status||'Active')+'</span><span class="text-[9px] text-slate-400">'+anCount+' analyzers</span></div></div></div>';
-      card.onclick=()=>showStationDetail(st.id);
-      listEl.appendChild(card);
-    });
-  }
+  if(!filtered.length){ if(emptyEl) emptyEl.classList.remove('hidden'); return; }
+  if(emptyEl) emptyEl.classList.add('hidden');
+  filtered.forEach(st=>{
+    const card=document.createElement('div');
+    const isSel=String(st.id)===String(selectedStationId);
+    const customer=st.shelter||st.customer||'';
+    const anCount=(st.analyzersList||[]).length;
+    card.className='p-3 rounded-xl border cursor-pointer transition '+(isSel?'bg-cyan-50 border-cyan-300 shadow-sm':'bg-white hover:border-cyan-200');
+    card.innerHTML='<div class="flex gap-2.5"><div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-[11px] font-black">S'+(st.stationNumber||1)+'</div><div class="flex-1 min-w-0"><p class="font-bold text-xs text-slate-900 truncate">'+escapeHtml(st.name||'Station '+(st.stationNumber||1))+'</p><p class="text-[10px] text-slate-500 truncate">'+escapeHtml(customer)+' • '+escapeHtml(st.location||'')+'</p><div class="flex items-center gap-2 mt-1"><span class="text-[9px] px-1.5 py-0.5 rounded-full '+((st.status||'Active')==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700')+' font-bold">'+escapeHtml(st.status||'Active')+'</span><span class="text-[9px] text-slate-400">Station '+(st.stationNumber||1)+' • '+anCount+' analyzers</span></div></div></div>';
+    card.onclick=()=>showStationDetail(st.id);
+    listEl.appendChild(card);
+  });
 }
 function showStationDetail(id){
   selectedStationId=id;
-  const st = stations.find(s=>String(s.id)===String(id));
+  const st=stations.find(s=>String(s.id)===String(id));
   if(!st) return;
   ensureStationArrays(st);
   document.getElementById('stationDetailEmpty').classList.add('hidden');
   document.getElementById('stationDetail').classList.remove('hidden');
-  document.getElementById('stationDetailName').innerText = st.name;
-  document.getElementById('stationDetailCustomer').innerText = st.customer;
-  document.getElementById('stationDetailLocation').innerText = st.location;
-  document.getElementById('stationDetailStatus').innerText = st.status||'Active';
-  document.getElementById('stationDetailShelter').innerText = st.shelter||'--';
-  document.getElementById('stationDetailDate').innerText = st.date||'--';
-  document.getElementById('stationDetailContact').innerText = st.contact||'--';
-  const actionsEl = document.getElementById('stationDetailActions');
-  actionsEl.innerHTML = isAdmin ? '<button onclick="openStationModal(\''+st.id+'\')" class="px-3 py-1.5 rounded-lg bg-cyan-600 text-white text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-pen-to-square"></i> Edit</button><button onclick="deleteStation(\''+st.id+'\')" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-trash"></i> Delete</button>' : '<span class="text-[11px] text-slate-400">View only (Admin to edit)</span>';
+  document.getElementById('stationDetailName').innerText=st.name||('Station '+(st.stationNumber||1));
+  document.getElementById('stationDetailCustomer').innerText=st.shelter||st.customer||'--';
+  document.getElementById('stationDetailLocation').innerText=st.location||'--';
+  document.getElementById('stationDetailStatus').innerText=st.status||'Active';
+  document.getElementById('stationDetailShelter').innerText='Station '+(st.stationNumber||1);
+  document.getElementById('stationDetailDate').innerText=st.date||'--';
+  document.getElementById('stationDetailContact').innerText=st.contact||'--';
+  const actionsEl=document.getElementById('stationDetailActions');
+  actionsEl.innerHTML=isAdmin?'<button onclick="openStationModal(\''+st.id+'\')" class="px-3 py-1.5 rounded-lg bg-cyan-600 text-white text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-pen-to-square"></i> Edit This Station</button><button onclick="deleteStation(\''+st.id+'\')" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-trash"></i> Delete</button>':'<span class="text-[11px] text-slate-400">View only (Admin to edit)</span>';
   switchStationSubTab(stationSubTab);
   filterStations();
 }
@@ -3331,112 +3378,64 @@ function switchStationSubTab(tab){
   ['overview','analyzers','parts','activities','docs','gallery'].forEach(t=>{
     const btn=document.getElementById('stSub'+t.charAt(0).toUpperCase()+t.slice(1));
     const content=document.getElementById('stContent'+t.charAt(0).toUpperCase()+t.slice(1));
-    if(btn) btn.className = 'px-3 py-1.5 rounded-lg '+(t===tab?'bg-white shadow-sm':'');
-    if(content) content.classList.toggle('hidden', t!==tab);
+    if(btn) btn.className='px-3 py-1.5 rounded-lg '+(t===tab?'bg-white shadow-sm':'');
+    if(content) content.classList.toggle('hidden',t!==tab);
   });
   if(!selectedStationId) return;
-  const st = stations.find(s=>String(s.id)===String(selectedStationId));
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
   if(!st) return;
   ensureStationArrays(st);
   if(tab==='overview'){
     const el=document.getElementById('stContentOverview');
-    const anList = st.analyzersList||[];
-    el.innerHTML = '<div class="bg-white rounded-2xl border p-5"><div class="flex justify-between items-start mb-3"><h4 class="font-bold text-sm">Station Overview</h4><button onclick="openStationModal(\''+st.id+'\')" class="text-[10px] bg-slate-900 text-white px-2.5 py-1 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-pen mr-1"></i>Edit Info</button></div><div class="grid grid-cols-2 gap-3 text-[11px] mb-4"><div><p class="text-[9px] uppercase font-bold text-slate-400">Customer</p><p class="font-bold">'+escapeHtml(st.customer)+'</p></div><div><p class="text-[9px] uppercase font-bold text-slate-400">Location</p><p class="font-bold">'+escapeHtml(st.location)+'</p></div><div><p class="text-[9px] uppercase font-bold text-slate-400">Shelter</p><p class="font-bold">'+escapeHtml(st.shelter||'--')+'</p></div><div><p class="text-[9px] uppercase font-bold text-slate-400">Status</p><p class="font-bold">'+escapeHtml(st.status||'--')+'</p></div></div><div><p class="text-[10px] font-bold uppercase text-slate-400 mb-1">Notes</p><div class="bg-slate-50 rounded-xl p-3 text-xs whitespace-pre-line">'+(st.notes?escapeHtml(st.notes):'<span class="text-slate-400">No notes - click Edit Info to add access, safety, remarks...</span>')+'</div></div><div class="mt-4"><p class="text-[10px] font-bold uppercase text-slate-400 mb-2">Analyzers ('+anList.length+')</p><div class="flex flex-wrap gap-1.5">'+anList.map(a=>'<span class="text-[10px] bg-cyan-50 border border-cyan-200 text-cyan-700 px-2 py-1 rounded-full font-bold">'+escapeHtml(a.name)+'</span>').join('')+'</div></div></div>';
+    const anList=st.analyzersList||[];
+    el.innerHTML='<div class="bg-white rounded-2xl border p-5"><div class="flex justify-between items-start mb-3"><h4 class="font-bold text-sm">Station '+(st.stationNumber||1)+' Overview</h4><button onclick="openStationModal(\''+st.id+'\')" class="text-[10px] bg-slate-900 text-white px-2.5 py-1 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-pen mr-1"></i>Edit This Station</button></div><div class="grid grid-cols-2 gap-3 text-[11px] mb-4"><div><p class="text-[9px] uppercase font-bold text-slate-400">Shelter / Customer</p><p class="font-bold">'+escapeHtml(st.shelter||st.customer||'--')+'</p></div><div><p class="text-[9px] uppercase font-bold text-slate-400">Location</p><p class="font-bold">'+escapeHtml(st.location||'--')+'</p></div><div><p class="text-[9px] uppercase font-bold text-slate-400">Station Number</p><p class="font-bold">Station '+(st.stationNumber||1)+'</p></div><div><p class="text-[9px] uppercase font-bold text-slate-400">Status</p><p class="font-bold">'+escapeHtml(st.status||'--')+'</p></div></div><div><p class="text-[10px] font-bold uppercase text-slate-400 mb-1">Notes</p><div class="bg-slate-50 rounded-xl p-3 text-xs whitespace-pre-line">'+(st.notes?escapeHtml(st.notes):'<span class="text-slate-400">No notes - click Edit This Station to add access, safety, remarks...</span>')+'</div></div><div class="mt-4"><p class="text-[10px] font-bold uppercase text-slate-400 mb-2">Analyzers ('+anList.length+')</p><div class="flex flex-wrap gap-1.5">'+anList.map(a=>'<span class="text-[10px] bg-cyan-50 border border-cyan-200 text-cyan-700 px-2 py-1 rounded-full font-bold">'+escapeHtml(a.name)+'</span>').join('')+'</div></div></div>';
   } else if(tab==='analyzers'){
     const el=document.getElementById('stContentAnalyzers');
-    el.innerHTML = '<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Analyzers ('+(st.analyzersList?.length||0)+')</h4><button onclick="openAnalyzerModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Analyzer</button></div><div id="analyzerList" class="divide-y"></div></div>';
+    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Analyzers ('+(st.analyzersList?.length||0)+')</h4><button onclick="openAnalyzerModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Analyzer</button></div><div id="analyzerList" class="divide-y"></div></div>';
     const listEl=document.getElementById('analyzerList');
-    if(!st.analyzersList || st.analyzersList.length===0){
-      listEl.innerHTML='<div class="p-8 text-center text-xs text-slate-400">No analyzers yet. Click Add Analyzer (admin)</div>';
-    } else {
-      st.analyzersList.forEach((a,i)=>{
-        const row=document.createElement('div');
-        row.className='p-3 flex justify-between items-center hover:bg-slate-50';
-        row.innerHTML='<div class="flex gap-3 items-center min-w-0"><div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-[11px] font-black">'+(i+1)+'</div><div class="min-w-0"><p class="font-bold text-xs truncate">'+escapeHtml(a.name)+'</p><p class="text-[10px] text-slate-400 truncate">SN: '+(a.sn||'--')+' • Range: '+(a.range||'--')+' • '+(a.status||'Active')+'</p></div></div><div class="flex gap-1 '+(isAdmin?'':'hidden')+'"><button onclick="openAnalyzerModal(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deleteAnalyzer(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center"><i class="fa-solid fa-trash text-[10px]"></i></button></div>';
-        listEl.appendChild(row);
-      });
-    }
+    if(!st.analyzersList.length) listEl.innerHTML='<div class="p-8 text-center text-xs text-slate-400">No analyzers yet. Click Add Analyzer (admin)</div>';
+    else st.analyzersList.forEach((a,i)=>{const row=document.createElement('div');row.className='p-3 flex justify-between items-center hover:bg-slate-50';row.innerHTML='<div class="flex gap-3 items-center min-w-0"><div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-[11px] font-black">'+(i+1)+'</div><div class="min-w-0"><p class="font-bold text-xs truncate">'+escapeHtml(a.name)+'</p><p class="text-[10px] text-slate-400 truncate">SN: '+escapeHtml(a.sn||'--')+' • Range: '+escapeHtml(a.range||'--')+' • '+escapeHtml(a.status||'Active')+'</p></div></div><div class="flex gap-1 '+(isAdmin?'':'hidden')+'"><button onclick="openAnalyzerModal(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deleteAnalyzer(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center"><i class="fa-solid fa-trash text-[10px]"></i></button></div>';listEl.appendChild(row);});
   } else if(tab==='parts'){
-    const el=document.getElementById('stContentParts');
-    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Parts Replaced ('+(st.parts?.length||0)+')</h4><button onclick="openPartModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Part</button></div><div id="partsList" class="divide-y max-h-[500px] overflow-y-auto"></div></div>';
-    const listEl=document.getElementById('partsList');
-    if(!st.parts || st.parts.length===0){
-      listEl.innerHTML='<div class="p-8 text-center text-xs text-slate-400">No parts replaced yet. Click Add Part to record part number, analyzer, date...</div>';
-    } else {
-      st.parts.slice().reverse().forEach(p=>{
-        const row=document.createElement('div');
-        row.className='p-3 hover:bg-slate-50';
-        row.innerHTML='<div class="flex justify-between items-start gap-2"><div class="min-w-0"><p class="font-bold text-xs"><span class="bg-slate-900 text-white px-1.5 py-0.5 rounded text-[10px] mr-1">'+escapeHtml(p.partNumber||'')+'</span> '+escapeHtml(p.description||'')+'</p><p class="text-[10px] text-slate-500 mt-1">'+escapeHtml(p.date||'')+' • Analyzer: '+escapeHtml(p.analyzer||'--')+' • By: '+escapeHtml(p.by||'--')+' • Qty: '+(p.qty||1)+'</p>'+(p.remarks?'<p class="text-[11px] text-slate-600 mt-1 bg-slate-50 p-2 rounded">'+escapeHtml(p.remarks)+'</p>':'')+'</div><div class="flex gap-1 shrink-0 '+(isAdmin?'':'hidden')+'"><button onclick="openPartModal(\''+p.id+'\')" class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deletePart(\''+p.id+'\')" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center"><i class="fa-solid fa-trash text-[10px]"></i></button></div></div>';
-        listEl.appendChild(row);
-      });
-    }
+    // Parts is rendered by the enhanced Analyzer Maintenance Summary override below.
+    renderStationPartsSummary(st);
   } else if(tab==='activities'){
     const el=document.getElementById('stContentActivities');
-    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Activities ('+(st.activities?.length||0)+')</h4><button onclick="openStationActivityModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Activity</button></div><div id="stationActivitiesList" class="divide-y max-h-[500px] overflow-y-auto"></div></div>';
-    const listEl=document.getElementById('stationActivitiesList');
-    if(!st.activities || st.activities.length===0){
-      listEl.innerHTML='<div class="p-8 text-center text-xs text-slate-400">No activities yet. Click Add Activity to record PM, calibration, breakdown, etc.</div>';
-    } else {
-      st.activities.slice().reverse().forEach(a=>{
-        const row=document.createElement('div');
-        row.className='p-3 hover:bg-slate-50';
-        row.innerHTML='<div class="flex justify-between items-start gap-2"><div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-wider '+(a.type==='PM'?'text-emerald-600':a.type==='Calibration'?'text-cyan-600':'text-slate-500')+'">'+escapeHtml(a.type||'')+' • '+escapeHtml(a.date||'')+'</p><p class="font-bold text-xs mt-1">'+escapeHtml(a.title||'')+'</p><p class="text-[11px] text-slate-500 mt-1">Person: '+escapeHtml(a.person||'--')+'</p>'+(a.desc?'<p class="text-[11px] text-slate-600 mt-1 bg-slate-50 p-2 rounded whitespace-pre-line">'+escapeHtml(a.desc)+'</p>':'')+'</div><div class="flex gap-1 shrink-0 '+(isAdmin?'':'hidden')+'"><button onclick="openStationActivityModal(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deleteStationActivity(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center"><i class="fa-solid fa-trash text-[10px]"></i></button></div></div>';
-        listEl.appendChild(row);
-      });
-    }
+    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Activities ('+(st.activities?.length||0)+')</h4><button onclick="openStationActivityModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Activity</button></div><div class="divide-y">'+((st.activities||[]).length?st.activities.map(a=>'<div class="p-3 flex justify-between gap-3"><div><p class="font-bold text-xs">'+escapeHtml(a.title||'')+'</p><p class="text-[10px] text-slate-400">'+escapeHtml(a.date||'')+' • '+escapeHtml(a.type||'')+' • '+escapeHtml(a.person||'')+'</p><p class="text-[10px] text-slate-500 mt-1">'+escapeHtml(a.desc||'')+'</p></div><div class="flex gap-1 '+(isAdmin?'':'hidden')+'"><button onclick="openStationActivityModal(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-slate-100"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deleteStationActivity(\''+a.id+'\')" class="w-7 h-7 rounded-lg bg-red-50 text-red-500"><i class="fa-solid fa-trash text-[10px]"></i></button></div></div>').join(''):'<div class="p-8 text-center text-xs text-slate-400">No activities yet.</div>')+'</div></div>';
   } else if(tab==='docs'){
     const el=document.getElementById('stContentDocs');
-    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Documents ('+(st.docs?.length||0)+')</h4><button onclick="openDocModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Doc</button></div><div id="stationDocsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4"></div></div>';
-    const listEl=document.getElementById('stationDocsList');
-    if(!st.docs || st.docs.length===0){
-      listEl.innerHTML='<div class="col-span-2 p-8 text-center text-xs text-slate-400 border-2 border-dashed rounded-xl">No documents yet. Add manuals, cal sheets, SOPs with link...</div>';
-    } else {
-      st.docs.forEach(d=>{
-        const card=document.createElement('div');
-        card.className='border rounded-xl p-3 bg-slate-50 hover:bg-white hover:shadow-sm transition';
-        card.innerHTML='<div class="flex justify-between gap-2"><div class="min-w-0"><p class="font-bold text-xs truncate"><i class="fa-solid fa-file-lines mr-1 text-cyan-600"></i>'+escapeHtml(d.title||'')+'</p><p class="text-[10px] text-slate-500 mt-1">'+escapeHtml(d.type||'FILE')+' • '+escapeHtml(d.date||'')+'</p>'+(d.link?'<a href="'+d.link+'" target="_blank" class="text-[11px] text-cyan-600 underline mt-1 inline-block">Open Link</a>':'')+'</div><div class="flex flex-col gap-1 '+(isAdmin?'':'hidden')+'"><button onclick="openDocModal(\''+d.id+'\')" class="w-7 h-7 rounded bg-white border flex items-center justify-center"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deleteDoc(\''+d.id+'\')" class="w-7 h-7 rounded bg-red-50 text-red-600 flex items-center justify-center"><i class="fa-solid fa-trash text-[10px]"></i></button></div></div>';
-        listEl.appendChild(card);
-      });
-    }
+    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Documents ('+(st.docs?.length||0)+')</h4><button onclick="openDocModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Document</button></div><div class="divide-y">'+((st.docs||[]).length?st.docs.map(d=>'<div class="p-3 flex justify-between"><div><p class="font-bold text-xs">'+escapeHtml(d.title||'')+'</p><p class="text-[10px] text-slate-400">'+escapeHtml(d.type||'')+' • '+escapeHtml(d.date||'')+'</p></div><a href="'+escapeHtml(d.link||'#')+'" target="_blank" class="text-xs text-cyan-600 font-bold">Open</a></div>').join(''):'<div class="p-8 text-center text-xs text-slate-400">No documents yet.</div>')+'</div></div>';
   } else if(tab==='gallery'){
     const el=document.getElementById('stContentGallery');
-    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Gallery ('+(st.gallery?.length||0)+')</h4><button onclick="openGalleryModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Photo/Video</button></div><div id="stationGalleryList" class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4"></div></div>';
-    const listEl=document.getElementById('stationGalleryList');
-    if(!st.gallery || st.gallery.length===0){
-      listEl.innerHTML='<div class="col-span-3 p-8 text-center text-xs text-slate-400 border-2 border-dashed rounded-xl">No photos/videos yet. Add from links (Google Drive, YouTube)...</div>';
-    } else {
-      st.gallery.forEach(g=>{
-        const isVideo = (g.link||'').includes('youtube') || (g.link||'').includes('youtu.be') || g.type==='video';
-        const card=document.createElement('div');
-        card.className='group relative border rounded-xl overflow-hidden bg-slate-100 aspect-video';
-        card.innerHTML='<img src="'+(g.thumb||'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300')+'" class="w-full h-full object-cover"><div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition"></div><div class="absolute bottom-0 left-0 right-0 p-2"><p class="text-[10px] font-bold text-white truncate">'+escapeHtml(g.title||'')+'</p><p class="text-[9px] text-white/70 truncate">'+escapeHtml(g.date||'')+'</p></div><div class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition '+(isAdmin?'':'hidden')+'"><button onclick="openGalleryModal(\''+g.id+'\')" class="w-6 h-6 rounded bg-white flex items-center justify-center"><i class="fa-solid fa-pen text-[8px]"></i></button><button onclick="deleteGallery(\''+g.id+'\')" class="w-6 h-6 rounded bg-red-500 text-white flex items-center justify-center"><i class="fa-solid fa-trash text-[8px]"></i></button></div>'+(isVideo?'<div class="absolute inset-0 flex items-center justify-center pointer-events-none"><i class="fa-solid fa-play text-white text-xl drop-shadow"></i></div>':'')+'<a href="'+(g.link||'#')+'" target="_blank" class="absolute inset-0"></a>';
-        listEl.appendChild(card);
-      });
-    }
+    el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center"><h4 class="font-bold text-sm">Gallery ('+(st.gallery?.length||0)+')</h4><button onclick="openGalleryModal()" class="text-[10px] bg-cyan-600 text-white px-3 py-1.5 rounded-lg font-bold '+(isAdmin?'':'hidden')+'"><i class="fa-solid fa-plus mr-1"></i>Add Gallery</button></div><div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-4">'+((st.gallery||[]).length?st.gallery.map(g=>'<a href="'+escapeHtml(g.link||'#')+'" target="_blank" class="border rounded-xl overflow-hidden bg-slate-50"><img src="'+escapeHtml(g.thumb||g.link||'')+'" class="w-full aspect-video object-cover"><div class="p-2"><p class="text-[10px] font-bold truncate">'+escapeHtml(g.title||'')+'</p><p class="text-[9px] text-slate-400">'+escapeHtml(g.date||'')+'</p></div></a>').join(''):'<div class="col-span-full p-8 text-center text-xs text-slate-400">No gallery items yet.</div>')+'</div></div>';
   }
 }
 function openStationModal(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
+  if(typeof isAdmin==='undefined'||!isAdmin){const flag=localStorage.getItem('kytos_isAdmin')||localStorage.getItem('isAdmin');if(flag!=='true'&&flag!=='1'){alert('Admin access required. Please login via Admin button.');return;}window.isAdmin=true;}
   const modal=document.getElementById('stationModal');
   const form=document.getElementById('stationForm');
+  const countEl=document.getElementById('stStationCount');
   if(id){
-    const st=stations.find(s=>String(s.id)===String(id));
-    if(!st) return;
-    document.getElementById('stationModalTitle').innerText='Edit Station';
+    const st=stations.find(s=>String(s.id)===String(id)); if(!st)return;
+    ensureStationArrays(st);
+    document.getElementById('stationModalTitle').innerText='Edit Station '+(st.stationNumber||1);
     document.getElementById('editStationId').value=st.id;
     document.getElementById('stName').value=st.name||'';
-    document.getElementById('stCustomer').value=st.customer||'';
+    document.getElementById('stShelter').value=st.shelter||st.customer||'';
     document.getElementById('stLocation').value=st.location||'';
-    document.getElementById('stShelter').value=st.shelter||'';
+    document.getElementById('stStationCount').value='1';
+    document.getElementById('stStationCount').disabled=true;
     document.getElementById('stStatus').value=st.status||'Active';
+    document.getElementById('stShelterId').value=st.shelterId||'';
     document.getElementById('stDate').value=st.date||'';
     document.getElementById('stContact').value=st.contact||'';
     document.getElementById('stAnalyzers').value=(st.analyzersList||[]).map(a=>a.name).join(', ');
     document.getElementById('stNotes').value=st.notes||'';
-  } else {
+  }else{
     document.getElementById('stationModalTitle').innerText='Add Station';
     document.getElementById('editStationId').value='';
     form.reset();
+    countEl.disabled=false;
+    countEl.value='1';
   }
   modal.classList.remove('hidden');
 }
@@ -3444,48 +3443,41 @@ function closeStationModal(){ document.getElementById('stationModal').classList.
 function saveStation(e){
   e.preventDefault();
   const editId=document.getElementById('editStationId').value.trim();
+  const baseName=document.getElementById('stName').value.trim();
+  const customer=document.getElementById('stShelter').value.trim();
+  const location=document.getElementById('stLocation').value.trim();
+  const requestedCount=editId?1:(parseInt(document.getElementById('stStationCount').value)||1);
   const analyzersStr=document.getElementById('stAnalyzers').value.trim();
-  const analyzersList=analyzersStr.split(',').map(s=>s.trim()).filter(Boolean).map((name,i)=>({id:'an_'+i+'_'+Date.now(), name, sn:'', range:'', status:'Active'}));
-  const data={
-    name:document.getElementById('stName').value.trim(),
-    customer:document.getElementById('stCustomer').value.trim(),
-    location:document.getElementById('stLocation').value.trim(),
-    shelter:document.getElementById('stShelter').value.trim(),
-    status:document.getElementById('stStatus').value,
-    date:document.getElementById('stDate').value,
-    contact:document.getElementById('stContact').value.trim(),
-    analyzers:analyzersStr,
-    notes:document.getElementById('stNotes').value.trim()
-  };
-  if(!data.name || !data.customer || !data.location){ alert('Please fill required fields'); return; }
+  if(!baseName||!customer||!location){alert('Please fill required fields: Station Name, Shelter / Customer Name, and Location');return;}
+  const base={customer,shelter:customer,location,status:document.getElementById('stStatus').value,date:document.getElementById('stDate').value,contact:document.getElementById('stContact').value.trim(),shelterId:document.getElementById('stShelterId').value.trim(),notes:document.getElementById('stNotes').value.trim()};
   if(editId){
-    const idx=stations.findIndex(s=>String(s.id)===String(editId));
-    if(idx>-1){
-      const oldList=stations[idx].analyzersList||[];
-      // merge: keep old details if name matches
-      const mergedList=analyzersList.map(nl=>{
-        const old=oldList.find(o=>o.name.toLowerCase()===nl.name.toLowerCase());
-        return old? {...old, name:nl.name} : nl;
-      });
-      stations[idx]={...stations[idx], ...data, analyzersList:mergedList};
+    const idx=stations.findIndex(s=>String(s.id)===String(editId)); if(idx<0)return;
+    const st=stations[idx]; const oldList=st.analyzersList||[];
+    const newList=analyzersStr.split(',').map(x=>x.trim()).filter(Boolean).map((name,i)=>{const old=oldList.find(o=>String(o.name||'').toLowerCase()===name.toLowerCase());return old?{...old,name}: {id:'an_'+Date.now()+'_'+i,name,sn:'',range:'',rack:'',status:'Active'};});
+    stations[idx]={...st,...base,name:baseName,stationCount:1,isStationUnit:true,analyzers:analyzersStr,analyzersList:newList};
+    selectedStationId=stations[idx].id;
+  }else{
+    const created=[];
+    for(let n=1;n<=requestedCount;n++){
+      const id=String(Date.now())+'_'+n+'_'+Math.random().toString(36).slice(2,7);
+      const name=requestedCount>1?baseName+' - Station '+n:baseName;
+      const shelterId=base.shelterId?(requestedCount>1?base.shelterId+'-'+String(n).padStart(2,'0'):base.shelterId):'';
+      const analyzersList=analyzersStr.split(',').map(x=>x.trim()).filter(Boolean).map((name,i)=>({id:'an_'+Date.now()+'_'+n+'_'+i,name,sn:'',range:'',rack:'',status:'Active'}));
+      const st={id,name,...base,shelterId,stationNumber:n,stationCount:1,isStationUnit:true,analyzers:analyzersStr,analyzersList,parts:[],activities:[],docs:[],gallery:[]};
+      stations.push(st); created.push(st);
     }
-  } else {
-    stations.push({id:Date.now().toString(), ...data, analyzersList, parts:[], activities:[], docs:[], gallery:[]});
+    selectedStationId=created[0]?.id||null;
   }
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  closeStationModal();
-  renderStationView();
-  if(!editId && stations.length>0){
-    selectedStationId=stations[stations.length-1].id;
-    showStationDetail(selectedStationId);
-  }
+  localStorage.setItem('kytos_stations_fixed',JSON.stringify(stations));
+  closeStationModal(); renderStationView();
+  if(selectedStationId) showStationDetail(selectedStationId);
 }
 function deleteStation(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  const st=stations.find(s=>String(s.id)===String(id));
-  if(!st || !confirm('Delete station '+st.name+'?')) return;
+  if(typeof isAdmin==='undefined'||!isAdmin){const flag=localStorage.getItem('kytos_isAdmin')||localStorage.getItem('isAdmin');if(flag!=='true'&&flag!=='1'){alert('Admin access required. Please login via Admin button.');return;}window.isAdmin=true;}
+  const st=stations.find(s=>String(s.id)===String(id)); if(!st)return;
+  if(!confirm('Delete Station '+(st.stationNumber||1)+' - '+(st.name||'')+'?'))return;
   stations=stations.filter(s=>String(s.id)!==String(id));
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  localStorage.setItem('kytos_stations_fixed',JSON.stringify(stations));
   selectedStationId=null;
   document.getElementById('stationDetail').classList.add('hidden');
   document.getElementById('stationDetailEmpty').classList.remove('hidden');
@@ -3623,7 +3615,7 @@ function downloadStationWord(){
       <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Date *</label><input type="date" id="partDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Part Number *</label><input type="text" id="partNumber" required placeholder="e.g. 7075, 4157" class="w-full p-2.5 border rounded-lg"></div></div>
       <div><label class="font-bold block mb-1">Description</label><input type="text" id="partDesc" placeholder="e.g. Purafil, Charcoal, Filter" class="w-full p-2.5 border rounded-lg"></div>
       <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Analyzer</label><input type="text" id="partAnalyzer" placeholder="e.g. 42i, 43i" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Replaced By</label><input type="text" id="partBy" placeholder="Engineer name" class="w-full p-2.5 border rounded-lg"></div></div>
-      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Qty</label><input type="number" id="partQty" value="1" min="1" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Remarks</label><input type="text" id="partRemarks" placeholder="Reason, condition..." class="w-full p-2.5 border rounded-lg"></div></div>
+      <div><label class="font-bold block mb-1">Why was it replaced? *</label><input type="text" id="partReason" required placeholder="e.g. Faulty, preventive maintenance, damaged, calibration" class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Qty</label><input type="number" id="partQty" value="1" min="1" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Remarks</label><input type="text" id="partRemarks" placeholder="Condition / additional notes" class="w-full p-2.5 border rounded-lg"></div></div>
       <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save Part</button></div>
     </form>
   </div>
@@ -3794,83 +3786,30 @@ function deletePart(id){
   renderStationView();
 }
 
-// OVERRIDE switchStationSubTab for parts to show TIMELINE VIEW
-const _originalSwitchStationSubTab = window.switchStationSubTab;
-window.switchStationSubTab = function(tab){
-  // Call original for all tabs first
-  if(typeof _originalSwitchStationSubTab === 'function' && tab!=='parts'){
-    return _originalSwitchStationSubTab(tab);
-  }
-  if(tab!=='parts'){
-    // For non-parts, use original logic (need to re-define quickly)
-    stationSubTab=tab;
-    ['overview','analyzers','parts','activities','docs','gallery'].forEach(t=>{
-      const btn=document.getElementById('stSub'+t.charAt(0).toUpperCase()+t.slice(1));
-      const content=document.getElementById('stContent'+t.charAt(0).toUpperCase()+t.slice(1));
-      if(btn) btn.className = 'px-3 py-1.5 rounded-lg '+(t===tab?'bg-white shadow-sm':'');
-      if(content) content.classList.toggle('hidden', t!==tab);
-    });
-    return;
-  }
-  // Custom timeline for parts
-  stationSubTab=tab;
+// Enhanced Station Parts / Analyzer Maintenance Summary
+function renderStationPartsSummary(st){
+  const el=document.getElementById('stContentParts');
+  if(!el)return;
+  const rows=[...(st.parts||[])].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  const isAdminNow=(typeof isAdmin!=='undefined'&&isAdmin)||localStorage.getItem('kytos_isAdmin')==='true';
+  el.innerHTML='<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center bg-gradient-to-r from-slate-50 to-white"><div><h4 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-screwdriver-wrench text-cyan-600"></i> Analyzer Maintenance Summary</h4><p class="text-[10px] text-slate-400 mt-1">Date • Analyzer • Part replaced • Why replaced • Replaced by • Quantity • Remarks</p></div><button onclick="openPartModal()" class="text-[11px] bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-xl font-bold"><i class="fa-solid fa-plus mr-1"></i>Record Part Replacement</button></div><div class="p-4">'+(rows.length?'<div class="overflow-x-auto"><table class="w-full text-left text-[11px]"><thead><tr class="bg-slate-50 text-[9px] uppercase tracking-wider text-slate-400"><th class="p-2">Date</th><th class="p-2">Analyzer</th><th class="p-2">Part No.</th><th class="p-2">Description</th><th class="p-2">Why Replaced</th><th class="p-2">Replaced By</th><th class="p-2">Qty</th><th class="p-2">Remarks</th><th class="p-2"></th></tr></thead><tbody>'+rows.map(p=>'<tr class="border-b last:border-0 hover:bg-slate-50"><td class="p-2 font-semibold whitespace-nowrap">'+escapeHtml(p.date||'--')+'</td><td class="p-2"><span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 font-bold"><i class="fa-solid fa-microchip text-[9px]"></i>'+escapeHtml(p.analyzer||'--')+'</span></td><td class="p-2 font-black text-slate-800">'+escapeHtml(p.partNumber||'--')+'</td><td class="p-2">'+escapeHtml(p.description||'--')+'</td><td class="p-2"><span class="px-2 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-bold">'+escapeHtml(p.reason||'Not recorded')+'</span></td><td class="p-2 font-semibold">'+escapeHtml(p.by||'--')+'</td><td class="p-2">'+escapeHtml(String(p.qty||1))+'</td><td class="p-2 text-slate-500 max-w-[220px]">'+escapeHtml(p.remarks||'--')+'</td><td class="p-2"><div class="flex gap-1"><button onclick="openPartModal(\''+p.id+'\')" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-cyan-50 hover:text-cyan-600 flex items-center justify-center" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="deletePart(\''+p.id+'\')" class="w-7 h-7 rounded-lg '+(isAdminNow?'bg-red-50 text-red-600':'bg-slate-50 text-slate-300')+' flex items-center justify-center" title="'+(isAdminNow?'Delete':'Admin only')+'"><i class="fa-solid fa-trash text-[10px]"></i></button></div></td></tr>').join('')+'</tbody></table></div>':'<div class="p-10 text-center"><div class="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-3"><i class="fa-solid fa-screwdriver-wrench text-slate-300 text-xl"></i></div><p class="text-sm font-bold text-slate-400">No analyzer replacement records yet</p><p class="text-xs text-slate-300 mt-1">Record the date, analyzer, part, reason, and engineer whenever a part is replaced.</p></div>')+'</div></div>';
+}
+
+// Keep the existing behavior for every Station sub-tab, but always use the maintenance summary for Parts.
+const _stationSubTabBase=window.switchStationSubTab;
+window.switchStationSubTab=function(tab){
+  if(tab!=='parts') return _stationSubTabBase(tab);
+  stationSubTab='parts';
   ['overview','analyzers','parts','activities','docs','gallery'].forEach(t=>{
     const btn=document.getElementById('stSub'+t.charAt(0).toUpperCase()+t.slice(1));
     const content=document.getElementById('stContent'+t.charAt(0).toUpperCase()+t.slice(1));
-    if(btn) btn.className = 'px-3 py-1.5 rounded-lg '+(t===tab?'bg-white shadow-sm':'');
-    if(content) content.classList.toggle('hidden', t!==tab);
+    if(btn)btn.className='px-3 py-1.5 rounded-lg '+(t===tab?'bg-white shadow-sm':'');
+    if(content)content.classList.toggle('hidden',t!==tab);
   });
-  if(!selectedStationId) return;
-  const st = stations.find(s=>String(s.id)===String(selectedStationId));
-  if(!st) return;
-  ensureStationArrays(st);
-  const el=document.getElementById('stContentParts');
-  const isAdminNow = (typeof isAdmin!=='undefined' && isAdmin) || localStorage.getItem('kytos_isAdmin')==='true';
-  el.innerHTML = '<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center bg-gradient-to-r from-slate-50 to-white"><div><h4 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-screwdriver-wrench text-cyan-600"></i> Parts Replaced Timeline ('+(st.parts?.length||0)+')</h4><p class="text-[10px] text-slate-400 mt-1">Anyone can edit, only Admin can delete</p></div><button onclick="openPartModal()" class="text-[11px] bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-xl font-bold shadow"><i class="fa-solid fa-plus mr-1"></i>Add Part</button></div><div id="partsList" class="p-4 max-h-[600px] overflow-y-auto"></div></div>';
-  const listEl=document.getElementById('partsList');
-  if(!st.parts || st.parts.length===0){
-    listEl.innerHTML='<div class="p-8 text-center"><div class="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-3"><i class="fa-solid fa-box-open text-slate-300 text-xl"></i></div><p class="text-sm font-bold text-slate-400">No parts replaced yet</p><p class="text-xs text-slate-300 mt-1">Click Add Part to record first replacement with timeline</p></div>';
-  } else {
-    // Sort by date descending for timeline
-    const sorted = [...st.parts].sort((a,b)=> new Date(b.date) - new Date(a.date));
-    let timelineHTML = '<div class="relative"><div class="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200"></div>';
-    sorted.forEach((p, idx)=>{
-      const reasonColor = p.reason?.includes('Preventive') ? 'emerald' : p.reason?.includes('Faulty') ? 'red' : p.reason?.includes('Calibration') ? 'amber' : 'cyan';
-      timelineHTML += `
-        <div class="relative flex gap-4 pb-6 group">
-          <div class="relative z-10 w-8 h-8 rounded-full bg-${reasonColor}-100 border-2 border-${reasonColor}-500 flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-wrench text-[10px] text-${reasonColor}-600"></i>
-          </div>
-          <div class="flex-1 bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition group-hover:border-cyan-200">
-            <div class="flex justify-between items-start gap-2">
-              <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-[10px] font-black bg-slate-900 text-white px-2 py-1 rounded-full">${escapeHtml(p.partNumber||'')}</span>
-                  <span class="text-xs font-bold text-slate-800">${escapeHtml(p.description||'No description')}</span>
-                  <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 font-bold"><i class="fa-solid fa-microchip mr-1"></i>${escapeHtml(p.analyzer||'--')}</span>
-                </div>
-                <div class="mt-2 grid grid-cols-2 lg:grid-cols-4 gap-2 text-[11px]">
-                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Date</p><p class="font-bold text-slate-700 mt-0.5"><i class="fa-solid fa-calendar mr-1 text-slate-400"></i>${escapeHtml(p.date||'')}</p></div>
-                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Replaced By</p><p class="font-bold text-slate-700 mt-0.5"><i class="fa-solid fa-user mr-1 text-slate-400"></i>${escapeHtml(p.by||'--')}</p></div>
-                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Reason</p><p class="font-bold text-slate-700 mt-0.5"><span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-${reasonColor}-50 border border-${reasonColor}-200 text-${reasonColor}-700"><i class="fa-solid fa-circle-info text-[8px]"></i>${escapeHtml(p.reason||'--')}</span></p></div>
-                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Qty / Remarks</p><p class="font-bold text-slate-700 mt-0.5">Qty: ${p.qty||1}</p>${p.remarks?`<p class="text-[10px] text-slate-500 mt-1 bg-white border p-1.5 rounded">${escapeHtml(p.remarks)}</p>`:''}</div>
-                </div>
-              </div>
-              <div class="flex flex-col gap-1 shrink-0">
-                <button onclick="openPartModal('${p.id}')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-cyan-50 hover:text-cyan-600 border flex items-center justify-center transition" title="Edit (Anyone can edit)"><i class="fa-solid fa-pen text-[11px]"></i></button>
-                <button onclick="deletePart('${p.id}')" class="w-8 h-8 rounded-lg ${isAdminNow ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200' : 'bg-slate-50 text-slate-300 border'} flex items-center justify-center transition" title="${isAdminNow ? 'Delete (Admin only)' : 'Only Admin can delete'}"><i class="fa-solid fa-trash text-[11px]"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    });
-    timelineHTML += '</div>';
-    // Add summary footer
-    timelineHTML += `<div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px]"><p class="font-bold text-amber-800"><i class="fa-solid fa-shield-halved mr-1"></i> Permission: Anyone can EDIT parts, only Admin can DELETE</p><p class="text-amber-700 mt-1">This ensures team can update records but only admin can remove history.</p></div>`;
-    listEl.innerHTML = timelineHTML;
-  }
+  if(!selectedStationId)return;
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
+  if(st){ensureStationArrays(st);renderStationPartsSummary(st);}
 };
-
 
 function openStationActivityModal(id){
   if(typeof isAdmin==='undefined' || !isAdmin){ const f=localStorage.getItem('kytos_isAdmin'); if(f!=='true' && !window.isAdmin){ alert('Admin access required.'); return; } window.isAdmin=true; }

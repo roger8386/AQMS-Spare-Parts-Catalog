@@ -159,7 +159,7 @@
       <div class="mobile-scroll-tabs soft-scroll flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-nowrap">
         <button id="tabHomeBtn" onclick="switchTab('home')" class="tab-btn px-3 py-1.5 rounded-md bg-cyan-600 text-white font-medium"><i class="fa-solid fa-house mr-1"></i> Home</button>
          <button id="tabPartsBtn" onclick="switchTab('parts')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-boxes-stacked mr-1"></i> Spare Parts</button>
-        <button id="tabStationBtn" onclick="switchTab('station')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-industry mr-1"></i> Stations</button>
+        <button id="tabStationBtn" onclick="switchTab('station')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-industry mr-1"></i> Stationss</button>
         <button id="tabActivitiesBtn" onclick="switchTab('activities')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-calendar-days mr-1"></i> Calendar</button>
         <button id="tabDocsBtn" onclick="switchTab('documents')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-folder-tree mr-1"></i> Documents</button>
         <button id="tabGalleryBtn" onclick="switchTab('gallery')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-photo-film mr-1"></i> Gallery</button>
@@ -3527,283 +3527,7 @@ function downloadStationWord(){
 }
 </script>
 
-<script>
-function openAnalyzerModal(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  if(!selectedStationId){alert('Select station first');return;}
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  ensureStationArrays(st);
-  const modalId='analyzerModal';
-  let modal=document.getElementById(modalId);
-  if(!modal){
-    const html='<div id="analyzerModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[60]"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="analyzerModalTitle" class="font-bold">Add Analyzer</h3><button onclick="closeAnalyzerModal()" class="text-xl">&times;</button></div><form id="analyzerForm" onsubmit="saveAnalyzer(event)" class="space-y-3 text-xs"><input type="hidden" id="editAnalyzerId"><div><label class="font-bold block mb-1">Analyzer Model *</label><input type="text" id="anName" required placeholder="e.g. THERMO 42i" class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Serial No</label><input type="text" id="anSN" placeholder="SN..." class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Range</label><input type="text" id="anRange" placeholder="0-500ppb" class="w-full p-2.5 border rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Rack / Location</label><input type="text" id="anRack" placeholder="Rack A" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Status</label><select id="anStatus" class="w-full p-2.5 border rounded-lg"><option>Active</option><option>Maintenance</option><option>Fault</option></select></div></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAnalyzerModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div></form></div></div>';
-    document.body.insertAdjacentHTML('beforeend', html);
-    modal=document.getElementById(modalId);
-  }
-  if(id){
-    const an=st.analyzersList.find(x=>String(x.id)===String(id));
-    if(!an) return;
-    document.getElementById('analyzerModalTitle').innerText='Edit Analyzer';
-    document.getElementById('editAnalyzerId').value=an.id;
-    document.getElementById('anName').value=an.name||'';
-    document.getElementById('anSN').value=an.sn||'';
-    document.getElementById('anRange').value=an.range||'';
-    document.getElementById('anRack').value=an.rack||'';
-    document.getElementById('anStatus').value=an.status||'Active';
-  } else {
-    document.getElementById('analyzerModalTitle').innerText='Add Analyzer';
-    document.getElementById('editAnalyzerId').value='';
-    document.getElementById('analyzerForm').reset();
-  }
-  modal.classList.remove('hidden');
-}
-function closeAnalyzerModal(){ const m=document.getElementById('analyzerModal'); if(m) m.classList.add('hidden'); }
-function saveAnalyzer(e){
-  e.preventDefault();
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  if(!st) return;
-  const editId=document.getElementById('editAnalyzerId').value.trim();
-  const data={name:document.getElementById('anName').value.trim(), sn:document.getElementById('anSN').value.trim(), range:document.getElementById('anRange').value.trim(), rack:document.getElementById('anRack').value.trim(), status:document.getElementById('anStatus').value};
-  if(!data.name){alert('Model required');return;}
-  if(editId){
-    const idx=st.analyzersList.findIndex(x=>String(x.id)===String(editId));
-    if(idx>-1) st.analyzersList[idx]={...st.analyzersList[idx], ...data};
-  } else {
-    st.analyzersList.push({id:'an_'+Date.now(), ...data});
-  }
-  // keep string version in sync
-  st.analyzers = st.analyzersList.map(x=>x.name).join(', ');
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  closeAnalyzerModal();
-  switchStationSubTab('analyzers');
-  renderStationView();
-}
-function deleteAnalyzer(id){
-  if(!isAdmin) return;
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  if(!st || !confirm('Delete analyzer?')) return;
-  st.analyzersList = st.analyzersList.filter(x=>String(x.id)!==String(id));
-  st.analyzers = st.analyzersList.map(x=>x.name).join(', ');
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  switchStationSubTab('analyzers');
-  renderStationView();
-}
 
-function openPartModal(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  if(!selectedStationId){alert('Select station');return;}
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  ensureStationArrays(st);
-  let modal=document.getElementById('partModal');
-  if(!modal){
-    const html='<div id="partModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[60]"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="partModalTitle" class="font-bold">Add Part Replaced</h3><button onclick="closePartModal()" class="text-xl">&times;</button></div><form id="partForm" onsubmit="savePart(event)" class="space-y-3 text-xs"><input type="hidden" id="editPartId"><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Date *</label><input type="date" id="partDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Part Number *</label><input type="text" id="partNumber" required placeholder="e.g. 7075" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold block mb-1">Description</label><input type="text" id="partDesc" placeholder="Purafil, Filter..." class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Analyzer</label><input type="text" id="partAnalyzer" placeholder="e.g. 42i" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Replaced By</label><input type="text" id="partBy" placeholder="Name" class="w-full p-2.5 border rounded-lg"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Qty</label><input type="number" id="partQty" value="1" min="1" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Remarks</label><input type="text" id="partRemarks" placeholder="Remarks" class="w-full p-2.5 border rounded-lg"></div></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div></form></div></div>';
-    document.body.insertAdjacentHTML('beforeend', html);
-    modal=document.getElementById('partModal');
-  }
-  if(id){
-    const p=st.parts.find(x=>String(x.id)===String(id));
-    if(!p) return;
-    document.getElementById('partModalTitle').innerText='Edit Part';
-    document.getElementById('editPartId').value=p.id;
-    document.getElementById('partDate').value=p.date||'';
-    document.getElementById('partNumber').value=p.partNumber||'';
-    document.getElementById('partDesc').value=p.description||'';
-    document.getElementById('partAnalyzer').value=p.analyzer||'';
-    document.getElementById('partBy').value=p.by||'';
-    document.getElementById('partQty').value=p.qty||1;
-    document.getElementById('partRemarks').value=p.remarks||'';
-  } else {
-    document.getElementById('partModalTitle').innerText='Add Part Replaced';
-    document.getElementById('editPartId').value='';
-    document.getElementById('partForm').reset();
-    document.getElementById('partDate').valueAsDate=new Date();
-  }
-  modal.classList.remove('hidden');
-}
-function closePartModal(){ const m=document.getElementById('partModal'); if(m) m.classList.add('hidden'); }
-function savePart(e){
-  e.preventDefault();
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  const editId=document.getElementById('editPartId').value.trim();
-  const data={date:document.getElementById('partDate').value, partNumber:document.getElementById('partNumber').value.trim(), description:document.getElementById('partDesc').value.trim(), analyzer:document.getElementById('partAnalyzer').value.trim(), by:document.getElementById('partBy').value.trim(), qty:parseInt(document.getElementById('partQty').value)||1, remarks:document.getElementById('partRemarks').value.trim()};
-  if(editId){
-    const idx=st.parts.findIndex(x=>String(x.id)===String(editId));
-    if(idx>-1) st.parts[idx]={...st.parts[idx], ...data};
-  } else {
-    st.parts.push({id:'pt_'+Date.now(), ...data});
-  }
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  closePartModal();
-  switchStationSubTab('parts');
-}
-function deletePart(id){
-  if(!isAdmin) return;
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  if(!st || !confirm('Delete part record?')) return;
-  st.parts=st.parts.filter(x=>String(x.id)!==String(id));
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  switchStationSubTab('parts');
-}
-
-function openStationActivityModal(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  if(!selectedStationId){alert('Select station');return;}
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  ensureStationArrays(st);
-  let modal=document.getElementById('stActModal');
-  if(!modal){
-    const html='<div id="stActModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[60]"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="stActModalTitle" class="font-bold">Add Activity</h3><button onclick="closeStationActivityModal()" class="text-xl">&times;</button></div><form id="stActForm" onsubmit="saveStationActivity(event)" class="space-y-3 text-xs"><input type="hidden" id="editStActId"><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Date *</label><input type="date" id="stActDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Type</label><select id="stActType" class="w-full p-2.5 border rounded-lg"><option>PM</option><option>Calibration</option><option>Breakdown</option><option>Audit</option><option>Installation</option></select></div></div><div><label class="font-bold block mb-1">Title *</label><input type="text" id="stActTitle" required placeholder="e.g. Monthly PM" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Person</label><input type="text" id="stActPerson" placeholder="Engineer name" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Description</label><textarea id="stActDesc" rows="3" placeholder="What was done..." class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeStationActivityModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div></form></div></div>';
-    document.body.insertAdjacentHTML('beforeend', html);
-    modal=document.getElementById('stActModal');
-  }
-  if(id){
-    const a=st.activities.find(x=>String(x.id)===String(id));
-    if(!a) return;
-    document.getElementById('stActModalTitle').innerText='Edit Activity';
-    document.getElementById('editStActId').value=a.id;
-    document.getElementById('stActDate').value=a.date||'';
-    document.getElementById('stActType').value=a.type||'PM';
-    document.getElementById('stActTitle').value=a.title||'';
-    document.getElementById('stActPerson').value=a.person||'';
-    document.getElementById('stActDesc').value=a.desc||'';
-  } else {
-    document.getElementById('stActModalTitle').innerText='Add Activity';
-    document.getElementById('editStActId').value='';
-    document.getElementById('stActForm').reset();
-    document.getElementById('stActDate').valueAsDate=new Date();
-  }
-  modal.classList.remove('hidden');
-}
-function closeStationActivityModal(){ const m=document.getElementById('stActModal'); if(m) m.classList.add('hidden'); }
-function saveStationActivity(e){
-  e.preventDefault();
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  const editId=document.getElementById('editStActId').value.trim();
-  const data={date:document.getElementById('stActDate').value, type:document.getElementById('stActType').value, title:document.getElementById('stActTitle').value.trim(), person:document.getElementById('stActPerson').value.trim(), desc:document.getElementById('stActDesc').value.trim()};
-  if(editId){
-    const idx=st.activities.findIndex(x=>String(x.id)===String(editId));
-    if(idx>-1) st.activities[idx]={...st.activities[idx], ...data};
-  } else {
-    st.activities.push({id:'ac_'+Date.now(), ...data});
-  }
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  closeStationActivityModal();
-  switchStationSubTab('activities');
-}
-function deleteStationActivity(id){
-  if(!isAdmin) return;
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  if(!st || !confirm('Delete activity?')) return;
-  st.activities=st.activities.filter(x=>String(x.id)!==String(id));
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  switchStationSubTab('activities');
-}
-
-function openDocModal(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  if(!selectedStationId){alert('Select station');return;}
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  ensureStationArrays(st);
-  let modal=document.getElementById('stDocModal');
-  if(!modal){
-    const html='<div id="stDocModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[60]"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="stDocModalTitle" class="font-bold">Add Document</h3><button onclick="closeDocModal()" class="text-xl">&times;</button></div><form id="stDocForm" onsubmit="saveDoc(event)" class="space-y-3 text-xs"><input type="hidden" id="editStDocId"><div><label class="font-bold block mb-1">Title *</label><input type="text" id="stDocTitle" required placeholder="e.g. Calibration Sheet" class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Type</label><select id="stDocType" class="w-full p-2.5 border rounded-lg"><option>Manual</option><option>Calibration</option><option>SOP</option><option>Report</option><option>Other</option></select></div><div><label class="font-bold block mb-1">Date</label><input type="date" id="stDocDate" class="w-full p-2.5 border rounded-lg"></div></div><div><label class="font-bold block mb-1">Link (Google Drive, etc)</label><input type="url" id="stDocLink" placeholder="https://..." class="w-full p-2.5 border rounded-lg"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeDocModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div></form></div></div>';
-    document.body.insertAdjacentHTML('beforeend', html);
-    modal=document.getElementById('stDocModal');
-  }
-  if(id){
-    const d=st.docs.find(x=>String(x.id)===String(id));
-    if(!d) return;
-    document.getElementById('stDocModalTitle').innerText='Edit Document';
-    document.getElementById('editStDocId').value=d.id;
-    document.getElementById('stDocTitle').value=d.title||'';
-    document.getElementById('stDocType').value=d.type||'Manual';
-    document.getElementById('stDocDate').value=d.date||'';
-    document.getElementById('stDocLink').value=d.link||'';
-  } else {
-    document.getElementById('stDocModalTitle').innerText='Add Document';
-    document.getElementById('editStDocId').value='';
-    document.getElementById('stDocForm').reset();
-  }
-  modal.classList.remove('hidden');
-}
-function closeDocModal(){ const m=document.getElementById('stDocModal'); if(m) m.classList.add('hidden'); }
-function saveDoc(e){
-  e.preventDefault();
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  const editId=document.getElementById('editStDocId').value.trim();
-  const data={title:document.getElementById('stDocTitle').value.trim(), type:document.getElementById('stDocType').value, date:document.getElementById('stDocDate').value, link:document.getElementById('stDocLink').value.trim()};
-  if(editId){
-    const idx=st.docs.findIndex(x=>String(x.id)===String(editId));
-    if(idx>-1) st.docs[idx]={...st.docs[idx], ...data};
-  } else {
-    st.docs.push({id:'dc_'+Date.now(), ...data});
-  }
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  closeDocModal();
-  switchStationSubTab('docs');
-}
-function deleteDoc(id){
-  if(!isAdmin) return;
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  if(!st || !confirm('Delete doc?')) return;
-  st.docs=st.docs.filter(x=>String(x.id)!==String(id));
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  switchStationSubTab('docs');
-}
-
-function openGalleryModal(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  if(!selectedStationId){alert('Select station');return;}
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  ensureStationArrays(st);
-  let modal=document.getElementById('stGalModal');
-  if(!modal){
-    const html='<div id="stGalModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[60]"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="stGalModalTitle" class="font-bold">Add Photo/Video</h3><button onclick="closeGalleryModal()" class="text-xl">&times;</button></div><form id="stGalForm" onsubmit="saveGallery(event)" class="space-y-3 text-xs"><input type="hidden" id="editStGalId"><div><label class="font-bold block mb-1">Title *</label><input type="text" id="stGalTitle" required placeholder="e.g. Shelter Front View" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Link (Google Drive / YouTube) *</label><input type="url" id="stGalLink" required placeholder="https://..." class="w-full p-2.5 border rounded-lg"></div><div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Date</label><input type="date" id="stGalDate" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Type</label><select id="stGalType" class="w-full p-2.5 border rounded-lg"><option value="photo">Photo</option><option value="video">Video</option></select></div></div><div><label class="font-bold block mb-1">Thumbnail URL (optional)</label><input type="url" id="stGalThumb" placeholder="https://..." class="w-full p-2.5 border rounded-lg"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div></form></div></div>';
-    document.body.insertAdjacentHTML('beforeend', html);
-    modal=document.getElementById('stGalModal');
-  }
-  if(id){
-    const g=st.gallery.find(x=>String(x.id)===String(id));
-    if(!g) return;
-    document.getElementById('stGalModalTitle').innerText='Edit Gallery';
-    document.getElementById('editStGalId').value=g.id;
-    document.getElementById('stGalTitle').value=g.title||'';
-    document.getElementById('stGalLink').value=g.link||'';
-    document.getElementById('stGalDate').value=g.date||'';
-    document.getElementById('stGalType').value=g.type||'photo';
-    document.getElementById('stGalThumb').value=g.thumb||'';
-  } else {
-    document.getElementById('stGalModalTitle').innerText='Add Photo/Video';
-    document.getElementById('editStGalId').value='';
-    document.getElementById('stGalForm').reset();
-  }
-  modal.classList.remove('hidden');
-}
-function closeGalleryModal(){ const m=document.getElementById('stGalModal'); if(m) m.classList.add('hidden'); }
-function saveGallery(e){
-  e.preventDefault();
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  const editId=document.getElementById('editStGalId').value.trim();
-  const data={title:document.getElementById('stGalTitle').value.trim(), link:document.getElementById('stGalLink').value.trim(), date:document.getElementById('stGalDate').value, type:document.getElementById('stGalType').value, thumb:document.getElementById('stGalThumb').value.trim()};
-  if(editId){
-    const idx=st.gallery.findIndex(x=>String(x.id)===String(editId));
-    if(idx>-1) st.gallery[idx]={...st.gallery[idx], ...data};
-  } else {
-    st.gallery.push({id:'gl_'+Date.now(), ...data});
-  }
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  closeGalleryModal();
-  switchStationSubTab('gallery');
-}
-function deleteGallery(id){
-  if(!isAdmin) return;
-  const st=stations.find(s=>String(s.id)===String(selectedStationId));
-  if(!st || !confirm('Delete gallery item?')) return;
-  st.gallery=st.gallery.filter(x=>String(x.id)!==String(id));
-  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
-  switchStationSubTab('gallery');
-}
-</script>
 
 <script>
 // FIX: Ensure Stations tab is editable when Admin is active
@@ -3875,6 +3599,416 @@ function deleteGallery(id){
   // Make sure Add Station button is always clickable in admin mode
   window.addEventListener('DOMContentLoaded', forceRefreshStationAdmin);
 })();
+</script>
+
+<!-- STATIC MODALS FOR STATION - FIXED -->
+<div id="analyzerModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[70]">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="analyzerModalTitle" class="font-bold">Add Analyzer</h3><button onclick="closeAnalyzerModal()" class="text-xl">&times;</button></div>
+    <form id="analyzerForm" onsubmit="saveAnalyzer(event)" class="space-y-3 text-xs">
+      <input type="hidden" id="editAnalyzerId">
+      <div><label class="font-bold block mb-1">Analyzer Model *</label><input type="text" id="anName" required placeholder="e.g. THERMO 42i" class="w-full p-2.5 border rounded-lg"></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Serial No</label><input type="text" id="anSN" placeholder="SN..." class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Range</label><input type="text" id="anRange" placeholder="0-500ppb" class="w-full p-2.5 border rounded-lg"></div></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Rack / Location</label><input type="text" id="anRack" placeholder="Rack A" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Status</label><select id="anStatus" class="w-full p-2.5 border rounded-lg"><option>Active</option><option>Maintenance</option><option>Fault</option></select></div></div>
+      <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAnalyzerModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div>
+    </form>
+  </div>
+</div>
+
+<div id="partModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[70]">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="partModalTitle" class="font-bold">Add Part Replaced</h3><button onclick="closePartModal()" class="text-xl">&times;</button></div>
+    <form id="partForm" onsubmit="savePart(event)" class="space-y-3 text-xs">
+      <input type="hidden" id="editPartId">
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Date *</label><input type="date" id="partDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Part Number *</label><input type="text" id="partNumber" required placeholder="e.g. 7075, 4157" class="w-full p-2.5 border rounded-lg"></div></div>
+      <div><label class="font-bold block mb-1">Description</label><input type="text" id="partDesc" placeholder="e.g. Purafil, Charcoal, Filter" class="w-full p-2.5 border rounded-lg"></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Analyzer</label><input type="text" id="partAnalyzer" placeholder="e.g. 42i, 43i" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Replaced By</label><input type="text" id="partBy" placeholder="Engineer name" class="w-full p-2.5 border rounded-lg"></div></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Qty</label><input type="number" id="partQty" value="1" min="1" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Remarks</label><input type="text" id="partRemarks" placeholder="Reason, condition..." class="w-full p-2.5 border rounded-lg"></div></div>
+      <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closePartModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save Part</button></div>
+    </form>
+  </div>
+</div>
+
+<div id="stActModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[70]">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="stActModalTitle" class="font-bold">Add Activity</h3><button onclick="closeStationActivityModal()" class="text-xl">&times;</button></div>
+    <form id="stActForm" onsubmit="saveStationActivity(event)" class="space-y-3 text-xs">
+      <input type="hidden" id="editStActId">
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Date *</label><input type="date" id="stActDate" required class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Type</label><select id="stActType" class="w-full p-2.5 border rounded-lg"><option>PM</option><option>Calibration</option><option>Breakdown</option><option>Audit</option><option>Installation</option></select></div></div>
+      <div><label class="font-bold block mb-1">Title *</label><input type="text" id="stActTitle" required placeholder="e.g. Monthly PM" class="w-full p-2.5 border rounded-lg"></div>
+      <div><label class="font-bold block mb-1">Person</label><input type="text" id="stActPerson" placeholder="Engineer name" class="w-full p-2.5 border rounded-lg"></div>
+      <div><label class="font-bold block mb-1">Description</label><textarea id="stActDesc" rows="3" placeholder="What was done..." class="w-full p-2.5 border rounded-lg"></textarea></div>
+      <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeStationActivityModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div>
+    </form>
+  </div>
+</div>
+
+<div id="stDocModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[70]">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="stDocModalTitle" class="font-bold">Add Document</h3><button onclick="closeDocModal()" class="text-xl">&times;</button></div>
+    <form id="stDocForm" onsubmit="saveDoc(event)" class="space-y-3 text-xs">
+      <input type="hidden" id="editStDocId">
+      <div><label class="font-bold block mb-1">Title *</label><input type="text" id="stDocTitle" required placeholder="e.g. Calibration Sheet" class="w-full p-2.5 border rounded-lg"></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Type</label><select id="stDocType" class="w-full p-2.5 border rounded-lg"><option>Manual</option><option>Calibration</option><option>SOP</option><option>Report</option><option>Other</option></select></div><div><label class="font-bold block mb-1">Date</label><input type="date" id="stDocDate" class="w-full p-2.5 border rounded-lg"></div></div>
+      <div><label class="font-bold block mb-1">Link (Google Drive, etc)</label><input type="url" id="stDocLink" placeholder="https://..." class="w-full p-2.5 border rounded-lg"></div>
+      <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeDocModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div>
+    </form>
+  </div>
+</div>
+
+<div id="stGalModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-[70]">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="stGalModalTitle" class="font-bold">Add Photo/Video</h3><button onclick="closeGalleryModal()" class="text-xl">&times;</button></div>
+    <form id="stGalForm" onsubmit="saveGallery(event)" class="space-y-3 text-xs">
+      <input type="hidden" id="editStGalId">
+      <div><label class="font-bold block mb-1">Title *</label><input type="text" id="stGalTitle" required placeholder="e.g. Shelter Front View" class="w-full p-2.5 border rounded-lg"></div>
+      <div><label class="font-bold block mb-1">Link (Google Drive / YouTube) *</label><input type="url" id="stGalLink" required placeholder="https://..." class="w-full p-2.5 border rounded-lg"></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="font-bold block mb-1">Date</label><input type="date" id="stGalDate" class="w-full p-2.5 border rounded-lg"></div><div><label class="font-bold block mb-1">Type</label><select id="stGalType" class="w-full p-2.5 border rounded-lg"><option value="photo">Photo</option><option value="video">Video</option></select></div></div>
+      <div><label class="font-bold block mb-1">Thumbnail URL (optional)</label><input type="url" id="stGalThumb" placeholder="https://..." class="w-full p-2.5 border rounded-lg"></div>
+      <div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeGalleryModal()" class="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button type="submit" class="px-5 py-2 rounded-lg bg-cyan-600 text-white font-bold">Save</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+// FIXED MODAL FUNCTIONS - STATIC MODALS - PARTS REPLACED FIX
+function openAnalyzerModal(id){
+  if(typeof isAdmin==='undefined' || !isAdmin){ const f=localStorage.getItem('kytos_isAdmin'); if(f!=='true' && !window.isAdmin){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
+  if(!selectedStationId){ alert('Select a station first from the left list.'); return; }
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); ensureStationArrays(st);
+  const modal=document.getElementById('analyzerModal');
+  if(id){
+    const an=st.analyzersList.find(x=>String(x.id)===String(id));
+    if(!an) return;
+    document.getElementById('analyzerModalTitle').innerText='Edit Analyzer';
+    document.getElementById('editAnalyzerId').value=an.id;
+    document.getElementById('anName').value=an.name||'';
+    document.getElementById('anSN').value=an.sn||'';
+    document.getElementById('anRange').value=an.range||'';
+    document.getElementById('anRack').value=an.rack||'';
+    document.getElementById('anStatus').value=an.status||'Active';
+  } else {
+    document.getElementById('analyzerModalTitle').innerText='Add Analyzer';
+    document.getElementById('editAnalyzerId').value='';
+    document.getElementById('analyzerForm').reset();
+  }
+  modal.classList.remove('hidden');
+}
+function closeAnalyzerModal(){ document.getElementById('analyzerModal').classList.add('hidden'); }
+function saveAnalyzer(e){
+  e.preventDefault();
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); if(!st) return;
+  const editId=document.getElementById('editAnalyzerId').value.trim();
+  const data={name:document.getElementById('anName').value.trim(), sn:document.getElementById('anSN').value.trim(), range:document.getElementById('anRange').value.trim(), rack:document.getElementById('anRack').value.trim(), status:document.getElementById('anStatus').value};
+  if(!data.name){ alert('Model required'); return; }
+  if(editId){
+    const idx=st.analyzersList.findIndex(x=>String(x.id)===String(editId));
+    if(idx>-1) st.analyzersList[idx]={...st.analyzersList[idx], ...data};
+  } else {
+    st.analyzersList.push({id:'an_'+Date.now(), ...data});
+  }
+  st.analyzers = st.analyzersList.map(x=>x.name).join(', ');
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  closeAnalyzerModal();
+  switchStationSubTab('analyzers');
+  renderStationView();
+}
+function deleteAnalyzer(id){
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
+  if(!st || !confirm('Delete analyzer?')) return;
+  st.analyzersList = st.analyzersList.filter(x=>String(x.id)!==String(id));
+  st.analyzers = st.analyzersList.map(x=>x.name).join(', ');
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  switchStationSubTab('analyzers');
+  renderStationView();
+}
+
+
+function openPartModal(id){
+  // Anyone can open (edit allowed for all), delete only admin - open allowed
+  if(!selectedStationId){ alert('Select a station first from the left list.'); return; }
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); if(!st){ alert('Station not found'); return; } ensureStationArrays(st);
+  const modal=document.getElementById('partModal');
+  if(!modal){ alert('partModal not found'); return; }
+  if(id){
+    const p=st.parts.find(x=>String(x.id)===String(id));
+    if(!p){ alert('Part not found'); return; }
+    document.getElementById('partModalTitle').innerText='Edit Part Replaced';
+    document.getElementById('editPartId').value=p.id;
+    document.getElementById('partDate').value=p.date||'';
+    document.getElementById('partNumber').value=p.partNumber||'';
+    document.getElementById('partDesc').value=p.description||'';
+    document.getElementById('partAnalyzer').value=p.analyzer||'';
+    document.getElementById('partBy').value=p.by||'';
+    document.getElementById('partReason').value=p.reason||'';
+    document.getElementById('partQty').value=p.qty||1;
+    document.getElementById('partRemarks').value=p.remarks||'';
+  } else {
+    document.getElementById('partModalTitle').innerText='Add Part Replaced';
+    document.getElementById('editPartId').value='';
+    document.getElementById('partForm').reset();
+    document.getElementById('partDate').valueAsDate=new Date();
+    document.getElementById('partQty').value=1;
+  }
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+function closePartModal(){ const m=document.getElementById('partModal'); if(m){ m.classList.add('hidden'); m.classList.remove('flex'); } }
+function savePart(e){
+  e.preventDefault();
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
+  if(!st){ alert('Select station first'); return; }
+  ensureStationArrays(st);
+  const editId=document.getElementById('editPartId').value.trim();
+  const data={
+    date:document.getElementById('partDate').value,
+    partNumber:document.getElementById('partNumber').value.trim(),
+    description:document.getElementById('partDesc').value.trim(),
+    analyzer:document.getElementById('partAnalyzer').value.trim(),
+    by:document.getElementById('partBy').value.trim(),
+    reason:document.getElementById('partReason').value.trim(),
+    qty:parseInt(document.getElementById('partQty').value)||1,
+    remarks:document.getElementById('partRemarks').value.trim()
+  };
+  if(!data.date || !data.partNumber || !data.analyzer || !data.by || !data.reason){ alert('Please fill required fields: Date, Part Number, Analyzer, Replaced By, and Reason'); return; }
+  if(editId){
+    const idx=st.parts.findIndex(x=>String(x.id)===String(editId));
+    if(idx>-1) st.parts[idx]={...st.parts[idx], ...data};
+    else st.parts.push({id:editId, ...data});
+  } else {
+    st.parts.push({id:'pt_'+Date.now()+'_'+Math.random().toString(36).substr(2,5), ...data});
+  }
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  closePartModal();
+  switchStationSubTab('parts');
+  renderStationView();
+}
+function deletePart(id){
+  // Only admin can delete
+  if(typeof isAdmin==='undefined' || !isAdmin){ const f=localStorage.getItem('kytos_isAdmin'); if(f!=='true' && !window.isAdmin){ alert('Only Admin can delete. Edit is allowed for everyone, but delete requires Admin login.'); return; } }
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
+  if(!st || !confirm('Delete this part record? This action requires Admin and cannot be undone.')) return;
+  st.parts=st.parts.filter(x=>String(x.id)!==String(id));
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  switchStationSubTab('parts');
+  renderStationView();
+}
+
+// OVERRIDE switchStationSubTab for parts to show TIMELINE VIEW
+const _originalSwitchStationSubTab = window.switchStationSubTab;
+window.switchStationSubTab = function(tab){
+  // Call original for all tabs first
+  if(typeof _originalSwitchStationSubTab === 'function' && tab!=='parts'){
+    return _originalSwitchStationSubTab(tab);
+  }
+  if(tab!=='parts'){
+    // For non-parts, use original logic (need to re-define quickly)
+    stationSubTab=tab;
+    ['overview','analyzers','parts','activities','docs','gallery'].forEach(t=>{
+      const btn=document.getElementById('stSub'+t.charAt(0).toUpperCase()+t.slice(1));
+      const content=document.getElementById('stContent'+t.charAt(0).toUpperCase()+t.slice(1));
+      if(btn) btn.className = 'px-3 py-1.5 rounded-lg '+(t===tab?'bg-white shadow-sm':'');
+      if(content) content.classList.toggle('hidden', t!==tab);
+    });
+    return;
+  }
+  // Custom timeline for parts
+  stationSubTab=tab;
+  ['overview','analyzers','parts','activities','docs','gallery'].forEach(t=>{
+    const btn=document.getElementById('stSub'+t.charAt(0).toUpperCase()+t.slice(1));
+    const content=document.getElementById('stContent'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(btn) btn.className = 'px-3 py-1.5 rounded-lg '+(t===tab?'bg-white shadow-sm':'');
+    if(content) content.classList.toggle('hidden', t!==tab);
+  });
+  if(!selectedStationId) return;
+  const st = stations.find(s=>String(s.id)===String(selectedStationId));
+  if(!st) return;
+  ensureStationArrays(st);
+  const el=document.getElementById('stContentParts');
+  const isAdminNow = (typeof isAdmin!=='undefined' && isAdmin) || localStorage.getItem('kytos_isAdmin')==='true';
+  el.innerHTML = '<div class="bg-white rounded-2xl border overflow-hidden"><div class="p-4 border-b flex justify-between items-center bg-gradient-to-r from-slate-50 to-white"><div><h4 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-screwdriver-wrench text-cyan-600"></i> Parts Replaced Timeline ('+(st.parts?.length||0)+')</h4><p class="text-[10px] text-slate-400 mt-1">Anyone can edit, only Admin can delete</p></div><button onclick="openPartModal()" class="text-[11px] bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-xl font-bold shadow"><i class="fa-solid fa-plus mr-1"></i>Add Part</button></div><div id="partsList" class="p-4 max-h-[600px] overflow-y-auto"></div></div>';
+  const listEl=document.getElementById('partsList');
+  if(!st.parts || st.parts.length===0){
+    listEl.innerHTML='<div class="p-8 text-center"><div class="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-3"><i class="fa-solid fa-box-open text-slate-300 text-xl"></i></div><p class="text-sm font-bold text-slate-400">No parts replaced yet</p><p class="text-xs text-slate-300 mt-1">Click Add Part to record first replacement with timeline</p></div>';
+  } else {
+    // Sort by date descending for timeline
+    const sorted = [...st.parts].sort((a,b)=> new Date(b.date) - new Date(a.date));
+    let timelineHTML = '<div class="relative"><div class="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200"></div>';
+    sorted.forEach((p, idx)=>{
+      const reasonColor = p.reason?.includes('Preventive') ? 'emerald' : p.reason?.includes('Faulty') ? 'red' : p.reason?.includes('Calibration') ? 'amber' : 'cyan';
+      timelineHTML += `
+        <div class="relative flex gap-4 pb-6 group">
+          <div class="relative z-10 w-8 h-8 rounded-full bg-${reasonColor}-100 border-2 border-${reasonColor}-500 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-wrench text-[10px] text-${reasonColor}-600"></i>
+          </div>
+          <div class="flex-1 bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition group-hover:border-cyan-200">
+            <div class="flex justify-between items-start gap-2">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-[10px] font-black bg-slate-900 text-white px-2 py-1 rounded-full">${escapeHtml(p.partNumber||'')}</span>
+                  <span class="text-xs font-bold text-slate-800">${escapeHtml(p.description||'No description')}</span>
+                  <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 font-bold"><i class="fa-solid fa-microchip mr-1"></i>${escapeHtml(p.analyzer||'--')}</span>
+                </div>
+                <div class="mt-2 grid grid-cols-2 lg:grid-cols-4 gap-2 text-[11px]">
+                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Date</p><p class="font-bold text-slate-700 mt-0.5"><i class="fa-solid fa-calendar mr-1 text-slate-400"></i>${escapeHtml(p.date||'')}</p></div>
+                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Replaced By</p><p class="font-bold text-slate-700 mt-0.5"><i class="fa-solid fa-user mr-1 text-slate-400"></i>${escapeHtml(p.by||'--')}</p></div>
+                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Reason</p><p class="font-bold text-slate-700 mt-0.5"><span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-${reasonColor}-50 border border-${reasonColor}-200 text-${reasonColor}-700"><i class="fa-solid fa-circle-info text-[8px]"></i>${escapeHtml(p.reason||'--')}</span></p></div>
+                  <div class="bg-slate-50 rounded-lg p-2"><p class="text-[8px] uppercase font-bold text-slate-400 tracking-wider">Qty / Remarks</p><p class="font-bold text-slate-700 mt-0.5">Qty: ${p.qty||1}</p>${p.remarks?`<p class="text-[10px] text-slate-500 mt-1 bg-white border p-1.5 rounded">${escapeHtml(p.remarks)}</p>`:''}</div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1 shrink-0">
+                <button onclick="openPartModal('${p.id}')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-cyan-50 hover:text-cyan-600 border flex items-center justify-center transition" title="Edit (Anyone can edit)"><i class="fa-solid fa-pen text-[11px]"></i></button>
+                <button onclick="deletePart('${p.id}')" class="w-8 h-8 rounded-lg ${isAdminNow ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200' : 'bg-slate-50 text-slate-300 border'} flex items-center justify-center transition" title="${isAdminNow ? 'Delete (Admin only)' : 'Only Admin can delete'}"><i class="fa-solid fa-trash text-[11px]"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    });
+    timelineHTML += '</div>';
+    // Add summary footer
+    timelineHTML += `<div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px]"><p class="font-bold text-amber-800"><i class="fa-solid fa-shield-halved mr-1"></i> Permission: Anyone can EDIT parts, only Admin can DELETE</p><p class="text-amber-700 mt-1">This ensures team can update records but only admin can remove history.</p></div>`;
+    listEl.innerHTML = timelineHTML;
+  }
+};
+
+
+function openStationActivityModal(id){
+  if(typeof isAdmin==='undefined' || !isAdmin){ const f=localStorage.getItem('kytos_isAdmin'); if(f!=='true' && !window.isAdmin){ alert('Admin access required.'); return; } window.isAdmin=true; }
+  if(!selectedStationId){ alert('Select a station first'); return; }
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); ensureStationArrays(st);
+  const modal=document.getElementById('stActModal');
+  if(id){
+    const a=st.activities.find(x=>String(x.id)===String(id));
+    if(!a) return;
+    document.getElementById('stActModalTitle').innerText='Edit Activity';
+    document.getElementById('editStActId').value=a.id;
+    document.getElementById('stActDate').value=a.date||'';
+    document.getElementById('stActType').value=a.type||'PM';
+    document.getElementById('stActTitle').value=a.title||'';
+    document.getElementById('stActPerson').value=a.person||'';
+    document.getElementById('stActDesc').value=a.desc||'';
+  } else {
+    document.getElementById('stActModalTitle').innerText='Add Activity';
+    document.getElementById('editStActId').value='';
+    document.getElementById('stActForm').reset();
+    document.getElementById('stActDate').valueAsDate=new Date();
+  }
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+}
+function closeStationActivityModal(){ const m=document.getElementById('stActModal'); if(m){ m.classList.add('hidden'); m.classList.remove('flex'); } }
+function saveStationActivity(e){
+  e.preventDefault();
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); if(!st) return;
+  const editId=document.getElementById('editStActId').value.trim();
+  const data={date:document.getElementById('stActDate').value, type:document.getElementById('stActType').value, title:document.getElementById('stActTitle').value.trim(), person:document.getElementById('stActPerson').value.trim(), desc:document.getElementById('stActDesc').value.trim()};
+  if(editId){
+    const idx=st.activities.findIndex(x=>String(x.id)===String(editId));
+    if(idx>-1) st.activities[idx]={...st.activities[idx], ...data};
+  } else {
+    st.activities.push({id:'ac_'+Date.now(), ...data});
+  }
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  closeStationActivityModal();
+  switchStationSubTab('activities');
+}
+function deleteStationActivity(id){
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
+  if(!st || !confirm('Delete activity?')) return;
+  st.activities=st.activities.filter(x=>String(x.id)!==String(id));
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  switchStationSubTab('activities');
+}
+
+function openDocModal(id){
+  if(typeof isAdmin==='undefined' || !isAdmin){ const f=localStorage.getItem('kytos_isAdmin'); if(f!=='true' && !window.isAdmin){ alert('Admin access required.'); return; } window.isAdmin=true; }
+  if(!selectedStationId){ alert('Select a station first'); return; }
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); ensureStationArrays(st);
+  const modal=document.getElementById('stDocModal');
+  if(id){
+    const d=st.docs.find(x=>String(x.id)===String(id));
+    if(!d) return;
+    document.getElementById('stDocModalTitle').innerText='Edit Document';
+    document.getElementById('editStDocId').value=d.id;
+    document.getElementById('stDocTitle').value=d.title||'';
+    document.getElementById('stDocType').value=d.type||'Manual';
+    document.getElementById('stDocDate').value=d.date||'';
+    document.getElementById('stDocLink').value=d.link||'';
+  } else {
+    document.getElementById('stDocModalTitle').innerText='Add Document';
+    document.getElementById('editStDocId').value='';
+    document.getElementById('stDocForm').reset();
+  }
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+}
+function closeDocModal(){ const m=document.getElementById('stDocModal'); if(m){ m.classList.add('hidden'); m.classList.remove('flex'); } }
+function saveDoc(e){
+  e.preventDefault();
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); if(!st) return;
+  const editId=document.getElementById('editStDocId').value.trim();
+  const data={title:document.getElementById('stDocTitle').value.trim(), type:document.getElementById('stDocType').value, date:document.getElementById('stDocDate').value, link:document.getElementById('stDocLink').value.trim()};
+  if(editId){
+    const idx=st.docs.findIndex(x=>String(x.id)===String(editId));
+    if(idx>-1) st.docs[idx]={...st.docs[idx], ...data};
+  } else {
+    st.docs.push({id:'dc_'+Date.now(), ...data});
+  }
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  closeDocModal();
+  switchStationSubTab('docs');
+}
+function deleteDoc(id){
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
+  if(!st || !confirm('Delete doc?')) return;
+  st.docs=st.docs.filter(x=>String(x.id)!==String(id));
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  switchStationSubTab('docs');
+}
+
+function openGalleryModal(id){
+  if(typeof isAdmin==='undefined' || !isAdmin){ const f=localStorage.getItem('kytos_isAdmin'); if(f!=='true' && !window.isAdmin){ alert('Admin access required.'); return; } window.isAdmin=true; }
+  if(!selectedStationId){ alert('Select a station first'); return; }
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); ensureStationArrays(st);
+  const modal=document.getElementById('stGalModal');
+  if(id){
+    const g=st.gallery.find(x=>String(x.id)===String(id));
+    if(!g) return;
+    document.getElementById('stGalModalTitle').innerText='Edit Gallery';
+    document.getElementById('editStGalId').value=g.id;
+    document.getElementById('stGalTitle').value=g.title||'';
+    document.getElementById('stGalLink').value=g.link||'';
+    document.getElementById('stGalDate').value=g.date||'';
+    document.getElementById('stGalType').value=g.type||'photo';
+    document.getElementById('stGalThumb').value=g.thumb||'';
+  } else {
+    document.getElementById('stGalModalTitle').innerText='Add Photo/Video';
+    document.getElementById('editStGalId').value='';
+    document.getElementById('stGalForm').reset();
+  }
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+}
+function closeGalleryModal(){ const m=document.getElementById('stGalModal'); if(m){ m.classList.add('hidden'); m.classList.remove('flex'); } }
+function saveGallery(e){
+  e.preventDefault();
+  const st=stations.find(s=>String(s.id)===String(selectedStationId)); if(!st) return;
+  const editId=document.getElementById('editStGalId').value.trim();
+  const data={title:document.getElementById('stGalTitle').value.trim(), link:document.getElementById('stGalLink').value.trim(), date:document.getElementById('stGalDate').value, type:document.getElementById('stGalType').value, thumb:document.getElementById('stGalThumb').value.trim()};
+  if(editId){
+    const idx=st.gallery.findIndex(x=>String(x.id)===String(editId));
+    if(idx>-1) st.gallery[idx]={...st.gallery[idx], ...data};
+  } else {
+    st.gallery.push({id:'gl_'+Date.now(), ...data});
+  }
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  closeGalleryModal();
+  switchStationSubTab('gallery');
+}
+function deleteGallery(id){
+  const st=stations.find(s=>String(s.id)===String(selectedStationId));
+  if(!st || !confirm('Delete gallery item?')) return;
+  st.gallery=st.gallery.filter(x=>String(x.id)!==String(id));
+  localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
+  switchStationSubTab('gallery');
+}
 </script>
 </body>
 </html>

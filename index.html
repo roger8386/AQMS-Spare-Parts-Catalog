@@ -1258,11 +1258,11 @@ async function deletePartItem(id){
   localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
   // Also delete from Firebase if connected
   try{
-    if(window._db && String(id).length>=10){
-      const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      await deleteDoc(doc(window._db, "kytos_parts", String(id)));
-      console.log('Deleted from Firebase');
-    }
+  if(window._db){
+  const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+  await deleteDoc(doc(window._db, "kytos_parts", String(id)));
+  console.log('Deleted from Firebase');
+}
   }catch(e){ console.log('Firebase delete skipped:', e); }
   applyFilters();
   updateLiveSyncTime();

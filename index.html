@@ -650,6 +650,13 @@ function getYouTubeId(url){
   }catch(e){}
   return null;
 }
+  const CURRENT_VERSION = 'v2026-10-01';
+if (localStorage.getItem('portal_version') !== CURRENT_VERSION) {
+    localStorage.removeItem('kytos_parts_fixed');
+    localStorage.removeItem('kytos_docs_fixed');
+    localStorage.setItem('portal_version', CURRENT_VERSION);
+    window.location.reload(true);
+}
 let _localParts = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null');
 let parts = (_localParts && _localParts.length>=300) ? _localParts : rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
 if(parts.length<300 && rawData.length>=366){

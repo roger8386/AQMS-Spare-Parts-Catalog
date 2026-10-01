@@ -3115,6 +3115,50 @@ function filterCatalogSummary(type) {
         targetSec.scrollIntoView({ behavior: 'smooth' });
     }
 }
+  async function saveAllAndNotify() {
+  try {
+    const saveBtn = document.getElementById('saveButtonMain');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Saving...';
+    }
+
+    if (window._db && typeof parts !== 'undefined') {
+      const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      for (const part of parts) {
+        const partId = String(part.id || Date.now());
+        await setDoc(doc(window._db, "kytos_parts", partId), {
+          pn: part.pn || '',
+          name: part.name || '',
+          model: part.model || 'GENERAL',
+          cat: part.cat || 'General Spares & Hardware',
+          rem: part.rem || 'Active Reference',
+          img: part.img || '',
+          updatedAt: Date.now()
+        }, { merge: true });
+      }
+    }
+
+    localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
+    localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders));
+    localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents));
+
+    if (typeof updateLiveSyncTime === 'function') {
+      updateLiveSyncTime();
+    }
+
+    alert('✅ Saved and synced successfully to Firebase!');
+  } catch (err) {
+    console.error('Save error:', err);
+    alert('❌ Save failed: ' + err.message);
+  } finally {
+    const saveBtn = document.getElementById('saveButtonMain');
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i>Save';
+    }
+  }
+}
 </script>
 
 </body>

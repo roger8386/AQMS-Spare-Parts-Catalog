@@ -362,7 +362,54 @@
   </div>
   <div id="playlistNav" class="flex flex-wrap items-center gap-2 mb-6"></div><div id="galleryContainer"></div><div id="emptyGalleryNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200"><i class="fa-solid fa-photo-film text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">No media in this folder.</h4></div>
 </main>
-
+<main id="stationView" class="hidden max-w-7xl mx-auto px-4 py-6">
+  <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-wrap justify-between items-center gap-4">
+    <div>
+      <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-industry text-cyan-600"></i> Stations Management
+      </h2>
+      <p class="text-xs text-slate-500 mt-1">Real-time station sync sa Firebase para sa buong team.</p>
+    </div>
+    <div id="adminStationAction">
+      <button onclick="openAddStationModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow">
+        <i class="fa-solid fa-plus mr-1"></i> Add Station
+      </button>
+    </div>
+  </div>
+  
+  <div id="stationsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <div id="emptyStationsNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200">
+    <i class="fa-solid fa-industry text-4xl text-slate-300 mb-2"></i>
+    <h4 class="text-sm font-bold text-slate-700">Walang nakitang Stations.</h4>
+  </div>
+</main>
+  <div id="stationModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-4 pb-2 border-b">
+      <h3 id="stationModalTitle" class="text-base font-bold text-slate-800">Add Station</h3>
+      <button onclick="closeStationModal()" class="text-slate-400 text-xl">&times;</button>
+    </div>
+    <form id="stationForm" onsubmit="saveStationFirebase(event)" class="space-y-3 text-xs">
+      <input type="hidden" id="editStationId">
+      <div>
+        <label class="font-bold text-slate-600 block mb-1">Station Name *</label>
+        <input type="text" id="stationName" required placeholder="Hal. Jubail Station" class="w-full p-2.5 border rounded-lg">
+      </div>
+      <div>
+        <label class="font-bold text-slate-600 block mb-1">Location *</label>
+        <input type="text" id="stationLocation" required placeholder="Hal. Area 1" class="w-full p-2.5 border rounded-lg">
+      </div>
+      <div>
+        <label class="font-bold text-slate-600 block mb-1">Remarks</label>
+        <textarea id="stationRemarks" rows="2" class="w-full p-2.5 border rounded-lg" placeholder="Status o detalye..."></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-3 border-t">
+        <button type="button" onclick="closeStationModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save to Firebase</button>
+      </div>
+    </form>
+  </div>
+</div>
 <!-- MODALS (same structure as original but with click-outside) -->
 
 <div id="homeEditorModal" class="hidden fixed inset-0 bg-slate-900/70 flex z-50 home-editor-overlay">
@@ -3948,6 +3995,165 @@ function deleteGallery(id){
   localStorage.setItem('kytos_stations_fixed', JSON.stringify(stations));
   switchStationSubTab('gallery');
 }
+  // === STATION TAB FIREBASE SYNC & LOGIC ===
+let stationsList = [];
+
+async function initStationsFirebase() {
+  try {
+    if (window._db) {
+      const { collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      onSnapshot(collection(window._db, "kytos_stations"), (snapshot) => {
+        stationsList = [];
+        snapshot.forEach((docSnap) => {
+          stationsList.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        renderStations();
+      });
+    } else {
+      stationsList = JSON.parse(localStorage.getItem('kytos_stations_fallback') || '[]');
+      renderStations();
+    }
+  } catch (e) {
+    console.log("Firebase station load error:", e);
+    stationsList = JSON.parse(localStorage.getItem('kytos_stations_fallback') || '[]');
+    renderStations();
+  }
+}
+
+function renderStations() {
+  const container = document.getElementById('stationsContainer');
+  const emptyNotice = document.getElementById('emptyStationsNotice');
+  if(!container) return;
+  
+  container.innerHTML = '';
+  if(stationsList.length === 0) {
+    if(emptyNotice) emptyNotice.classList.remove('hidden');
+    return;
+  }
+  if(emptyNotice) emptyNotice.classList.add('hidden');
+
+  stationsList.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between';
+    card.innerHTML = `
+      <div>
+        <div class="flex justify-between items-start">
+          <h4 class="font-bold text-sm text-slate-900">${escapeHtml(item.name)}</h4>
+          <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold">Synced</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-2"><i class="fa-solid fa-location-dot mr-1"></i> ${escapeHtml(item.location)}</p>
+        <p class="text-xs text-slate-600 mt-2 bg-slate-50 p-2.5 rounded-xl border">${escapeHtml(item.remarks || 'Walang remarks.')}</p>
+      </div>
+      <div class="flex gap-2 mt-4 pt-3 border-t justify-end">
+        ${isAdmin ? `<button onclick="openEditStationModal('${item.id}')" class="text-xs text-cyan-600 font-bold px-2 py-1 bg-cyan-50 rounded"><i class="fa-solid fa-pen"></i> Edit</button>
+        <button onclick="deleteStationFirebase('${item.id}')" class="text-xs text-red-600 font-bold px-2 py-1 bg-red-50 rounded"><i class="fa-solid fa-trash"></i> Delete</button>` : `<span class="text-[10px] text-slate-400">Login as Admin to edit</span>`}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function openAddStationModal() {
+  if(!isAdmin){ alert('Admin access required.'); return; }
+  document.getElementById('editStationId').value = '';
+  document.getElementById('stationModalTitle').innerText = 'Add Station';
+  document.getElementById('stationForm').reset();
+  document.getElementById('stationModal').classList.remove('hidden');
+}
+
+function openEditStationModal(id) {
+  const item = stationsList.find(s => String(s.id) === String(id));
+  if(!item) return;
+  document.getElementById('editStationId').value = item.id;
+  document.getElementById('stationModalTitle').innerText = 'Edit Station';
+  document.getElementById('stationName').value = item.name;
+  document.getElementById('stationLocation').value = item.location;
+  document.getElementById('stationRemarks').value = item.remarks || '';
+  document.getElementById('stationModal').classList.remove('hidden');
+}
+
+function closeStationModal() {
+  document.getElementById('stationModal').classList.add('hidden');
+}
+
+async function saveStationFirebase(e) {
+  e.preventDefault();
+  const editId = document.getElementById('editStationId').value.trim();
+  const name = document.getElementById('stationName').value.trim();
+  const location = document.getElementById('stationLocation').value.trim();
+  const remarks = document.getElementById('stationRemarks').value.trim();
+
+  if(!name || !location) {
+    alert('Punan ang Station Name at Location.');
+    return;
+  }
+
+  const payload = { name, location, remarks, updatedAt: Date.now() };
+
+  try {
+    if (window._db) {
+      const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      if (editId) {
+        await updateDoc(doc(window._db, "kytos_stations", String(editId)), payload);
+      } else {
+        payload.createdAt = Date.now();
+        await addDoc(collection(window._db, "kytos_stations"), payload);
+      }
+    } else {
+      if (editId) {
+        const idx = stationsList.findIndex(s => String(s.id) === String(editId));
+        if(idx > -1) stationsList[idx] = { ...stationsList[idx], ...payload };
+      } else {
+        stationsList.unshift({ id: 'st_' + Date.now(), ...payload });
+      }
+      localStorage.setItem('kytos_stations_fallback', JSON.stringify(stationsList));
+      renderStations();
+    }
+
+    closeStationModal();
+    if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+    alert('✅ Matagumpay na na-save sa Firebase!');
+  } catch (err) {
+    console.error('Error sa pag-save:', err);
+    alert('Hindi nai-save: ' + err.message);
+  }
+}
+
+async function deleteStationFirebase(id) {
+  if(!isAdmin){ alert('Admin access required.'); return; }
+  if(!confirm('Burahin ang station na ito?')) return;
+  
+  try {
+    if (window._db) {
+      const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      await deleteDoc(doc(window._db, "kytos_stations", String(id)));
+    } else {
+      stationsList = stationsList.filter(s => String(s.id) !== String(id));
+      localStorage.setItem('kytos_stations_fallback', JSON.stringify(stationsList));
+      renderStations();
+    }
+    if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+    alert('✅ Nabura na.');
+  } catch (err) {
+    console.error('Error sa pagbura:', err);
+    alert('Hindi nabura: ' + err.message);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initStationsFirebase();
+});
+
+// Suporta para sa paglipat ng tab papuntang Station
+const originalSwitchTab = window.switchTab || function(){};
+window.switchTab = function(tabName) {
+  if(typeof originalSwitchTab === 'function') originalSwitchTab(tabName);
+  const sView = document.getElementById('stationView');
+  if(sView) sView.classList.toggle('hidden', tabName !== 'station');
+  if(tabName === 'station') {
+    renderStations();
+  }
+};
 </script>
 </body>
 </html>

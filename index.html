@@ -159,7 +159,6 @@
       <div class="mobile-scroll-tabs soft-scroll flex space-x-1 bg-slate-800 p-1 rounded-lg text-xs flex-nowrap">
         <button id="tabHomeBtn" onclick="switchTab('home')" class="tab-btn px-3 py-1.5 rounded-md bg-cyan-600 text-white font-medium"><i class="fa-solid fa-house mr-1"></i> Home</button>
          <button id="tabPartsBtn" onclick="switchTab('parts')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-boxes-stacked mr-1"></i> Spare Parts</button>
-        <button id="tabStationBtn" onclick="switchTab('station')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-industry mr-1"></i> Stations</button>
         <button id="tabActivitiesBtn" onclick="switchTab('activities')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-calendar-days mr-1"></i> Calendar</button>
         <button id="tabDocsBtn" onclick="switchTab('documents')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-folder-tree mr-1"></i> Documents</button>
         <button id="tabGalleryBtn" onclick="switchTab('gallery')" class="tab-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white font-medium"><i class="fa-solid fa-photo-film mr-1"></i> Gallery</button>
@@ -361,6 +360,7 @@
     </div>
   </div>
   <div id="playlistNav" class="flex flex-wrap items-center gap-2 mb-6"></div><div id="galleryContainer"></div><div id="emptyGalleryNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200"><i class="fa-solid fa-photo-film text-4xl text-slate-300 mb-2"></i><h4 class="text-sm font-bold text-slate-700">No media in this folder.</h4></div>
+</main>
 
 <!-- MODALS (same structure as original but with click-outside) -->
 
@@ -432,7 +432,7 @@
 <input type="date" id="addActRepeatUntil" class="w-full p-2 border rounded-lg text-xs">
 </div>
 </div>
-<p class="text-[9px] text-slate-400 mt-2">Creates multiple events until the selected date. Max 365 events.</p>
+<p class="text-[9px] text-slate-400 mt-2">Gagawa ng maraming events hanggang sa date na pinili mo. Max 12 months.</p>
 </div>
 <div><label class="font-bold text-slate-600 block mb-1">Remarks</label><textarea id="addActDesc" rows="2" class="w-full p-2.5 border rounded-lg"></textarea></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeActivityModal()" class="px-3 py-2 bg-slate-100 rounded-lg">Cancel</button><button type="submit" class="px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg">Save Activity</button></div></form></div></div>
 <div id="docModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 id="docModalTitle" class="text-base font-bold text-slate-800">Add Technical Document</h3><button onclick="closeAddDocModal()" class="text-slate-400 text-xl">&times;</button></div><form id="docForm" onsubmit="saveNewDocument(event)" class="space-y-4 text-xs"><input type="hidden" id="editDocId"><div><label class="font-bold text-slate-700 block mb-1">Select Folder *</label><select id="docFolderSelect" class="w-full p-2.5 border rounded-xl outline-none bg-white font-medium"></select></div><div><label class="font-bold text-slate-700 block mb-1.5">Upload a file <span class="text-slate-400 font-normal">(optional if using Google Drive)</span></label><div id="dropZone" class="border-2 border-dashed border-cyan-400 bg-cyan-50/50 hover:bg-cyan-50 rounded-2xl p-4 text-center cursor-pointer transition"><i class="fa-solid fa-cloud-arrow-up text-2xl text-cyan-600 mb-1"></i><p class="font-bold text-slate-700 text-xs" id="fileNameDisplay">Drag & drop file or click to browse</p></div><input type="file" id="fileInput" class="hidden"></div><div><label class="font-bold text-slate-700 block mb-1">Google Drive Link</label><input type="url" id="addDocDriveLink" placeholder="https://drive.google.com/file/d/..." class="w-full p-2.5 border rounded-xl outline-none"><p class="text-[10px] text-slate-400 mt-1">Use a shared Drive file link. Set access to Anyone with the link for team preview.</p></div><div><label class="font-bold text-slate-700 block mb-1">Document Title *</label><input type="text" id="addDocTitle" required placeholder="e.g. Thermo 42i Manual" class="w-full p-2.5 border rounded-xl outline-none"></div><div><label class="font-bold text-slate-700 block mb-1">Description / Notes</label><input type="text" id="addDocDesc" placeholder="Brief details..." class="w-full p-2.5 border rounded-xl outline-none"></div><div class="flex justify-end gap-2 pt-3 border-t"><button type="button" onclick="closeAddDocModal()" class="px-4 py-2 rounded-xl bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold transition">Save Document</button></div></form></div></div>
@@ -1663,44 +1663,47 @@ function renderCalendar(){
   }
 }
 
-
 function changeMonth(delta){currentCalendarDate.setMonth(currentCalendarDate.getMonth()+delta); renderCalendar();}
 
 window.viewDayEvents = function(dateStr){
   document.querySelectorAll('#calendarDays [data-date]').forEach(el=>{
     el.classList.remove('ring-2','ring-black');
   });
-  const clicked = document.querySelector('#calendarDays [data-date="'+dateStr+'"]');
+  const clicked = document.querySelector(`#calendarDays [data-date="${dateStr}"]`);
   if(clicked) clicked.classList.add('ring-2','ring-black');
   const filtered = activities.filter(a=> dateStr >= a.startDate && dateStr <= a.endDate);
   const list = document.getElementById('activityList');
   if(!list) return;
   if(filtered.length===0){
-    list.innerHTML = '<div class="p-4 text-center text-xs text-slate-400">No activity on <b>'+dateStr+'</b><br><button onclick="renderActivities()" class="mt-2 text-cyan-600 underline font-bold">Show all activities</button></div>';
+    list.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">No activity on <b>${dateStr}</b><br><button onclick="renderActivities()" class="mt-2 text-cyan-600 underline font-bold">Show all activities</button></div>`;
   }else{
-    let html = '';
-    filtered.forEach(ev=>{
-      html += '<div class="border p-3 rounded-xl bg-white"><div class="text-[10px] font-bold text-cyan-700">'+ev.startDate+' to '+ev.endDate+' - '+ev.type+' '+(ev.isRepeat?' - Repeat':'')+'</div><div class="font-bold text-sm mt-1">'+escapeHtml(ev.title)+'</div><div class="text-xs text-slate-500">Lead: '+(ev.person||'')+'</div><div class="flex gap-2 mt-2">'+(isAdmin?'<button onclick="openEditActivityModal(\''+ev.id+'\')" class="text-[10px] bg-slate-800 text-white px-2 py-1 rounded">Edit</button><button onclick="deleteActivityItem(\''+ev.id+'\')" class="text-[10px] bg-red-50 text-red-600 px-2 py-1 rounded">Delete</button>':'<span class="text-[9px] text-slate-400">Login as admin to edit</span>')+'<button onclick="renderActivities()" class="text-[10px] bg-slate-100 px-2 py-1 rounded">Show all</button></div></div>';
-    });
-    list.innerHTML = html;
+    list.innerHTML = filtered.map(ev=>`
+      <div class="border p-3 rounded-xl bg-white">
+        <div class="text-[10px] font-bold text-cyan-700">${ev.startDate} to ${ev.endDate} \u2022 ${ev.type} ${ev.isRepeat?'\u2022 <i class=\"fa-solid fa-repeat\"></i> Repeat':''}</div>
+        <div class="font-bold text-sm mt-1">${ev.title}</div>
+        <div class="text-xs text-slate-500">Lead: ${ev.person||''}</div>
+        <div class="flex gap-2 mt-2">
+          ${isAdmin?`<button onclick="openEditActivityModal('${ev.id}')" class="text-[10px] bg-slate-800 text-white px-2 py-1 rounded"><i class=\"fa-solid fa-pen mr-1\"></i>Edit</button><button onclick="deleteActivityItem('${ev.id}')" class="text-[10px] bg-red-50 text-red-600 px-2 py-1 rounded">Delete</button>`: `<span class="text-[9px] text-slate-400">Login as admin to edit</span>`}
+          <button onclick="renderActivities()" class="text-[10px] bg-slate-100 px-2 py-1 rounded">Show all</button>
+        </div>
+      </div>
+    `).join('');
   }
 }
+
 
 function openAddActivityModal(){
   if(!isAdmin){alert('Admin only - please login as admin first');return;}
   document.getElementById('editActivityId').value=""; 
   document.getElementById('activityModalTitle').innerText="Schedule Activity"; 
-  const form=document.getElementById('activityForm');
-  if(form) form.reset();
-  const rep=document.getElementById('addActRepeat');
-  if(rep) rep.value='none';
-  const until=document.getElementById('addActRepeatUntil');
-  if(until) until.value='';
+  document.getElementById('activityForm').reset();
+  if(document.getElementById('addActRepeat')) document.getElementById('addActRepeat').value='none';
+  if(document.getElementById('addActRepeatUntil')) document.getElementById('addActRepeatUntil').value='';
   document.getElementById('activityModal').classList.remove('hidden');
 }
 
 function openEditActivityModal(id){ 
-  if(!isAdmin){alert('Admin only - please login as admin first'); return;}
+  if(!isAdmin){alert('Admin only - please login as admin first (password: admin123)'); return;}
   const act=activities.find(a=>String(a.id)===String(id)); 
   if(!act){ alert('Activity not found: '+id); return; } 
   document.getElementById('editActivityId').value=String(act.id); 
@@ -1711,14 +1714,12 @@ function openEditActivityModal(id){
   document.getElementById('addActType').value=act.type; 
   document.getElementById('addActLead').value=act.person||""; 
   document.getElementById('addActDesc').value=act.description||""; 
-  const rep=document.getElementById('addActRepeat');
-  if(rep) rep.value=act.repeatType||'none';
-  const until=document.getElementById('addActRepeatUntil');
-  if(until) until.value=act.repeatUntil||'';
+  if(document.getElementById('addActRepeat')) document.getElementById('addActRepeat').value=act.repeatType||'none';
+  if(document.getElementById('addActRepeatUntil')) document.getElementById('addActRepeatUntil').value=act.repeatUntil||'';
   document.getElementById('activityModal').classList.remove('hidden');
 }
 
-function closeActivityModal(){const m=document.getElementById('activityModal'); if(m) m.classList.add('hidden');}
+function closeActivityModal(){document.getElementById('activityModal').classList.add('hidden');}
 
 async function saveNewActivity(e){
   e.preventDefault();
@@ -1757,6 +1758,7 @@ async function saveNewActivity(e){
         else if(repeatType==='weekly') cur.setDate(cur.getDate()+7);
         else if(repeatType==='monthly') cur.setMonth(cur.getMonth()+1);
         else if(repeatType==='yearly') cur.setFullYear(cur.getFullYear()+1);
+        else if(repeatType==='yearly') cur.setFullYear(cur.getFullYear()+1);
         else break;
       }
     } else {
@@ -1765,22 +1767,37 @@ async function saveNewActivity(e){
     }
   }
   
-  try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+  try{
+    localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));
+  }catch(e){}
+  
+  if(window.firebaseAdd || window.firebaseUpdate){
+    try{
+      if(editId && String(editId).length>=10){
+        if(window.firebaseUpdate) await window.firebaseUpdate('kytos_activities', editId, {startDate, endDate, title, type, person, description});
+      } else if(!editId){
+        if(window.firebaseAdd) await window.firebaseAdd('kytos_activities', {startDate, endDate, title, type, person, description});
+      }
+    }catch(e){}
+  }
+  
   closeActivityModal();
   renderActivities();
   if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
+  alert(editId?'✅ Calendar updated':'✅ Calendar added'+(repeatType!=='none'?' with repeat':''));
 }
 
 async function deleteActivityItem(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
+  if(!isAdmin){alert('Admin only');return;}
   const act=activities.find(a=>String(a.id)===String(id));
   if(!act){ alert('Not found: '+id); return; }
   if(!confirm('Delete activity: '+act.title+'?')) return;
   activities=activities.filter(a=>String(a.id)!==String(id));
   try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+  if(window.firebaseDelete){ try{ await window.firebaseDelete('kytos_activities', String(id)); }catch(e){} }
   renderActivities();
+  if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
 }
-
 
 function renderFoldersAndDocs(){
   const nav=document.getElementById('folderNav'); 
@@ -1793,35 +1810,73 @@ function renderFoldersAndDocs(){
   
   container.innerHTML='';
 
-  // --- KUNG NASA "ALL DOCUMENTS" KA: Ipakita ang mga Folder Explorer Cards ---
-  
+  // FOLDER OVERVIEW - Respects view mode
   if(currentFolder==='All Documents'){
     if(header) header.classList.add('hidden');
     if(empty) empty.classList.add('hidden');
+
     const folderCardsSection=document.createElement('div');
     folderCardsSection.className='mb-6';
-    const fGrid=document.createElement('div');
-    fGrid.className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4';
+    folderCardsSection.innerHTML=`<div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Select a Folder - ${folders.filter(f=>f!=='All Documents').length} folders</div>`;
+    
+    let fGrid;
+    if(docsViewMode==='grid'){
+      fGrid=document.createElement('div');
+      fGrid.className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4';
+    } else if(docsViewMode==='details'){
+      fGrid=document.createElement('div');
+      fGrid.className='grid grid-cols-1 lg:grid-cols-2 gap-4';
+    } else if(docsViewMode==='list'){
+      fGrid=document.createElement('div');
+      fGrid.className='bg-white rounded-2xl border overflow-hidden divide-y';
+    } else {
+      fGrid=document.createElement('div');
+      fGrid.className='space-y-4';
+    }
+    
     folders.filter(f=>f!=='All Documents').forEach(folderName=>{
       const fileCount=documents.filter(d=>d.folder===folderName).length;
       const fCard=document.createElement('div');
-      fCard.className='bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-cyan-400 hover:shadow-md transition flex items-center gap-3';
-      const safeName = escapeHtml(folderName);
-      let btns = '';
-      if(isAdmin){
-        btns = '<div class="flex gap-1 ml-auto"><button onclick="event.stopPropagation(); openEditFolderModal(\''+folderName.replace(/\'/g,"\'")+ '\')" class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center" title="Rename"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="event.stopPropagation(); deleteFolder(\''+folderName.replace(/\'/g,"\'")+ '\')" class="w-7 h-7 rounded bg-slate-100 flex items-center justify-center" title="Delete"><i class="fa-solid fa-trash text-[10px]"></i></button></div>';
+      if(docsViewMode==='grid'){
+        fCard.className='bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-cyan-400 hover:shadow-md transition cursor-pointer flex items-center gap-3';
+        fCard.innerHTML=`
+          <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-folder"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 class="font-bold text-slate-800 text-xs truncate">${escapeHtml(folderName)}</h4>
+            <p class="text-[10px] text-slate-400 mt-0.5">${fileCount} file${fileCount===1?'':'s'}</p>
+          </div>
+        `;
+      } else if(docsViewMode==='details'){
+        fCard.className='bg-white p-4 rounded-2xl border flex gap-4 hover:border-cyan-300 transition cursor-pointer';
+        fCard.innerHTML=`
+          <div class="w-16 h-16 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-folder"></i></div>
+          <div class="min-w-0 flex-1"><h4 class="font-bold text-sm text-slate-900">${escapeHtml(folderName)}</h4><p class="text-[11px] text-slate-500 mt-1">${fileCount} files - Click to open</p><p class="text-xs text-slate-600 mt-2">Contains ${fileCount} document${fileCount===1?'':'s'}</p></div>
+        `;
+      } else if(docsViewMode==='list'){
+        fCard.className='p-4 flex items-center justify-between gap-3 hover:bg-slate-50 transition cursor-pointer';
+        fCard.innerHTML=`
+          <div class="flex items-center gap-3"><i class="fa-solid fa-folder text-xl text-cyan-600"></i><div><h4 class="font-bold text-sm text-slate-900">${escapeHtml(folderName)}</h4><p class="text-[11px] text-slate-500">${fileCount} files</p></div></div>
+          <span class="text-xs font-bold text-cyan-600">Open →</span>
+        `;
+      } else {
+        fCard.className='bg-white rounded-2xl border p-6 hover:border-cyan-300 transition cursor-pointer';
+        fCard.innerHTML=`
+          <div class="flex items-start gap-4"><i class="fa-solid fa-folder text-3xl text-cyan-600 mt-1"></i><div class="flex-1"><p class="text-[10px] uppercase tracking-wider font-bold text-cyan-700">FOLDER</p><h3 class="text-lg font-black text-slate-900 mt-1">${escapeHtml(folderName)}</h3><p class="text-sm text-slate-600 mt-2">${fileCount} document${fileCount===1?'':'s'} inside. Click to view files.</p></div></div>
+        `;
       }
-      fCard.innerHTML='<div class="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center"><i class="fa-solid fa-folder"></i></div><div class="flex-1"><h4 class="font-bold text-xs">'+safeName+'</h4><p class="text-[10px] text-slate-400">'+fileCount+' files</p></div>'+btns;
-      fCard.onclick=()=>{ currentFolder=folderName; renderFoldersAndDocs(); };
-      // prevent button clicks from triggering folder open
-      fCard.querySelectorAll('button').forEach(b=>{ b.addEventListener('click', e=>e.stopPropagation()); });
+      fCard.onclick=()=>{
+        currentFolder=folderName; 
+        renderFoldersAndDocs();
+      };
       fGrid.appendChild(fCard);
     });
+    
     folderCardsSection.appendChild(fGrid);
     container.appendChild(folderCardsSection);
     return;
   }
-
 
   // --- KUNG NAKA-SELECT NA NG TIYAK NA FOLDER: Ipakita ang mga files sa loob gamit ang piniling View Style ---
   const list=documents.filter(d=>d.folder===currentFolder);
@@ -2010,50 +2065,13 @@ async function deleteFolder(name){
   renderFoldersAndDocs();
 }
 
-async 
-function saveNewFolder(e){
-  e.preventDefault();
-  const input = document.getElementById('newFolderName');
-  const name = input ? input.value.trim() : '';
-  if(!name){ alert('Please enter a folder name'); return; }
-  if(folders.includes(name)){ alert('Folder already exists: '+name); return; }
-  folders.push(name);
-  localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
-  closeAddFolderModal();
-  renderFoldersAndDocs();
+async function saveNewFolder(e){
+  e.preventDefault();const name=document.getElementById('newFolderName').value.trim();
+  if(!name||folders.includes(name))return;
+  folders.push(name);localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
+  if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_folders',name);
+  closeAddFolderModal();renderFoldersAndDocs();
 }
-
-function openEditFolderModal(oldName){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  const newName = prompt('Rename folder:', oldName);
-  if(newName===null) return;
-  const trimmed = newName.trim();
-  if(!trimmed || trimmed===oldName) return;
-  if(folders.includes(trimmed)){ alert('Folder already exists'); return; }
-  const idx = folders.indexOf(oldName);
-  if(idx>-1){
-    folders[idx]=trimmed;
-    documents.forEach(d=>{ if(d.folder===oldName) d.folder=trimmed; });
-    if(currentFolder===oldName) currentFolder=trimmed;
-    localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
-    localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));
-    renderFoldersAndDocs();
-  }
-}
-
-function deleteFolder(folderName){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
-  if(folderName==='All Documents') return;
-  const count = documents.filter(d=>d.folder===folderName).length;
-  if(!confirm('Delete folder '+folderName+'? '+(count?count+' files will move to All Documents.':''))) return;
-  documents.forEach(d=>{ if(d.folder===folderName) d.folder='All Documents'; });
-  folders = folders.filter(f=>f!==folderName);
-  if(currentFolder===folderName) currentFolder='All Documents';
-  localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
-  localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));
-  renderFoldersAndDocs();
-}
-
 function openAddDocModal(){currentSelectedFile=null; document.getElementById('editDocId').value=""; document.getElementById('docModalTitle').innerText="Add Technical Document"; document.getElementById('fileNameDisplay').innerText="Drag & drop file or click to browse"; document.getElementById('docForm').reset(); const select=document.getElementById('docFolderSelect'); select.innerHTML=''; folders.filter(f=>f!=="All Documents").forEach(f=>{select.innerHTML+=`<option value="${escapeHtml(f)}" ${currentFolder===f?'selected':''}>${escapeHtml(f)}</option>`;}); document.getElementById('docModal').classList.remove('hidden');}
 
 function openEditDocModal(id){
@@ -2069,15 +2087,28 @@ function openEditDocModal(id){
   const fn=document.getElementById('fileNameDisplay');
   if(fn) fn.innerHTML = `<span class="text-cyan-700 font-bold">${doc.fileName||doc.title} (Click to replace)</span>`;
   const select=document.getElementById('docFolderSelect');
-  select.innerHTML='';
-  const folderOpts = folders.filter(f=>f!=="All Documents");
-  if(folderOpts.length===0){ select.innerHTML='<option value="Manuals">Manuals</option>'; }
-  folderOpts.forEach(f=>{
-    const opt=document.createElement('option');
-    opt.value=f; opt.textContent=f;
-    if(doc.folder===f) opt.selected=true;
-    select.appendChild(opt);
-  });
+  if(select){
+    const label = select.previousElementSibling || document.querySelector('label[for="docFolderSelect"]');
+    // Add hint to label if exists
+    if(select.parentElement){
+      let hint = select.parentElement.querySelector('.move-hint');
+      if(!hint){
+        hint = document.createElement('p');
+        hint.className='move-hint text-[10px] text-cyan-600 font-bold mt-1';
+        hint.innerHTML='<i class=\"fa-solid fa-right-left mr-1\"></i>You can move this file to another folder by changing the selection below';
+        select.parentElement.appendChild(hint);
+      }
+    }
+    select.innerHTML='';
+    const folderOpts = folders.filter(f=>f!=="All Documents");
+    if(folderOpts.length===0){ select.innerHTML='<option value="Manuals">Manuals</option>'; }
+    folderOpts.forEach(f=>{
+      const opt=document.createElement('option');
+      opt.value=f; opt.textContent=f;
+      if(doc.folder===f) opt.selected=true;
+      select.appendChild(opt);
+    });
+  }
   document.getElementById('docModal').classList.remove('hidden');
 }
 
@@ -2151,7 +2182,7 @@ async function saveNewDocument(e){
   closeAddDocModal(); renderFoldersAndDocs(); updateLiveSyncTime();
 }
 async function deleteDocument(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
+  if(!isAdmin){alert('Admin only');return;}
   const item=documents.find(d=>String(d.id)===String(id));
   if(!item||!confirm(`Delete "${item.title}"?`))return;
   documents=documents.filter(d=>String(d.id)!==String(id));
@@ -2497,7 +2528,7 @@ function openEditGalleryModal(id){
 function closeGalleryModal(){document.getElementById('galleryModal').classList.add('hidden');}
 async function saveNewGallery(e){
   e.preventDefault();
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
+  if(!isAdmin){alert('Admin only');return;}
 
   const editId=document.getElementById('editGalleryId').value;
   const date=document.getElementById('galleryDate').value;
@@ -2650,7 +2681,7 @@ async function saveNewGallery(e){
   updateLiveSyncTime();
 }
 async function deleteGallery(id){
-  if(typeof isAdmin==='undefined' || !isAdmin){ const flag = localStorage.getItem('kytos_isAdmin') || localStorage.getItem('isAdmin'); if(flag!=='true' && flag!=='1'){ alert('Admin access required. Please login via Admin button.'); return; } window.isAdmin=true; }
+  if(!isAdmin){alert('Admin only');return;}
   const item=galleryPosts.find(p=>String(p.id)===String(id));if(!item)return;
   if(!confirm(`Delete "${item.title}"?`))return;
   galleryPosts=galleryPosts.filter(p=>String(p.id)!==String(id));
@@ -2659,24 +2690,35 @@ async function deleteGallery(id){
   renderPlaylistsAndGallery();updateLiveSyncTime();
 }
 function handleAdminButtonClick(){
+  console.log('Admin button clicked, isAdmin:', isAdmin);
   if(isAdmin){
-    if(!confirm("Log out of Admin mode?")) return;
-    try{
+    const doLogout = confirm("Log out of Admin mode?");
+    if(!doLogout) return;
+    try {
       isAdmin=false;
+      console.log('Logging out...');
       const statusEl=document.getElementById('adminStatusText');
       const iconEl=document.getElementById('adminLockIcon');
       if(statusEl) statusEl.innerText="Admin";
       if(iconEl) iconEl.className="fa-solid fa-lock text-yellow-400";
-      ['adminActionBtn','adminActivityAction','adminDocAction','adminGalleryAction','saveButtonMain','homeAdminAction'].forEach(id=>{
-        const el=document.getElementById(id);
-        if(el) el.classList.add('hidden');
+      const ids=['adminActionBtn','adminActivityAction','adminDocAction','adminGalleryAction','saveButtonMain','homeAdminAction'];
+      ids.forEach(id=>{
+        try{
+          const el=document.getElementById(id);
+          if(el) el.classList.add('hidden');
+        }catch(e){ console.log('hide error', id, e); }
       });
-    }catch(err){ isAdmin=false; localStorage.setItem('kytos_isAdmin','false'); }
-    try{ applyFilters(); }catch(e){}
-    try{ renderActivities(); }catch(e){}
-    try{ renderFoldersAndDocs(); }catch(e){}
-    try{ renderPlaylistsAndGallery(); }catch(e){}
-    try{ renderHome(); }catch(e){}
+      try{ if(typeof applyFilters==='function') applyFilters(); }catch(e){console.log(e);}
+      try{ if(typeof renderActivities==='function') renderActivities(); }catch(e){console.log(e);}
+      try{ if(typeof renderFoldersAndDocs==='function') renderFoldersAndDocs(); }catch(e){console.log(e);}
+      try{ if(typeof renderPlaylistsAndGallery==='function') renderPlaylistsAndGallery(); }catch(e){console.log(e);}
+      try{ if(typeof renderHome==='function') renderHome(); }catch(e){console.log(e);}
+      console.log('Logout complete, isAdmin:', isAdmin);
+    } catch(err){
+      console.error('Logout error:', err);
+      isAdmin=false;
+      alert('Logged out (with error: '+err.message+')');
+    }
   } else {
     const input=document.getElementById('adminPassInput');
     if(input) input.value='';
@@ -2685,18 +2727,33 @@ function handleAdminButtonClick(){
     setTimeout(()=>{ const inp=document.getElementById('adminPassInput'); if(inp) inp.focus(); }, 100);
   }
 }
-function closeAdminModal(){document.getElementById('loginModal').classList.add('hidden');}
-function verifyAdminPass(){if(document.getElementById('adminPassInput').value==='admin123'){isAdmin=true; localStorage.setItem('kytos_isAdmin','true'); document.getElementById('adminStatusText').innerText="Admin (Unlocked)"; if(typeof renderStationView==='function'){ try{ renderStationView(); }catch(e){} }; document.getElementById('adminLockIcon').className="fa-solid fa-lock-open text-emerald-400"; document.getElementById('adminActionBtn').classList.remove('hidden'); document.getElementById('adminActivityAction').classList.remove('hidden'); document.getElementById('adminDocAction').classList.remove('hidden'); document.getElementById('adminGalleryAction').classList.remove('hidden'); document.getElementById('saveButtonMain').classList.remove('hidden'); document.getElementById('homeAdminAction').classList.remove('hidden'); closeAdminModal(); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();} else {alert("Incorrect password!");}}
+
+function forceAdminLogout(){
+  isAdmin=false;
+  document.getElementById('adminStatusText').innerText="Admin";
+  document.getElementById('adminLockIcon').className="fa-solid fa-lock text-yellow-400";
+  ['adminActionBtn','adminActivityAction','adminDocAction','adminGalleryAction','saveButtonMain','homeAdminAction'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
+  try{ renderActivities(); }catch(e){}
+  try{ applyFilters(); }catch(e){}
+  try{ renderFoldersAndDocs(); }catch(e){}
+  try{ renderPlaylistsAndGallery(); }catch(e){}
+  closeAdminModal();
+}
+
+function closeAdminModal(){ const m=document.getElementById('loginModal'); if(m) m.classList.add('hidden'); }
+function verifyAdminPass(){if(document.getElementById('adminPassInput').value==='admin123'){isAdmin=true; document.getElementById('adminStatusText').innerText="Admin (Unlocked)"; document.getElementById('adminLockIcon').className="fa-solid fa-lock-open text-emerald-400"; document.getElementById('adminActionBtn').classList.remove('hidden'); document.getElementById('adminActivityAction').classList.remove('hidden'); document.getElementById('adminDocAction').classList.remove('hidden'); document.getElementById('adminGalleryAction').classList.remove('hidden'); document.getElementById('saveButtonMain').classList.remove('hidden'); document.getElementById('homeAdminAction').classList.remove('hidden'); closeAdminModal(); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();} else {alert("Incorrect password!");}}
 function switchTab(tab){
-  ['home','parts','station','activities','documents','gallery'].forEach(v=>{const el=document.getElementById(v==='home'?'homeView':v==='parts'?'partsView':v==='station'?'stationView':v==='activities'?'activitiesView':v==='documents'?'documentsView':'galleryView');if(el)el.classList.add('hidden');});
-  ['Home','Parts','Station','Activities','Docs','Gallery'].forEach(v=>{const map={Home:'tabHomeBtn',Parts:'tabPartsBtn',Station:'tabStationBtn',Activities:'tabActivitiesBtn',Docs:'tabDocsBtn',Gallery:'tabGalleryBtn'};const b=document.getElementById(map[v]);if(b)b.className="tab-btn px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium";});
-  const map={home:['homeView','tabHomeBtn'],parts:['partsView','tabPartsBtn'],station:['stationView','tabStationBtn'],activities:['activitiesView','tabActivitiesBtn'],documents:['documentsView','tabDocsBtn'],gallery:['galleryView','tabGalleryBtn']};
+  ['home','parts','activities','documents','gallery'].forEach(v=>{const el=document.getElementById(v==='home'?'homeView':v==='parts'?'partsView':v==='activities'?'activitiesView':v==='documents'?'documentsView':'galleryView');if(el)el.classList.add('hidden');});
+  ['Home','Parts','Activities','Docs','Gallery'].forEach(v=>{const map={Home:'tabHomeBtn',Parts:'tabPartsBtn',Activities:'tabActivitiesBtn',Docs:'tabDocsBtn',Gallery:'tabGalleryBtn'};const b=document.getElementById(map[v]);if(b)b.className="tab-btn px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium";});
+  const map={home:['homeView','tabHomeBtn'],parts:['partsView','tabPartsBtn'],activities:['activitiesView','tabActivitiesBtn'],documents:['documentsView','tabDocsBtn'],gallery:['galleryView','tabGalleryBtn']};
   const pair=map[tab]||map.home;
   document.getElementById(pair[0]).classList.remove('hidden');
   document.getElementById(pair[1]).className="tab-btn px-3 py-1.5 rounded-md transition bg-cyan-600 text-white font-medium";
   if(tab==='home')renderHome();
   else if(tab==='parts')applyFilters();
-  else if(tab==='station'){ renderStationView(); setTimeout(()=>{ if(typeof isAdmin!=='undefined' && isAdmin){ const b=document.getElementById('stationAdminAction'); if(b) b.classList.remove('hidden'); } },100); }
   else if(tab==='activities')renderActivities();
   else if(tab==='documents')renderFoldersAndDocs();
   else if(tab==='gallery')renderPlaylistsAndGallery();
@@ -3116,329 +3173,23 @@ function filterCatalogSummary(type) {
         targetSec.scrollIntoView({ behavior: 'smooth' });
     }
 }
-  <!-- DETAILED STATION MANAGEMENT MODAL -->
-<div id="stationModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-8">
-    <div class="flex justify-between items-center px-6 py-4 border-b bg-slate-50">
-      <h3 id="stationModalTitle" class="font-black text-slate-900 text-base">Add Station & Analyzers Setup</h3>
-      <button onclick="closeStationModal()" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 flex items-center justify-center font-bold">&times;</button>
-    </div>
-    
-    <form id="stationForm" onsubmit="saveStationFirebase(event)" class="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
-      <input type="hidden" id="editStationId">
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="font-bold text-slate-700 block mb-1">Customer / Plant Name *</label>
-          <input type="text" id="stationCustomer" required placeholder="e.g. SABIC / Sadara / KAUST" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500">
-        </div>
-        <div>
-          <label class="font-bold text-slate-700 block mb-1">Station / Shelter ID *</label>
-          <input type="text" id="stationName" required placeholder="e.g. Station 01 - CEMS" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500">
-        </div>
-      </div>
 
-      <div>
-        <label class="font-bold text-slate-700 block mb-1">Location / Area *</label>
-        <input type="text" id="stationLocation" required placeholder="e.g. Al Jubail Industrial City" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500">
-      </div>
-
-      <div class="border-t pt-3">
-        <div class="flex justify-between items-center mb-2">
-          <label class="font-black text-slate-800 text-sm"><i class="fa-solid fa-microchip text-cyan-600 mr-1"></i> Analyzers List</label>
-          <button type="button" onclick="addAnalyzerRow()" class="px-3 py-1.5 rounded-lg bg-cyan-50 text-cyan-700 font-bold hover:bg-cyan-100"><i class="fa-solid fa-plus mr-1"></i> Add Analyzer</button>
-        </div>
-        <div id="analyzersContainer" class="space-y-3"></div>
-      </div>
-
-      <div class="border-t pt-3">
-        <div class="flex justify-between items-center mb-2">
-          <label class="font-black text-slate-800 text-sm"><i class="fa-solid fa-flask text-emerald-600 mr-1"></i> Cylinder Gas Concentrations</label>
-          <button type="button" onclick="addCylinderRow()" class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100"><i class="fa-solid fa-plus mr-1"></i> Add Cylinder Gas</button>
-        </div>
-        <div id="cylindersContainer" class="space-y-3"></div>
-      </div>
-
-      <div>
-        <label class="font-bold text-slate-700 block mb-1">General Remarks / Notes</label>
-        <textarea id="stationRemarks" rows="2" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Additional details..."></textarea>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white">
-        <button type="button" onclick="closeStationModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 font-bold text-slate-600">Cancel</button>
-        <button type="submit" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-black shadow">Save Station Details</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-let stationsList = [];
-
-async function initStationsFirebase() {
-  try {
-    if (window._db) {
-      const { collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      onSnapshot(collection(window._db, "kytos_stations"), (snapshot) => {
-        stationsList = [];
-        snapshot.forEach((docSnap) => {
-          stationsList.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        renderStations();
-      });
-    } else {
-      stationsList = JSON.parse(localStorage.getItem('kytos_stations_fallback') || '[]');
-      renderStations();
-    }
-  } catch (e) {
-    console.log("Firebase station load error:", e);
-    stationsList = JSON.parse(localStorage.getItem('kytos_stations_fallback') || '[]');
-    renderStations();
-  }
-}
-
-function renderStations() {
-  const container = document.getElementById('stationsContainer');
-  const emptyNotice = document.getElementById('emptyStationsNotice');
-  if(!container) return;
-  
-  container.innerHTML = '';
-  if(stationsList.length === 0) {
-    if(emptyNotice) emptyNotice.classList.remove('hidden');
-    return;
-  }
-  if(emptyNotice) emptyNotice.classList.add('hidden');
-
-  stationsList.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between';
-    
-    let analyzersHtml = '<span class="text-xs text-slate-400 italic">No analyzers configured.</span>';
-    if(Array.isArray(item.analyzers) && item.analyzers.length > 0) {
-      analyzersHtml = item.analyzers.map(an => `
-        <div class="bg-slate-50 p-2 rounded-xl border text-[11px] mb-1.5 flex justify-between items-center">
-          <div><b>${escapeHtml(an.model)}</b> (S/N: ${escapeHtml(an.serial)})</div>
-          <span class="bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded font-mono font-bold text-[10px]">Range: ${escapeHtml(an.range)}</span>
-        </div>
-      `).join('');
-    }
-
-    let cylindersHtml = '<span class="text-xs text-slate-400 italic">No cylinder gas configured.</span>';
-    if(Array.isArray(item.cylinders) && item.cylinders.length > 0) {
-      cylindersHtml = item.cylinders.map(cy => `
-        <div class="bg-emerald-50/50 p-2 rounded-xl border border-emerald-100 text-[11px] mb-1.5 flex justify-between items-center">
-          <div><b>${escapeHtml(cy.gas)}</b></div>
-          <span class="bg-emerald-600 text-white px-2 py-0.5 rounded font-bold text-[10px]">${escapeHtml(cy.conc)}</span>
-        </div>
-      `).join('');
-    }
-
-    const adminUnlocked = (typeof isAdmin !== 'undefined' && isAdmin) || localStorage.getItem('kytos_isAdmin') === 'true';
-
-    card.innerHTML = `
-      <div>
-        <div class="flex justify-between items-start gap-2 mb-1">
-          <div>
-            <span class="text-[9px] font-black uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded">${escapeHtml(item.customer || 'General Client')}</span>
-            <h4 class="font-black text-base text-slate-900 mt-1">${escapeHtml(item.name)}</h4>
-          </div>
-          <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full font-bold shrink-0">Synced</span>
-        </div>
-        <p class="text-xs text-slate-500 mb-3"><i class="fa-solid fa-location-dot mr-1 text-cyan-600"></i> ${escapeHtml(item.location)}</p>
-        
-        <div class="mb-3">
-          <div class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">Analyzers</div>
-          ${analyzersHtml}
-        </div>
-
-        <div class="mb-3">
-          <div class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">Cylinder Gas</div>
-          ${cylindersHtml}
-        </div>
-
-        ${item.remarks ? `<p class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border">${escapeHtml(item.remarks)}</p>` : ''}
-      </div>
-
-      <div class="flex gap-2 mt-4 pt-3 border-t border-slate-100 justify-end">
-        ${adminUnlocked ? `
-          <button onclick="openEditStationModal('${item.id}')" class="text-xs text-cyan-600 font-bold px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 rounded-xl transition"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
-          <button onclick="deleteStationFirebase('${item.id}')" class="text-xs text-red-600 font-bold px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-xl transition"><i class="fa-solid fa-trash mr-1"></i> Delete</button>
-        ` : `
-          <span class="text-[10px] text-slate-400 italic">Login as Admin to edit</span>
-        `}
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
-
-function addAnalyzerRow(model='', serial='', range='') {
-  const container = document.getElementById('analyzersContainer');
-  if(!container) return;
-  const div = document.createElement('div');
-  div.className = 'flex gap-2 items-center bg-slate-50 p-2.5 rounded-xl border';
-  div.innerHTML = `
-    <input type="text" placeholder="Model (e.g. 42i)" value="${escapeHtml(model)}" class="analyzer-model flex-1 p-2 bg-white border rounded-lg text-xs outline-none">
-    <input type="text" placeholder="Serial No" value="${escapeHtml(serial)}" class="analyzer-serial flex-1 p-2 bg-white border rounded-lg text-xs outline-none">
-    <input type="text" placeholder="Range (e.g. 0-500 ppm)" value="${escapeHtml(range)}" class="analyzer-range flex-1 p-2 bg-white border rounded-lg text-xs outline-none">
-    <button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100"><i class="fa-solid fa-xmark"></i></button>
-  `;
-  container.appendChild(div);
-}
-
-function addCylinderRow(gas='', conc='') {
-  const container = document.getElementById('cylindersContainer');
-  if(!container) return;
-  const div = document.createElement('div');
-  div.className = 'flex gap-2 items-center bg-emerald-50/30 p-2.5 rounded-xl border border-emerald-100';
-  div.innerHTML = `
-    <input type="text" placeholder="Gas Name (e.g. NO, SO2)" value="${escapeHtml(gas)}" class="cylinder-gas flex-1 p-2 bg-white border rounded-lg text-xs outline-none">
-    <input type="text" placeholder="Concentration (e.g. 45.2 ppm)" value="${escapeHtml(conc)}" class="cylinder-conc flex-1 p-2 bg-white border rounded-lg text-xs outline-none">
-    <button type="button" onclick="this.parentElement.remove()" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100"><i class="fa-solid fa-xmark"></i></button>
-  `;
-  container.appendChild(div);
-}
-
-function openAddStationModal() {
-  const adminUnlocked = (typeof isAdmin !== 'undefined' && isAdmin) || localStorage.getItem('kytos_isAdmin') === 'true';
-  if(!adminUnlocked){ alert('Admin access required.'); return; }
-  document.getElementById('editStationId').value = '';
-  document.getElementById('stationModalTitle').innerText = 'Add Station & Analyzers Setup';
-  document.getElementById('stationForm').reset();
-  document.getElementById('analyzersContainer').innerHTML = '';
-  document.getElementById('cylindersContainer').innerHTML = '';
-  addAnalyzerRow();
-  addCylinderRow();
-  document.getElementById('stationModal').classList.remove('hidden');
-}
-
-function openEditStationModal(id) {
-  const item = stationsList.find(s => String(s.id) === String(id));
-  if(!item) return;
-  document.getElementById('editStationId').value = item.id;
-  document.getElementById('stationModalTitle').innerText = 'Edit Station & Analyzers Setup';
-  document.getElementById('stationCustomer').value = item.customer || '';
-  document.getElementById('stationName').value = item.name || '';
-  document.getElementById('stationLocation').value = item.location || '';
-  document.getElementById('stationRemarks').value = item.remarks || '';
-  
-  const anContainer = document.getElementById('analyzersContainer');
-  anContainer.innerHTML = '';
-  if(Array.isArray(item.analyzers) && item.analyzers.length > 0) {
-    item.analyzers.forEach(an => addAnalyzerRow(an.model, an.serial, an.range));
-  } else {
-    addAnalyzerRow();
-  }
-
-  const cyContainer = document.getElementById('cylindersContainer');
-  cyContainer.innerHTML = '';
-  if(Array.isArray(item.cylinders) && item.cylinders.length > 0) {
-    item.cylinders.forEach(cy => addCylinderRow(cy.gas, cy.conc));
-  } else {
-    addCylinderRow();
-  }
-
-  document.getElementById('stationModal').classList.remove('hidden');
-}
-
-function closeStationModal() {
-  document.getElementById('stationModal').classList.add('hidden');
-}
-
-async function saveStationFirebase(e) {
-  e.preventDefault();
-  const editId = document.getElementById('editStationId').value.trim();
-  const customer = document.getElementById('stationCustomer').value.trim();
-  const name = document.getElementById('stationName').value.trim();
-  const location = document.getElementById('stationLocation').value.trim();
-  const remarks = document.getElementById('stationRemarks').value.trim();
-
-  const analyzers = [];
-  document.querySelectorAll('#analyzersContainer > div').forEach(row => {
-    const model = row.querySelector('.analyzer-model').value.trim();
-    const serial = row.querySelector('.analyzer-serial').value.trim();
-    const range = row.querySelector('.analyzer-range').value.trim();
-    if(model || serial) analyzers.push({ model, serial, range });
-  });
-
-  const cylinders = [];
-  document.querySelectorAll('#cylindersContainer > div').forEach(row => {
-    const gas = row.querySelector('.cylinder-gas').value.trim();
-    const conc = row.querySelector('.cylinder-conc').value.trim();
-    if(gas || conc) cylinders.push({ gas, conc });
-  });
-
-  if(!customer || !name || !location) {
-    alert('Please fill out Customer Name, Station Name, and Location.');
-    return;
-  }
-
-  const payload = { customer, name, location, analyzers, cylinders, remarks, updatedAt: Date.now() };
-
-  try {
-    if (window._db) {
-      const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      if (editId) {
-        await updateDoc(doc(window._db, "kytos_stations", String(editId)), payload);
-      } else {
-        payload.createdAt = Date.now();
-        await addDoc(collection(window._db, "kytos_stations"), payload);
+// Extra: Double-click admin status to force logout if normal logout fails
+document.addEventListener('DOMContentLoaded', ()=>{
+  const statusBtn = document.getElementById('adminStatusText')?.parentElement || document.getElementById('adminStatusText');
+  if(statusBtn){
+    statusBtn.addEventListener('dblclick', (e)=>{
+      e.preventDefault();
+      if(isAdmin){
+        if(confirm('Force log out? (double-click detected)')){
+          forceAdminLogout();
+        }
       }
-    } else {
-      if (editId) {
-        const idx = stationsList.findIndex(s => String(s.id) === String(editId));
-        if(idx > -1) stationsList[idx] = { ...stationsList[idx], ...payload };
-      } else {
-        stationsList.unshift({ id: 'st_' + Date.now(), ...payload });
-      }
-      localStorage.setItem('kytos_stations_fallback', JSON.stringify(stationsList));
-      renderStations();
-    }
-
-    closeStationModal();
-    if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
-    alert('✅ Saved to Firebase successfully!');
-  } catch (err) {
-    console.error('Save error:', err);
-    alert('Save failed: ' + err.message);
+    });
   }
-}
-
-async function deleteStationFirebase(id) {
-  const adminUnlocked = (typeof isAdmin !== 'undefined' && isAdmin) || localStorage.getItem('kytos_isAdmin') === 'true';
-  if(!adminUnlocked){ alert('Admin access required.'); return; }
-  if(!confirm('Delete this station?')) return;
-  
-  try {
-    if (window._db) {
-      const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      await deleteDoc(doc(window._db, "kytos_stations", String(id)));
-    } else {
-      stationsList = stationsList.filter(s => String(s.id) !== String(id));
-      localStorage.setItem('kytos_stations_fallback', JSON.stringify(stationsList));
-      renderStations();
-    }
-    if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
-    alert('✅ Deleted.');
-  } catch (err) {
-    console.error('Delete error:', err);
-    alert('Delete failed: ' + err.message);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initStationsFirebase();
 });
 
-const originalSwitchTab = window.switchTab || function(){};
-window.switchTab = function(tabName) {
-  if(typeof originalSwitchTab === 'function') originalSwitchTab(tabName);
-  const sView = document.getElementById('stationView');
-  if(sView) sView.classList.toggle('hidden', tabName !== 'station');
-  if(tabName === 'station') {
-    renderStations();
-  }
-};
 </script>
+
 </body>
 </html>

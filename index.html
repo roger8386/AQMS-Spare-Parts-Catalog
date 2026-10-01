@@ -641,10 +641,9 @@ const extraCount = 361; // keep badge 366
 function escapeHtml(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 function getYouTubeId(url){
   if(!url) return null;
-  try{
-   let parts = (_localParts && _localParts.length > 0) ? _localParts : rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
-
-const defaultActivities = [
+  let _localParts = null;
+try { _localParts = JSON.parse(localStorage.getItem('kytos_parts_fixed')); } catch(e) {}
+let parts = (Array.isArray(_localParts) && _localParts.length > 0) ? _localParts : rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));const defaultActivities = [
 {id:"act_kaust",startDate:"2026-09-20",endDate:"2026-09-23",title:"KAUST MONTHLY MAINTENANCE",type:"PM",person:"Service Team",description:"Monthly maintenance at KAUST site"},
 {id:1,startDate:"2026-09-20",endDate:"2026-09-23",title:"4-Days Annual Preventive Maintenance",type:"PM",person:"Service Team",description:"Comprehensive testing."},
 {id:"act_albert",startDate:"2026-10-05",endDate:"2026-10-10",title:"Albert in France - Audit",type:"Audit",person:"Albert",description:"Site audit in France"},

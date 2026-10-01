@@ -2780,13 +2780,34 @@ try{
   };
 
   onSnapshot(collection(db,'kytos_parts'),snap=>{
-    if(snap.size>=300){
-      const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
-      parts=live.map(p=>({id:p.id,pn:p.pn||p.partNumber||'',name:p.name||p.description||'',model:p.model||'GENERAL',cat:p.cat||p.category||'General Spares & Hardware',rem:p.rem||'Active Reference',img:p.img||'',imageSource:p.imageSource||'unknown'}));
-      try{localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts));}catch(_){}
-      if(typeof applyFilters==='function')applyFilters();
+    const live=[];
+    snap.forEach(d=>live.push({id:d.id,...d.data()}));
+    
+    if(live.length > 0){
+      // I-sort para ang pinakabagong in-update ang laging nasa unahan
+      live.sort((a,b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+      
+      parts = live.map(p=>({
+        id:p.id, 
+        pn:p.pn||p.partNumber||'', 
+        name:p.name||p.description||'', 
+        model:p.model||'GENERAL', 
+        cat:p.cat||p.category||'General Spares & Hardware', 
+        rem:p.rem||'Active Reference', 
+        img:p.img||'', 
+        imageSource:p.imageSource||'unknown'
+      }));
+      
+      try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(_){}
+      if(typeof applyFilters==='function') applyFilters();
     }
-    const el=document.getElementById('lastSyncTime');if(el)el.innerText=`• ${new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})} ${new Date().toLocaleTimeString()} • ${snap.size} parts`;
+    
+    // Direktang i-update ang header badge sa totoong bilang (hal. 395) nang walang delay
+    const badge = document.getElementById('headerBadge');
+    if(badge) badge.innerText = `${parts.length} Items`;
+    
+    const el = document.getElementById('lastSyncTime');
+    if(el) el.innerText = `• ${new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})} ${new Date().toLocaleTimeString()} • ${parts.length} parts`;
   });
 
   onSnapshot(collection(db,'kytos_activities'),snap=>{

@@ -1272,21 +1272,39 @@ async function deletePartItem(id){
   if(!item){ alert('Part not found: '+id); return; }
   if(!confirm('Delete part "'+(item.pn||id)+' - '+(item.name||'')+'"?')) return;
 
-  // Direktang buburahin sa Firebase Firestore gamit ang Part Number (pn) para sigurado
+  // 1. Agad na tanggalin sa local memory para mawala agad sa screen (Optimistic UI)
+  parts = parts.filter(p=>String(p.id)!==String(id));
+  try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+  applyFilters();
+  updateLiveSyncTime();
+
+  // 2. Burahin sa Firebase Firestore (Gamit ang ID o Part Number)
   if(window._db){
     try {
       const { collection, query, where, getDocs, deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      const q = query(collection(window._db, 'kytos_parts'), where('pn', '==', String(item.pn)));
-      const snap = await getDocs(q);
-      for (const d of snap.docs) {
-        await deleteDoc(doc(window._db, 'kytos_parts', d.id));
+      
+      // Subukan munang burahin gamit ang mismong Document ID kung ito ay Firestore ID
+      if(String(id).length > 10) {
+        await deleteDoc(doc(window._db, 'kytos_parts', String(id)));
       }
+
+      // Hanapin din at burahin lahat ng may kaparehong Part Number (pn) sa cloud para sigurado
+      if(item.pn) {
+        const q = query(collection(window._db, 'kytos_parts'), where('pn', '==', String(item.pn)));
+        const snap = await getDocs(q);
+        for (const d of snap.docs) {
+          await deleteDoc(doc(window._db, 'kytos_parts', d.id));
+        }
+      }
+      alert('✅ Deleted successfully across the team!');
     } catch(err) {
       console.error("Cloud delete error:", err);
-      alert('❌ Delete failed online');
-      return;
+      alert('❌ Delete failed online, but removed locally.');
     }
+  } else {
+    alert('✅ Deleted locally (Firebase offline).');
   }
+}
 
   // Tanggalin sa local memory at i-save ang bago
   parts = parts.filter(p=>String(p.id)!==String(id));

@@ -412,7 +412,6 @@
     </div>
   </div>
 </div>
-</div>
 <div id="loginModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><h3 class="text-base font-bold text-slate-800 mb-1">Admin Access</h3><p class="text-xs text-slate-500 mb-4">Enter password to unlock management controls:</p><input type="password" id="adminPassInput" placeholder="Enter password..." class="w-full px-3 py-2.5 border rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-cyan-500" onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyAdminPass();} if(event.key==='Escape'){closeAdminModal();}"><div class="flex justify-end gap-2 text-xs"><button onclick="closeAdminModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button onclick="verifyAdminPass()" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Unlock Admin</button></div></div></div>
 <div id="folderModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 class="text-base font-bold text-slate-800">Create New Folder</h3><button onclick="closeAddFolderModal()" class="text-slate-400 text-xl">&times;</button></div><form onsubmit="saveNewFolder(event)" class="space-y-3 text-xs"><div><label class="font-bold text-slate-700 block mb-1">Folder Name *</label><input type="text" id="newFolderName" required placeholder="e.g. Thermo Manuals" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500"></div><div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAddFolderModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Create Folder</button></div></form></div></div>
 <div id="playlistModal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 pb-2 border-b"><h3 class="text-base font-bold text-slate-800">Create New Playlist</h3><button onclick="closeAddPlaylistModal()" class="text-slate-400 text-xl">&times;</button></div><form onsubmit="saveNewPlaylist(event)" class="space-y-3 text-xs"><div><label class="font-bold text-slate-700 block mb-1">Playlist Name *</label><input type="text" id="newPlaylistName" required placeholder="e.g. CEMS Maintenance" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-cyan-500"></div><div class="flex justify-end gap-2 pt-2"><button type="button" onclick="closeAddPlaylistModal()" class="px-3 py-2 rounded-lg bg-slate-100 font-medium">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-cyan-600 text-white font-bold">Create Playlist</button></div></form></div></div>
@@ -1165,6 +1164,7 @@ function closePartModal(){
 }
 async function savePartData(e){
   e.preventDefault();
+
   const editId = document.getElementById('editPartId').value.trim();
   const pn = document.getElementById('addPartNum').value.trim();
   const name = document.getElementById('addPartName').value.trim();
@@ -1172,103 +1172,118 @@ async function savePartData(e){
   const cat = document.getElementById('addCategory').value;
   const manualUrlRaw = document.getElementById('addImageUrlInput').value.trim();
   const manualUrl = normalizePartImageUrl(manualUrlRaw);
-  const selectedImageFile=document.getElementById('partPhotoInput')?.files?.[0]||null;
+  const selectedImageFile = document.getElementById('partPhotoInput')?.files?.[0] || null;
+
   let img = manualUrl || (currentPartPhoto || '');
   let imageSource = manualUrl ? 'url' : (img ? 'existing' : 'none');
 
-  // A new local image MUST be uploaded to shared Firebase Storage first.
-  // This prevents browser-only object/data URLs from becoming broken for the team.
   if(selectedImageFile){
     if(window.firebaseUploadFile){
       try{
         img = await window.firebaseUploadFile(selectedImageFile,'part-images');
         imageSource = 'firebase-storage';
-        console.log('Shared part image uploaded:', img);
       }catch(err){
-        console.error('Firebase Storage upload failed:', err);
+        console.error('Firebase Storage upload failed:',err);
         try{
-          img = await compressImageToDataUrl(selectedImageFile, 1200, 0.82);
+          img = await compressImageToDataUrl(selectedImageFile,1200,0.82);
           imageSource = 'firestore-fallback';
-          alert('Firebase Storage upload was unavailable, so the image was compressed and saved with the part record instead.');
+          alert('Na-compress at na-save lokal ang image dahil hindi maabot ang storage.');
         }catch(fallbackErr){
-          alert('The image could not be uploaded. Please check Firebase Storage permissions and try again.');
+          alert('Hindi mai-upload ang imahe. Pakisuri ang network o permissions.');
           return;
         }
       }
     }else{
       try{
-        img = await compressImageToDataUrl(selectedImageFile, 1200, 0.82);
+        img = await compressImageToDataUrl(selectedImageFile,1200,0.82);
         imageSource = 'firestore-fallback';
       }catch(err){
-        alert('The image could not be processed. Please try another image.');
+        alert('Hindi maproseso ang imahe.');
         return;
       }
     }
   }
 
-  // Never save a temporary browser-only blob URL.
-  if(/^blob:/i.test(img)){
-    alert('This image is only available in this browser. Please upload it again so it can be shared with the team.');
-    return;
-  }
   if(!pn || !name){
     alert('Part Number and Description required');
     return;
   }
-  console.log('Saving part, editId:', editId, 'pn:', pn);
+
   if(editId){
     const idx = parts.findIndex(p=>String(p.id)===String(editId));
-    console.log('Edit index found:', idx);
-    if(idx>-1){
-      parts[idx] = {...parts[idx], pn, name, model, cat, img, imageSource};
-    } else {
-      alert('ID not found for edit: '+editId);
+    if(idx < 0){
+      alert('Part not found for edit: '+editId);
       return;
     }
-  } else {
-    const newId = Date.now().toString();
-    parts.unshift({id:newId, pn, name, model, cat, rem:'Active Reference', img, imageSource});
-  }
-  try{
-    localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
-  }catch(err){ alert('LocalStorage error: '+err.message); }
-  // Firebase sync
-  try{
-    if(window._db){
-      const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      if(editId && String(editId).length>=10){
-        await updateDoc(doc(window._db, "kytos_parts", String(editId)), {pn, name, model, cat, img, imageSource, updatedAt:Date.now()});
-      } else if(!editId){
-        await addDoc(collection(window._db, "kytos_parts"), {pn, name, model, cat, rem:"Active Reference", img, imageSource, createdAt:Date.now(), updatedAt:Date.now()});
+
+    const payload = { pn, name, model, cat, img, imageSource };
+
+    if(window.firebaseUpdate){
+      const ok = await window.firebaseUpdate('kytos_parts', String(editId), payload);
+      if(!ok){
+        alert('Update failed online.');
+        return;
       }
     }
-  }catch(e){ console.log('Firebase save skipped:', e); }
+
+    parts[idx] = { ...parts[idx], ...payload };
+    try{ localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts)); }catch(err){}
+
+    closePartModal();
+    applyFilters();
+    updateLiveSyncTime();
+    alert('✅ Part updated and synchronized online!');
+    return;
+  }
+
+  const newPart = {
+    pn,
+    name,
+    model,
+    cat,
+    rem:'Active Reference',
+    img,
+    imageSource
+  };
+
+  if(window.firebaseAdd){
+    const firebaseId = await window.firebaseAdd('kytos_parts', newPart);
+    if(!firebaseId){
+      alert('Part was not saved online.');
+      return;
+    }
+    newPart.id = firebaseId;
+  }else{
+    newPart.id = Date.now().toString();
+  }
+
+  parts.unshift(newPart);
+  try{ localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts)); }catch(err){}
+
   closePartModal();
   applyFilters();
   updateLiveSyncTime();
-  alert(editId?'✅ Part updated! (Total: '+parts.length+')':'✅ Part added! (Total: '+parts.length+')');
-}
-async function deletePartItem(id){
-  if(!isAdmin){ alert('Admin only'); return; }
-  if(!confirm('Delete part ID '+id+'?')) return;
-  console.log('Deleting id:', id);
-  const before = parts.length;
-  parts = parts.filter(p=>String(p.id)!==String(id));
-  console.log('Deleted, before:', before, 'after:', parts.length);
-  localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts));
-  // Also delete from Firebase if connected
-  try{
-    if(window._db && String(id).length>=10){
-      const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      await deleteDoc(doc(window._db, "kytos_parts", String(id)));
-      console.log('Deleted from Firebase');
-    }
-  }catch(e){ console.log('Firebase delete skipped:', e); }
-  applyFilters();
-  updateLiveSyncTime();
-  alert('✅ Deleted (Total: '+parts.length+' items)');
+  alert('✅ Part saved and synchronized online!');
 }
 
+async function deletePartItem(id){
+  if(!isAdmin){ alert('Admin only'); return; }
+  const item = parts.find(p=>String(p.id)===String(id));
+  if(!item){ alert('Part not found: '+id); return; }
+  if(!confirm('Delete part "'+(item.pn||id)+' - '+(item.name||'')+'"?')) return;
+
+  if(window.firebaseDelete){
+    const ok = await window.firebaseDelete('kytos_parts', String(id), item.pn||null);
+    if(!ok){ alert('❌ Delete failed online'); return; }
+  } else { alert('❌ Firebase not available'); return; }
+
+  parts = parts.filter(p=>String(p.id)!==String(id));
+  try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+  applyFilters();
+  updateLiveSyncTime();
+  alert('✅ Part deleted and synchronized online!');
+}
+  
 function updateCatalogStats(){
   const total=parts.length;
   const models=new Set(parts.map(p=>p.model).filter(Boolean)).size;
@@ -1570,8 +1585,6 @@ function previewSelectedPartImage(file){
 
 function handlePartPhotoUpload(file){if(!file)return; currentPartPhoto=null; document.getElementById('addImageUrlInput').value=''; previewSelectedPartImage(file);}
 document.getElementById('partPhotoInput').addEventListener('change', e=>{if(e.target.files[0]) handlePartPhotoUpload(e.target.files[0]);});
-function openAddModal(){currentPartPhoto=null; document.getElementById('editPartId').value=""; document.getElementById('partModalTitle').innerText="Add New Spare Part"; document.getElementById('partForm').reset(); document.getElementById('partPhotoDisplay').innerText="Click to browse file from device"; document.getElementById('addImageUrlInput').value=""; document.getElementById('partModal').classList.remove('hidden');document.getElementById('partModal').style.display='flex';}
-
 
 function setActivityViewButtons(){
   ['card','table','timeline'].forEach(m=>{
@@ -1729,29 +1742,33 @@ async function saveNewActivity(e){
   const type=document.getElementById('addActType').value;
   const person=document.getElementById('addActLead').value.trim();
   const description=document.getElementById('addActDesc').value.trim();
-  const repeatType = document.getElementById('addActRepeat') ? document.getElementById('addActRepeat').value : 'none';
-  const repeatUntilVal = document.getElementById('addActRepeatUntil') ? document.getElementById('addActRepeatUntil').value : '';
+  const repeatType = document.getElementById('addActRepeat')?.value || 'none';
+  const repeatUntilVal = document.getElementById('addActRepeatUntil')?.value || '';
   if(!title){ alert('Title required'); return; }
-  
+
   if(editId){
-    const idx=activities.findIndex(a=>String(a.id)===String(editId));
-    if(idx>-1){
-      activities[idx]={...activities[idx], startDate, endDate, title, type, person, description, repeatType, repeatUntil: repeatUntilVal};
+    const payload={startDate,endDate,title,type,person,description,repeatType,repeatUntil:repeatUntilVal};
+    if(window.firebaseUpdate){
+      const ok = await window.firebaseUpdate('kytos_activities',String(editId),payload);
+      if(!ok){ alert('❌ Update failed. Hindi na-sync online.'); return; }
     }
+    const idx=activities.findIndex(a=>String(a.id)===String(editId));
+    if(idx>-1) activities[idx]={...activities[idx],...payload};
+    try{localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));}catch(_){}
   } else {
-    if(repeatType !== 'none' && repeatUntilVal){
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const until = new Date(repeatUntilVal);
-      const diffDays = Math.round((end - start)/(1000*60*60*24));
-      let cur = new Date(start);
-      let created = 0;
-      const parentGroup = Date.now().toString();
+    if(repeatType!== 'none' && repeatUntilVal){
+      const start=new Date(startDate); const end=new Date(endDate); const until=new Date(repeatUntilVal);
+      const diffDays=Math.round((end-start)/(1000*60*60*24));
+      let cur=new Date(start); let created=0; const parentGroup=Date.now().toString();
       while(cur <= until && created < 365){
-        const curEnd = new Date(cur); curEnd.setDate(cur.getDate() + diffDays);
-        const sStr = cur.toISOString().slice(0,10); const eStr = curEnd.toISOString().slice(0,10);
-        const newId = Date.now().toString() + '_' + created;
-        activities.push({id:newId, startDate:sStr, endDate:eStr, title, type, person, description, isRepeat: created>0, repeatGroup: parentGroup, repeatType, repeatUntil: repeatUntilVal});
+        const curEnd=new Date(cur); curEnd.setDate(cur.getDate()+diffDays);
+        const sStr=cur.toISOString().slice(0,10); const eStr=curEnd.toISOString().slice(0,10);
+        const item={startDate:sStr,endDate:eStr,title,type,person,description,isRepeat:created>0,repeatGroup:parentGroup,repeatType,repeatUntil:repeatUntilVal};
+        if(window.firebaseAdd){
+          const fid=await window.firebaseAdd('kytos_activities',item);
+          if(!fid){ alert('❌ Repeat failed sa '+sStr); return; }
+          activities.push({id:fid,...item});
+        }
         created++;
         if(repeatType==='daily') cur.setDate(cur.getDate()+1);
         else if(repeatType==='weekly') cur.setDate(cur.getDate()+7);
@@ -1759,13 +1776,17 @@ async function saveNewActivity(e){
         else if(repeatType==='yearly') cur.setFullYear(cur.getFullYear()+1);
         else break;
       }
+      try{localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));}catch(_){}
     } else {
-      const newId=Date.now().toString();
-      activities.push({id:newId, startDate, endDate, title, type, person, description, repeatType:'none'});
+      const payload={startDate,endDate,title,type,person,description,repeatType:'none'};
+      if(window.firebaseAdd){
+        const fid=await window.firebaseAdd('kytos_activities',payload);
+        if(!fid){ alert('❌ Activity NOT saved online'); return; }
+        activities.push({id:fid,...payload});
+        try{localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));}catch(_){}
+      }
     }
   }
-  
-  try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
   closeActivityModal();
   renderActivities();
   if(typeof updateLiveSyncTime==='function') updateLiveSyncTime();
@@ -2000,17 +2021,17 @@ async function openEditFolderModal(oldName){
   renderFoldersAndDocs();
 }
 async function deleteFolder(name){
+  if(!isAdmin){ alert('Admin only'); return; }
   if(name==="All Documents"){ alert("Cannot delete All Documents"); return; }
-  if(!confirm(`Delete folder "${name}"? Files inside will move to "All Documents" category but will still be visible under All Documents.`)) return;
+  if(!confirm(`Delete folder "${name}"? Files inside will move to "All Documents".`)) return;
   folders = folders.filter(f=>f!==name);
   localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders));
-  documents.forEach(d=>{ if(d.folder===name) d.folder="Manuals"; });
+  documents.forEach(d=>{ if(d.folder===name) d.folder="All Documents"; });
   localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents));
   if(currentFolder===name) currentFolder="All Documents";
   renderFoldersAndDocs();
 }
 
-async 
 function saveNewFolder(e){
   e.preventDefault();
   const input = document.getElementById('newFolderName');
@@ -2018,39 +2039,8 @@ function saveNewFolder(e){
   if(!name){ alert('Please enter a folder name'); return; }
   if(folders.includes(name)){ alert('Folder already exists: '+name); return; }
   folders.push(name);
-  localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
+  localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders));
   closeAddFolderModal();
-  renderFoldersAndDocs();
-}
-
-function openEditFolderModal(oldName){
-  if(!isAdmin){alert('Admin only');return;}
-  const newName = prompt('Rename folder:', oldName);
-  if(newName===null) return;
-  const trimmed = newName.trim();
-  if(!trimmed || trimmed===oldName) return;
-  if(folders.includes(trimmed)){ alert('Folder already exists'); return; }
-  const idx = folders.indexOf(oldName);
-  if(idx>-1){
-    folders[idx]=trimmed;
-    documents.forEach(d=>{ if(d.folder===oldName) d.folder=trimmed; });
-    if(currentFolder===oldName) currentFolder=trimmed;
-    localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
-    localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));
-    renderFoldersAndDocs();
-  }
-}
-
-function deleteFolder(folderName){
-  if(!isAdmin){alert('Admin only');return;}
-  if(folderName==='All Documents') return;
-  const count = documents.filter(d=>d.folder===folderName).length;
-  if(!confirm('Delete folder '+folderName+'? '+(count?count+' files will move to All Documents.':''))) return;
-  documents.forEach(d=>{ if(d.folder===folderName) d.folder='All Documents'; });
-  folders = folders.filter(f=>f!==folderName);
-  if(currentFolder===folderName) currentFolder='All Documents';
-  localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));
-  localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));
   renderFoldersAndDocs();
 }
 
@@ -2779,16 +2769,27 @@ try{
     }
   };
 
-  onSnapshot(collection(db,'kytos_parts'),snap=>{
-    if(snap.size>=300){
-      const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
-      parts=live.map(p=>({id:p.id,pn:p.pn||p.partNumber||'',name:p.name||p.description||'',model:p.model||'GENERAL',cat:p.cat||p.category||'General Spares & Hardware',rem:p.rem||'Active Reference',img:p.img||'',imageSource:p.imageSource||'unknown'}));
+onSnapshot(collection(db,'kytos_parts'),snap=>{
+    const live=[];
+    snap.forEach(d=>live.push({id:d.id,...d.data()}));
+    if(live.length>0){
+      parts = live.map(p=>({
+        id:p.id,
+        pn:p.pn||p.partNumber||'',
+        name:p.name||p.description||'',
+        model:p.model||'GENERAL',
+        cat:p.cat||p.category||'General Spares & Hardware',
+        rem:p.rem||'Active Reference',
+        img:p.img||'',
+        imageSource:p.imageSource||'unknown'
+      }));
       try{localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts));}catch(_){}
       if(typeof applyFilters==='function')applyFilters();
     }
-    const el=document.getElementById('lastSyncTime');if(el)el.innerText=`• ${new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})} ${new Date().toLocaleTimeString()} • ${snap.size} parts`;
+    const el=document.getElementById('lastSyncTime');
+    if(el)el.innerText=`• ${new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})} ${new Date().toLocaleTimeString()} • ${snap.size} parts`;
   });
-
+  
   onSnapshot(collection(db,'kytos_activities'),snap=>{
     const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
     // Do not wipe the Calendar when Firestore has no activity documents.

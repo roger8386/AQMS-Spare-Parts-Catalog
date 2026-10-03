@@ -1272,16 +1272,29 @@ async function deletePartItem(id){
   if(!item){ alert('Part not found: '+id); return; }
   if(!confirm('Delete part "'+(item.pn||id)+' - '+(item.name||'')+'"?')) return;
 
-  if(window.firebaseDelete){
-    const ok = await window.firebaseDelete('kytos_parts', String(id), item.pn||null);
-    if(!ok){ alert('❌ Delete failed online'); return; }
-  } else { alert('❌ Firebase not available'); return; }
+  // Direktang buburahin sa Firebase Firestore gamit ang Part Number (pn) para sigurado
+  if(window._db){
+    try {
+      const { collection, query, where, getDocs, deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      const q = query(collection(window._db, 'kytos_parts'), where('pn', '==', String(item.pn)));
+      const snap = await getDocs(q);
+      for (const d of snap.docs) {
+        await deleteDoc(doc(window._db, 'kytos_parts', d.id));
+      }
+    } catch(err) {
+      console.error("Cloud delete error:", err);
+      alert('❌ Delete failed online');
+      return;
+    }
+  }
 
+  // Tanggalin sa local memory at i-save ang bago
   parts = parts.filter(p=>String(p.id)!==String(id));
   try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+  
   applyFilters();
   updateLiveSyncTime();
-  alert('✅ Part deleted and synchronized online!');
+  alert('✅ Deleted successfully across the team!');
 }
   
 function updateCatalogStats(){

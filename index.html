@@ -2716,9 +2716,9 @@ function formatKSADate(dateStr) {
   const parts = dateStr.split('-');
   if (parts.length !== 3) return dateStr;
   const [year, month, day] = parts;
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'];
   const monthName = months[parseInt(month, 10) - 1];
-  return `${day} ${monthName} ${year}`;
+  return `${monthName} ${parseInt(day, 10)}, ${year}`;
 }
   applyFilters(); renderLiveSearchSuggestions(); setPartsViewMode(partsViewMode); setDocsViewMode(docsViewMode); setGalleryViewMode(galleryViewMode); renderHome(); switchTab('home');
 </script>

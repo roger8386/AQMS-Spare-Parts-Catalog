@@ -140,10 +140,12 @@
       <div>
         <div class="flex items-center gap-2">
 <div class="flex items-center gap-1 ml-2">
-<button id="saveButtonMain" onclick="applyFilters()" class="hidden text-[10px] px-3 py-1.5 rounded-full bg-emerald-600 text-white border border-emerald-500 hover:bg-emerald-700 font-bold shadow-sm" title="Save all changes"><i class="fa-solid fa-floppy-disk mr-1"></i>Save</button>
+<button id="syncAllCloudBtn" onclick="pushAllPartsToCloud()" class="hidden text-[10px] px-3 py-1.5 rounded-full bg-cyan-600 text-white border border-cyan-500 hover:bg-cyan-700 font-bold shadow-sm" title="Upload all current parts to Firebase Cloud"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>Push to Cloud</button>
+<button id="saveButtonMain" onclick="exportAllData()" class="hidden text-[10px] px-3 py-1.5 rounded-full bg-emerald-600 text-white border border-emerald-500 hover:bg-emerald-700 font-bold shadow-sm" title="Download backup of all data"><i class="fa-solid fa-download mr-1"></i>Backup</button>
+<button id="restoreButtonMain" onclick="document.getElementById('importFileInput').click()" class="hidden text-[10px] px-3 py-1.5 rounded-full bg-slate-700 text-white border border-slate-600 hover:bg-slate-600 font-bold shadow-sm" title="Import JSON backup"><i class="fa-solid fa-upload mr-1"></i>Restore</button>
 <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importAllData(event)">
 </div>
-<h1 class="text-base md:text-lg font-bold tracking-tight">AQMS Technical Portal</h1><span class="bg-cyan-950 text-cyan-300 border border-cyan-700/50 text-[10px] font-bold px-2 py-0.5 rounded-full" id="headerBadge">366 Items</span></div>
+<h1 class="text-base md:text-lg font-bold tracking-tight">AQMS Technical Portal</h1><span class="bg-cyan-950 text-cyan-300 border border-cyan-700/50 text-[10px] font-bold px-2 py-0.5 rounded-full" id="headerBadge">Connecting Cloud...</span></div>
         <p class="text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-1">
   <span class="font-semibold text-slate-300">Abdul Karim H. Al-Sinan for Trading and Contracting Company</span>
   <span class="text-slate-600">•</span>
@@ -245,6 +247,7 @@
     <div onclick="openWithImagesModal()" class="stat-card bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition">
         <div class="flex items-center justify-between"><span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">With Images</span><span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600"><i class="fa-solid fa-image text-xs"></i></span></div>
         <div id="statImages" class="mt-3 text-2xl md:text-3xl font-black text-slate-900">0</div><div class="text-[10px] text-slate-400 mt-0.5">Image references</div>
+    </div>
     </div>
   </section>
   <div id="sparePartsSearchPanel" class="glass-panel p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 no-print search-panel-sticky">
@@ -649,11 +652,17 @@ function getYouTubeId(url){
   }catch(e){}
   return null;
 }
-let _localParts = JSON.parse(localStorage.getItem('kytos_parts_fixed')||'null');
-let parts = (_localParts && _localParts.length>=300) ? _localParts : rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
-if(parts.length<300 && rawData.length>=366){
+// Cloud-first store: parts are synchronized directly from Firebase Firestore
+let parts = [];
+try {
+  // If this device already has the 419 parts cached from previous edits, keep them in memory for cloud sync
+  const cached = JSON.parse(localStorage.getItem('kytos_parts_fixed') || 'null');
+  if(Array.isArray(cached) && cached.length >= 366){
+    parts = cached;
+  }
+} catch(_) {}
+if(parts.length === 0){
   parts = rawData.map(r=>({id:r[0],pn:r[1],name:r[2],model:r[3],cat:r[4],rem:r[5],img:r[6]||''}));
-  try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
 }
 
 const defaultActivities = [
@@ -662,32 +671,30 @@ const defaultActivities = [
 {id:"act_albert",startDate:"2026-10-05",endDate:"2026-10-10",title:"Albert in France - Audit",type:"Audit",person:"Albert",description:"Site audit in France"},
 {id:"act_maint2",startDate:"2026-09-15",endDate:"2026-09-18",title:"maintenance - ako ikaw sila",type:"Calibration",person:"Team",description:"Calibration and maintenance"}
 ];
-let _savedActivities = null;
-try{ _savedActivities = JSON.parse(localStorage.getItem('kytos_acts_fixed')||'null'); }catch(_){}
-let activities = (Array.isArray(_savedActivities) && _savedActivities.length) ? _savedActivities : defaultActivities.map(a=>({...a}));
+let activities = defaultActivities.map(a=>({...a}));
 let calendarViewMode = localStorage.getItem('kytos_calView')||'month';
 let activityViewMode = localStorage.getItem('kytos_actView')||'card';
 window.switchCalendarView = function(mode){ calendarViewMode=mode; localStorage.setItem('kytos_calView', mode); renderActivities(); };
 window.switchActivityView = function(mode){ activityViewMode=mode; localStorage.setItem('kytos_actView', mode); renderActivities(); };
-let galleryPosts = JSON.parse(localStorage.getItem('kytos_gallery_fixed')||'null') || [{id:1,date:"2026-09-15",location:"Jubail Plant",playlist:"Thermo Analyzers",title:"CEMS Maintenance & Calibration Walkthrough",mediaType:"video",youtube:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",description:"Sample troubleshooting and maintenance video."}];
-let playlists = JSON.parse(localStorage.getItem('kytos_playlists_fixed')||'null') || ["All Playlists","Thermo Analyzers","Airpointer","Calibration & SOP"];
+let galleryPosts = [{id:1,date:"2026-09-15",location:"Jubail Plant",playlist:"Thermo Analyzers",title:"CEMS Maintenance & Calibration Walkthrough",mediaType:"video",youtube:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",description:"Sample troubleshooting and maintenance video."}];
+let playlists = ["All Playlists","Thermo Analyzers","Airpointer","Calibration & SOP"];
 let selectedPlaylist="All Playlists";
-let documents = JSON.parse(localStorage.getItem('kytos_docs_fixed')||'null') || [{id:1,title:"Thermo 42i NOx Analyzer Instruction Manual",type:"PDF",folder:"Manuals",fileName:"Thermo_42i_Manual.pdf",url:"#",description:"Standard operating and service manual."},{id:2,title:"Quarterly Analyzer Calibration Sheet",type:"EXCEL",folder:"Forms & Sheets",fileName:"Calibration_Checklist.xlsx",url:"#",description:"Excel template for calibration records."}];
-let folders = JSON.parse(localStorage.getItem('kytos_folders_fixed')||'null') || ["All Documents","Manuals","Forms & Sheets","SOPs"];
+let documents = [{id:1,title:"Thermo 42i NOx Analyzer Instruction Manual",type:"PDF",folder:"Manuals",fileName:"Thermo_42i_Manual.pdf",url:"#",description:"Standard operating and service manual."},{id:2,title:"Quarterly Analyzer Calibration Sheet",type:"EXCEL",folder:"Forms & Sheets",fileName:"Calibration_Checklist.xlsx",url:"#",description:"Excel template for calibration records."}];
+let folders = ["All Documents","Manuals","Forms & Sheets","SOPs"];
 let currentFolder="All Documents";
 let partsViewMode=localStorage.getItem('p_v_mode_fixed')||'grid';
 let docsViewMode=localStorage.getItem('d_v_mode_fixed')||'grid';
 let galleryViewMode=localStorage.getItem('g_v_mode_fixed')||'grid';
   let gallerySortMode=localStorage.getItem('gallery_sort_mode')||'date-desc';
 let currentSelectedFile=null; let currentPartPhoto=null; let activePreviewBlobUrl=null; let isAdmin=false; let currentCalendarDate=new Date();
-let homeSlides = JSON.parse(localStorage.getItem('kytos_home_slides')||'null') || [];
-let homeShortcuts = JSON.parse(localStorage.getItem('kytos_home_shortcuts')||'null') || [
+let homeSlides = [];
+let homeShortcuts = [
   {id:'shortcut_parts',label:'Spare Parts',icon:'fa-boxes-stacked',target:'parts'},
   {id:'shortcut_calendar',label:'Calendar',icon:'fa-calendar-days',target:'activities'},
   {id:'shortcut_docs',label:'Documents',icon:'fa-folder-tree',target:'documents'},
   {id:'shortcut_gallery',label:'Gallery',icon:'fa-photo-film',target:'gallery'}
 ];
-let homeSettings = JSON.parse(localStorage.getItem('kytos_home_settings')||'null') || {
+let homeSettings = {
   purpose:'This portal provides one shared technical workspace for the team to find AQMS spare parts, manage maintenance schedules, access technical documents, and share field activities and media. Updates made by authorized administrators are synchronized for the team through the live portal.'
 };
 let homeSlideIndex=0, homeSlideTimer=null, homeSelectedSlideFile=null;
@@ -761,110 +768,10 @@ function openHomeShortcut(target,url){
   if(target==='external'&&url){window.open(url,'_blank','noopener');return;}
   switchTab(target||'home');
 }
-function openHomeEditor(){
-  if(!isAdmin){alert('Admin access required.');return;}
-  document.getElementById('homeEditorModal').classList.remove('hidden');
-  document.getElementById('homePurposeInput').value=homeSettings.purpose||'';
-  renderHomeAdminLists(); resetHomeSlideForm(); resetHomeShortcutForm();
+function closeHomeEditor(){
+  const modal=document.getElementById('homeEditorModal');
+  if(modal) modal.classList.add('hidden');
 }
-function closeHomeEditor(){document.getElementById('homeEditorModal').classList.add('hidden');}
-async function saveHomePurpose(e){
-  e.preventDefault();if(!isAdmin)return;
-  homeSettings.purpose=document.getElementById('homePurposeInput').value.trim();
-  localStorage.setItem('kytos_home_settings',JSON.stringify(homeSettings));
-  if(window.firebaseSetNamed) await window.firebaseSetNamed('kytos_home_settings','main',{purpose:homeSettings.purpose});
-  renderHome();alert('Home purpose updated and synchronized.');
-}
-function resetHomeSlideForm(){
-  const ids=['homeSlideEditId','homeSlideTitle','homeSlideSubtitle','homeSlideImageUrl'];
-  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  homeSelectedSlideFile=null;const f=document.getElementById('homeSlideFile');if(f)f.value='';
-  const n=document.getElementById('homeSlideFileName');if(n)n.textContent='';
-}
-async function saveHomeSlide(e){
-  e.preventDefault();if(!isAdmin)return;
-  const editId=document.getElementById('homeSlideEditId').value.trim();
-  const title=document.getElementById('homeSlideTitle').value.trim();
-  const subtitle=document.getElementById('homeSlideSubtitle').value.trim();
-  let imageUrl=document.getElementById('homeSlideImageUrl').value.trim();
-  try{
-    if(homeSelectedSlideFile){
-      if(window.firebaseUploadFile) imageUrl=await window.firebaseUploadFile(homeSelectedSlideFile,'home-slides');
-      else throw new Error('Shared image storage is not available.');
-    }
-    if(!imageUrl && editId){
-      const old=homeSlides.find(x=>String(x.id)===String(editId));imageUrl=old?.imageUrl||'';
-    }
-    if(!imageUrl){alert('Please provide an image link or choose an image file.');return;}
-    const data={title,subtitle,imageUrl};
-    if(editId){
-      const idx=homeSlides.findIndex(x=>String(x.id)===String(editId));
-      if(idx>=0)homeSlides[idx]={...homeSlides[idx],...data,updatedAt:Date.now()};
-      localStorage.setItem('kytos_home_slides',JSON.stringify(homeSlides));
-      if(window.firebaseUpdate)await window.firebaseUpdate('kytos_home_slides',String(editId),data);
-    }else{
-      const localId='home_'+Date.now();
-      homeSlides.push({id:localId,...data,createdAt:Date.now()});
-      localStorage.setItem('kytos_home_slides',JSON.stringify(homeSlides));
-      if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_home_slides',data);if(fid){homeSlides[homeSlides.length-1].id=fid;localStorage.setItem('kytos_home_slides',JSON.stringify(homeSlides));}}
-    }
-    homeSlideIndex=0;renderHome();renderHomeAdminLists();resetHomeSlideForm();alert('Home slide saved.');
-  }catch(err){console.error(err);alert('Unable to save slide: '+err.message);}
-}
-function editHomeSlide(id){
-  const s=homeSlides.find(x=>String(x.id)===String(id));if(!s)return;
-  document.getElementById('homeSlideEditId').value=s.id;document.getElementById('homeSlideTitle').value=s.title||'';document.getElementById('homeSlideSubtitle').value=s.subtitle||'';document.getElementById('homeSlideImageUrl').value=s.imageUrl||'';document.getElementById('homeSlideFileName').textContent='Editing existing image';
-}
-async function deleteHomeSlide(id){
-  if(!isAdmin)return;if(!confirm('Delete this home slide?'))return;
-  homeSlides=homeSlides.filter(x=>String(x.id)!==String(id));localStorage.setItem('kytos_home_slides',JSON.stringify(homeSlides));
-  if(window.firebaseDelete)await window.firebaseDelete('kytos_home_slides',String(id));
-  homeSlideIndex=0;renderHome();renderHomeAdminLists();
-}
-function resetHomeShortcutForm(){
-  document.getElementById('homeShortcutEditId').value='';document.getElementById('homeShortcutLabel').value='';document.getElementById('homeShortcutIcon').value='fa-link';document.getElementById('homeShortcutTarget').value='parts';document.getElementById('homeShortcutUrl').value='';document.getElementById('homeShortcutUrl').classList.add('hidden');
-}
-function editHomeShortcut(id){
-  const s=homeShortcuts.find(x=>String(x.id)===String(id));if(!s)return;
-  document.getElementById('homeShortcutEditId').value=s.id;document.getElementById('homeShortcutLabel').value=s.label||'';document.getElementById('homeShortcutIcon').value=s.icon||'fa-link';document.getElementById('homeShortcutTarget').value=s.target||'parts';document.getElementById('homeShortcutUrl').value=s.url||'';
-  document.getElementById('homeShortcutUrl').classList.toggle('hidden',s.target!=='external');
-}
-async function saveHomeShortcut(e){
-  e.preventDefault();if(!isAdmin)return;
-  const editId=document.getElementById('homeShortcutEditId').value.trim();
-  const data={label:document.getElementById('homeShortcutLabel').value.trim(),icon:document.getElementById('homeShortcutIcon').value.trim()||'fa-link',target:document.getElementById('homeShortcutTarget').value,url:document.getElementById('homeShortcutUrl').value.trim()};
-  if(data.target==='external'&&!data.url){alert('Please enter the external URL.');return;}
-  if(editId){
-    const idx=homeShortcuts.findIndex(x=>String(x.id)===String(editId));if(idx>=0)homeShortcuts[idx]={...homeShortcuts[idx],...data};
-    localStorage.setItem('kytos_home_shortcuts',JSON.stringify(homeShortcuts));if(window.firebaseUpdate)await window.firebaseUpdate('kytos_home_shortcuts',String(editId),data);
-  }else{
-    const localId='shortcut_'+Date.now();homeShortcuts.push({id:localId,...data});localStorage.setItem('kytos_home_shortcuts',JSON.stringify(homeShortcuts));
-    if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_home_shortcuts',data);if(fid){homeShortcuts[homeShortcuts.length-1].id=fid;localStorage.setItem('kytos_home_shortcuts',JSON.stringify(homeShortcuts));}}
-  }
-  renderHome();renderHomeAdminLists();resetHomeShortcutForm();alert('Shortcut saved.');
-}
-async function deleteHomeShortcut(id){
-  if(!isAdmin)return;if(!confirm('Delete this shortcut?'))return;
-  homeShortcuts=homeShortcuts.filter(x=>String(x.id)!==String(id));localStorage.setItem('kytos_home_shortcuts',JSON.stringify(homeShortcuts));
-  if(window.firebaseDelete)await window.firebaseDelete('kytos_home_shortcuts',String(id));
-  renderHome();renderHomeAdminLists();
-}
-function renderHomeAdminLists(){
-  const sbox=document.getElementById('homeSlidesAdminList');
-  if(sbox)sbox.innerHTML=homeSlides.length?homeSlides.map(s=>`<div class="flex items-center justify-between gap-2 p-2 border rounded-xl"><div class="min-w-0"><div class="font-bold text-xs text-slate-700 truncate">${escapeHtml(s.title)}</div><div class="text-[10px] text-slate-400 truncate">${escapeHtml(s.subtitle||s.imageUrl||'')}</div></div><div class="flex gap-1 shrink-0"><button type="button" onclick="editHomeSlide('${escapeHtml(s.id)}')" class="px-2 py-1 rounded-lg bg-slate-100 text-[10px] font-bold">Edit</button><button type="button" onclick="deleteHomeSlide('${escapeHtml(s.id)}')" class="px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[10px] font-bold">Delete</button></div></div>`).join(''):'<div class="text-xs text-slate-400 text-center py-4">No slides yet.</div>';
-  const cbox=document.getElementById('homeShortcutsAdminList');
-  if(cbox)cbox.innerHTML=homeShortcuts.length?homeShortcuts.map(s=>`<div class="flex items-center justify-between gap-2 p-2 border rounded-xl"><div class="min-w-0"><div class="font-bold text-xs text-slate-700 truncate"><i class="fa-solid ${escapeHtml(s.icon||'fa-link')} mr-1 text-cyan-600"></i>${escapeHtml(s.label)}</div><div class="text-[10px] text-slate-400">${escapeHtml(s.target||'')}</div></div><div class="flex gap-1 shrink-0"><button type="button" onclick="editHomeShortcut('${escapeHtml(s.id)}')" class="px-2 py-1 rounded-lg bg-slate-100 text-[10px] font-bold">Edit</button><button type="button" onclick="deleteHomeShortcut('${escapeHtml(s.id)}')" class="px-2 py-1 rounded-lg bg-red-50 text-red-600 text-[10px] font-bold">Delete</button></div></div>`).join(''):'<div class="text-xs text-slate-400 text-center py-4">No shortcuts yet.</div>';
-}
-document.addEventListener('change',e=>{
-  if(e.target.id==='homeShortcutTarget'){
-    const u=document.getElementById('homeShortcutUrl');if(u)u.classList.toggle('hidden',e.target.value!=='external');
-  }
-  if(e.target.id==='homeSlideFile'&&e.target.files[0]){
-    homeSelectedSlideFile=e.target.files[0];
-    const n=document.getElementById('homeSlideFileName');if(n)n.textContent=e.target.files[0].name;
-  }
-});
-
 function setPartsViewMode(mode){partsViewMode=mode;localStorage.setItem('p_v_mode_fixed',mode);['grid','details','list','content'].forEach(m=>{const btn=document.getElementById('pMode'+m.charAt(0).toUpperCase()+m.slice(1));if(btn)btn.className=(m===mode)?"px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700":"px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900";});applyFilters();}
 function setDocsViewMode(mode){docsViewMode=mode;localStorage.setItem('d_v_mode_fixed',mode);['grid','details','list','content'].forEach(m=>{const btn=document.getElementById('dMode'+m.charAt(0).toUpperCase()+m.slice(1));if(btn)btn.className=(m===mode)?"px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700":"px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900";});renderFoldersAndDocs();}
 function setGalleryViewMode(mode){galleryViewMode=mode;localStorage.setItem('g_v_mode_fixed',mode);['grid','details','list','content'].forEach(m=>{const btn=document.getElementById('gMode'+m.charAt(0).toUpperCase()+m.slice(1));if(btn)btn.className=(m===mode)?"px-2.5 py-1 rounded-lg font-bold bg-white shadow-sm text-cyan-700":"px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900";});renderPlaylistsAndGallery();}
@@ -922,7 +829,7 @@ function openEditPartModal(id){
           ${parts.map(item=>`
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
               ${item.img
-                ? `<div class="h-48 bg-slate-50 flex items-center justify-center cursor-pointer group" onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})">
+                ? `<div class="h-48 bg-slate-50 flex items-center justify-center cursor-pointer group" onclick="openPartImagePreviewById(\'${item.id}\')">
                     <img src="${escapeHtml(normalizePartImageUrl(item.img))}" class="w-full h-full object-contain p-3 group-hover:scale-105 transition" loading="lazy">
                   </div>`
                 : `<div class="h-24 bg-slate-50 flex items-center justify-center text-slate-300">
@@ -1018,7 +925,7 @@ function openEditPartModal(id){
                         ? `
                           <div
                             class="w-16 h-16 flex-shrink-0 bg-slate-50 rounded-lg flex items-center justify-center cursor-pointer group overflow-hidden"
-                            onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})"
+                            onclick="openPartImagePreviewById(\'${item.id}\')"
                             title="Click to view image"
                           >
                             <img
@@ -1102,7 +1009,7 @@ function openEditPartModal(id){
 
               <div
                 class="h-52 bg-slate-50 flex items-center justify-center cursor-pointer group overflow-hidden"
-                onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})"
+                onclick="openPartImagePreviewById(\'${item.id}\')"
                 title="Click to view image"
               >
                 <img
@@ -1227,7 +1134,7 @@ async function savePartData(e){
     }
 
     parts[idx] = { ...parts[idx], ...payload };
-    try{ localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts)); }catch(err){}
+    try{ }catch(err){}
 
     closePartModal();
     applyFilters();
@@ -1258,7 +1165,7 @@ async function savePartData(e){
   }
 
   parts.unshift(newPart);
-  try{ localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts)); }catch(err){}
+  try{ }catch(err){}
 
   closePartModal();
   applyFilters();
@@ -1290,7 +1197,7 @@ async function deletePartItem(id){
 
   // Tanggalin sa local memory at i-save ang bago
   parts = parts.filter(p=>String(p.id)!==String(id));
-  try{ localStorage.setItem('kytos_parts_fixed', JSON.stringify(parts)); }catch(e){}
+  try{ }catch(e){}
   
   applyFilters();
   updateLiveSyncTime();
@@ -1432,9 +1339,9 @@ function applyFilters(){
     matched.forEach(item=>{
       const icon=categoryIcons[item.cat]||'fa-microchip text-slate-400';
       const safePn=escapeHtml(item.pn); const safeName=escapeHtml(item.name); const safeModel=escapeHtml(item.model);
-      const imgBlock=item.img?`<div class="part-grid-image w-full overflow-hidden bg-slate-50 border-t cursor-pointer group relative" onclick="openPartImagePreview(${JSON.stringify(item.pn+' - '+item.name)}, ${JSON.stringify(item.img)})"><img src="${escapeHtml(normalizePartImageUrl(item.img))}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')" class="w-full h-full object-contain group-hover:scale-[1.02] transition p-3"><div class="hidden absolute inset-0 bg-slate-50 flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-3xl mb-2"></i><span class="text-[9px] font-bold uppercase text-slate-400">Image unavailable</span><span class="text-[9px] text-slate-400 mt-1">Edit part to replace image</span></div><div class="absolute bottom-1 right-1 bg-slate-900/75 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</div></div>`:`<div class="w-full h-24 bg-slate-50 border-t flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-2xl mb-1"></i><span class="text-[9px] font-bold uppercase text-slate-400">${escapeHtml(item.cat)}</span></div>`;
+      const imgBlock=item.img?`<div class="part-grid-image w-full overflow-hidden bg-slate-50 border-t cursor-pointer group relative" onclick="openPartImagePreviewById(\'${item.id}\')"><img src="${escapeHtml(normalizePartImageUrl(item.img))}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')" class="w-full h-full object-contain group-hover:scale-[1.02] transition p-3"><div class="hidden absolute inset-0 bg-slate-50 flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-3xl mb-2"></i><span class="text-[9px] font-bold uppercase text-slate-400">Image unavailable</span><span class="text-[9px] text-slate-400 mt-1">Edit part to replace image</span></div><div class="absolute bottom-1 right-1 bg-slate-900/75 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</div></div>`:`<div class="w-full h-24 bg-slate-50 border-t flex flex-col items-center justify-center text-slate-300"><i class="fa-solid ${icon} text-2xl mb-1"></i><span class="text-[9px] font-bold uppercase text-slate-400">${escapeHtml(item.cat)}</span></div>`;
       const card=document.createElement('div'); card.className="catalog-card bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between";
-      card.innerHTML=`${imgBlock}<div class="part-info p-4 flex-1 flex flex-col justify-between"><div><div class="flex justify-between items-center gap-1 mb-2"><span class="text-xs font-mono font-bold text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-md border border-cyan-200">${safePn}</span><div class="flex items-center gap-1"><button onclick="copyText(${JSON.stringify(item.pn)})" class="text-slate-400 hover:text-slate-700 p-1" title="Copy Part Number"><i class="fa-regular fa-copy text-xs"></i></button>${isAdmin?`<button onclick="openEditPartModal('${item.id}')" class="text-cyan-600 hover:text-cyan-800 p-1" title="Edit Part"><i class="fa-solid fa-pen-to-square text-xs"></i></button><button onclick="deletePartItem('${item.id}')" class="text-red-400 hover:text-red-600 p-1" title="Delete Part"><i class="fa-solid fa-trash-can text-xs"></i></button>`:''}</div></div><h4 class="font-bold text-slate-800 text-sm leading-snug mb-2 line-clamp-3" title="${safeName}">${safeName}</h4></div><div class="mt-3 pt-3 border-t text-[10px] flex items-center justify-between text-slate-500"><span>Model</span><span class="font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">${safeModel}</span></div><div class="mt-2 text-[9px] uppercase tracking-wide font-bold text-slate-400">${escapeHtml(item.cat)}</div></div>`;
+      card.innerHTML=`${imgBlock}<div class="part-info p-4 flex-1 flex flex-col justify-between"><div><div class="flex justify-between items-center gap-1 mb-2"><span class="text-xs font-mono font-bold text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-md border border-cyan-200">${safePn}</span><div class="flex items-center gap-1"><button onclick="copyPartNumber(\'${item.id}\')" class="text-slate-400 hover:text-slate-700 p-1" title="Copy Part Number"><i class="fa-regular fa-copy text-xs"></i></button>${isAdmin?`<button onclick="openEditPartModal('${item.id}')" class="text-cyan-600 hover:text-cyan-800 p-1" title="Edit Part"><i class="fa-solid fa-pen-to-square text-xs"></i></button><button onclick="deletePartItem('${item.id}')" class="text-red-400 hover:text-red-600 p-1" title="Delete Part"><i class="fa-solid fa-trash-can text-xs"></i></button>`:''}</div></div><h4 class="font-bold text-slate-800 text-sm leading-snug mb-2 line-clamp-3" title="${safeName}">${safeName}</h4></div><div class="mt-3 pt-3 border-t text-[10px] flex items-center justify-between text-slate-500"><span>Model</span><span class="font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">${safeModel}</span></div><div class="mt-2 text-[9px] uppercase tracking-wide font-bold text-slate-400">${escapeHtml(item.cat)}</div></div>`;
       gridDiv.appendChild(card);
     }); container.appendChild(gridDiv);
   } else if(partsViewMode==='details'){
@@ -1487,6 +1394,65 @@ function updateLiveSyncTime(){
 function copyText(t){navigator.clipboard.writeText(t).then(()=>{const el=document.createElement('div'); el.textContent='Copied: '+t; el.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-full shadow-lg z-[60]'; document.body.appendChild(el); setTimeout(()=>el.remove(),1500);});}
 function resetAllFilters(){document.getElementById('categoryDropdown').value='ALL'; document.getElementById('modelDropdown').value='ALL'; document.getElementById('searchInput').value=''; applyFilters();}
 function triggerSearch(){applyFilters();}
+function openPartImagePreviewById(id){
+  const item = parts.find(p=>String(p.id)===String(id));
+  if(item) openPartImagePreview((item.pn||'') + ' - ' + (item.name||''), item.img||'');
+}
+function copyPartNumber(id){
+  const item = parts.find(p=>String(p.id)===String(id));
+  if(item && item.pn) copyText(item.pn);
+}
+
+function exportAllData(){
+  const backup = {
+    version: '1.0',
+    exportDate: new Date().toISOString(),
+    parts, activities, documents, galleryPosts, playlists, folders, homeSlides, homeShortcuts, homeSettings
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `AQMS_Portal_Cloud_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importAllData(event){
+  const file = event?.target?.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(Array.isArray(data)){
+        parts = data;
+      } else if(data && typeof data === 'object'){
+        if(Array.isArray(data.parts)) parts = data.parts;
+        if(Array.isArray(data.activities)) activities = data.activities;
+        if(Array.isArray(data.documents)) documents = data.documents;
+        if(Array.isArray(data.galleryPosts)) galleryPosts = data.galleryPosts;
+        if(Array.isArray(data.folders)) folders = data.folders;
+        if(Array.isArray(data.playlists)) playlists = data.playlists;
+        if(Array.isArray(data.homeSlides)) homeSlides = data.homeSlides;
+        if(Array.isArray(data.homeShortcuts)) homeShortcuts = data.homeShortcuts;
+        if(data.homeSettings) homeSettings = data.homeSettings;
+      } else {
+        throw new Error('Invalid JSON structure');
+      }
+      applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery(); renderHome(); updateLiveSyncTime();
+      alert(`✅ Loaded ${parts.length} parts into memory!\n\nKung gusto mong i-save ito nang permanente sa Firebase Cloud, i-click ang [Push to Cloud] button.`);
+    } catch(err) {
+      alert('❌ Failed to load backup: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+window.exportAllData = exportAllData;
+window.importAllData = importAllData;
+
 function openPartImagePreview(title,imgSrc){
   document.getElementById('partImageModalTitle').innerText=title;
   const imgEl = document.getElementById('partImageModalImg');
@@ -1559,7 +1525,7 @@ function getGoogleDocumentKind(url){
   return 'drive-file';
 }
 
-function closePartImageModal(){document.getElementById('partImageModal').classList.add('hidden');}
+
 document.getElementById('searchInput').addEventListener('input', ()=>{ renderLiveSearchSuggestions(); debounce(()=>applyFilters(),180)(); });
 document.getElementById('categoryDropdown').addEventListener('change', ()=>applyFilters());
 document.getElementById('modelDropdown').addEventListener('change', ()=>applyFilters());
@@ -1767,7 +1733,7 @@ async function saveNewActivity(e){
     }
     const idx=activities.findIndex(a=>String(a.id)===String(editId));
     if(idx>-1) activities[idx]={...activities[idx],...payload};
-    try{localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));}catch(_){}
+    try{}catch(_){}
   } else {
     if(repeatType!== 'none' && repeatUntilVal){
       const start=new Date(startDate); const end=new Date(endDate); const until=new Date(repeatUntilVal);
@@ -1789,14 +1755,14 @@ async function saveNewActivity(e){
         else if(repeatType==='yearly') cur.setFullYear(cur.getFullYear()+1);
         else break;
       }
-      try{localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));}catch(_){}
+      try{}catch(_){}
     } else {
       const payload={startDate,endDate,title,type,person,description,repeatType:'none'};
       if(window.firebaseAdd){
         const fid=await window.firebaseAdd('kytos_activities',payload);
         if(!fid){ alert('❌ Activity NOT saved online'); return; }
         activities.push({id:fid,...payload});
-        try{localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities));}catch(_){}
+        try{}catch(_){}
       }
     }
   }
@@ -1811,7 +1777,7 @@ async function deleteActivityItem(id){
   if(!act){ alert('Not found: '+id); return; }
   if(!confirm('Delete activity: '+act.title+'?')) return;
   activities=activities.filter(a=>String(a.id)!==String(id));
-  try{ localStorage.setItem('kytos_acts_fixed', JSON.stringify(activities)); }catch(e){}
+  try{ }catch(e){}
   renderActivities();
 }
 
@@ -2026,10 +1992,9 @@ async function openEditFolderModal(oldName){
   if(!trimmed){ alert("Folder name cannot be empty"); return; }
   if(folders.includes(trimmed)){ alert("Folder already exists"); return; }
   const idx = folders.indexOf(oldName);
-  if(idx>-1){ folders[idx]=trimmed; localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders)); if(window.firebaseSetNamed) await window.firebaseSetNamed('kytos_folders',trimmed); }
+  if(idx>-1){ folders[idx]=trimmed; if(window.firebaseSetNamed) await window.firebaseSetNamed('kytos_folders',trimmed); }
   // update documents that were in this folder
   documents.forEach(d=>{ if(d.folder===oldName) d.folder=trimmed; });
-  localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents));
   if(currentFolder===oldName) currentFolder=trimmed;
   renderFoldersAndDocs();
 }
@@ -2038,9 +2003,7 @@ async function deleteFolder(name){
   if(name==="All Documents"){ alert("Cannot delete All Documents"); return; }
   if(!confirm(`Delete folder "${name}"? Files inside will move to "All Documents".`)) return;
   folders = folders.filter(f=>f!==name);
-  localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders));
   documents.forEach(d=>{ if(d.folder===name) d.folder="All Documents"; });
-  localStorage.setItem('kytos_docs_fixed', JSON.stringify(documents));
   if(currentFolder===name) currentFolder="All Documents";
   renderFoldersAndDocs();
 }
@@ -2052,7 +2015,6 @@ function saveNewFolder(e){
   if(!name){ alert('Please enter a folder name'); return; }
   if(folders.includes(name)){ alert('Folder already exists: '+name); return; }
   folders.push(name);
-  localStorage.setItem('kytos_folders_fixed', JSON.stringify(folders));
   closeAddFolderModal();
   renderFoldersAndDocs();
 }
@@ -2109,7 +2071,7 @@ async function saveNewDocument(e){
   if(!editId && !file && !driveUrl){alert('Select a local file or enter a Google Drive link.');return;}
 
   const saveLocal=()=>{
-    try{localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));}catch(err){console.warn('Local document cache failed',err);}
+    try{}catch(err){console.warn('Local document cache failed',err);}
   };
 
   if(editId){
@@ -2158,7 +2120,6 @@ async function deleteDocument(id){
   const item=documents.find(d=>String(d.id)===String(id));
   if(!item||!confirm(`Delete "${item.title}"?`))return;
   documents=documents.filter(d=>String(d.id)!==String(id));
-  localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));
   if(window.firebaseDelete) await window.firebaseDelete('kytos_docs',String(id));
   renderFoldersAndDocs(); updateLiveSyncTime();
 }
@@ -2409,7 +2370,6 @@ async function openEditPlaylistModal(oldName){
   if(playlists.includes(name)){alert('Playlist already exists.');return;}
   playlists=playlists.map(p=>p===oldName?name:p);
   galleryPosts=galleryPosts.map(p=>p.playlist===oldName?{...p,playlist:name}:p);
-  localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
   if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_playlists',name);
   if(window._db){for(const post of galleryPosts.filter(p=>p.playlist===name)){if(String(post.id).length>10&&window.firebaseUpdate)await window.firebaseUpdate('kytos_gallery',String(post.id),{playlist:name});}}
   if(selectedPlaylist===oldName)selectedPlaylist=name;renderPlaylistsAndGallery();
@@ -2420,7 +2380,6 @@ async function deletePlaylist(name){
   playlists=playlists.filter(p=>p!==name);
   galleryPosts=galleryPosts.map(p=>p.playlist===name?{...p,playlist:'General'}:p);
   if(!playlists.includes('General'))playlists.push('General');
-  localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
   if(window._db&&window.firebaseUpdate){for(const post of galleryPosts.filter(p=>p.playlist==='General')){if(String(post.id).length>10)await window.firebaseUpdate('kytos_gallery',String(post.id),{playlist:'General'});}}
   if(selectedPlaylist===name)selectedPlaylist='All Playlists';renderPlaylistsAndGallery();
 }
@@ -2429,22 +2388,15 @@ function closeAddPlaylistModal(){document.getElementById('playlistModal').classL
 async function saveNewPlaylist(e){
   e.preventDefault();const name=document.getElementById('newPlaylistName').value.trim();
   if(!name||playlists.includes(name))return;
-  playlists.push(name);localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));
-  if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_playlists',name);
+  playlists.push(name);if(window.firebaseSetNamed)await window.firebaseSetNamed('kytos_playlists',name);
   closeAddPlaylistModal();renderPlaylistsAndGallery();
 }
 function populateGalleryPlaylistSelect(selected){
   const select=document.getElementById('galleryPlaylistSelect');select.innerHTML='';
   let opts=playlists.filter(p=>p!=="All Playlists");
-  if(opts.length===0){opts=["General"];playlists=["All Playlists","General"];localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));}
+  if(opts.length===0){opts=["General"];playlists=["All Playlists","General"];}
   if(selected && !opts.includes(selected))opts.push(selected);
   opts.forEach(pl=>{select.innerHTML+=`<option value="${escapeHtml(pl)}" ${selected===pl?'selected':''}>${escapeHtml(pl)}</option>`;});
-}
-function toggleGalleryMediaFields(){
-  const type=document.getElementById('galleryMediaType')?.value||'video';
-  const vf=document.getElementById('galleryVideoField'),im=document.getElementById('galleryImageFields');
-  if(vf)vf.classList.toggle('hidden',type!=='video');if(im)im.classList.toggle('hidden',type!=='image');
-  const y=document.getElementById('galleryYoutube');if(y)y.required=(type==='video');
 }
 function openAddGalleryModal(){
   document.getElementById('editGalleryId').value="";
@@ -2643,10 +2595,7 @@ async function saveNewGallery(e){
     }
   }
 
-  localStorage.setItem(
-    'kytos_gallery_fixed',
-    JSON.stringify(galleryPosts)
-  );
+  
 
   closeGalleryModal();
   renderPlaylistsAndGallery();
@@ -2657,7 +2606,6 @@ async function deleteGallery(id){
   const item=galleryPosts.find(p=>String(p.id)===String(id));if(!item)return;
   if(!confirm(`Delete "${item.title}"?`))return;
   galleryPosts=galleryPosts.filter(p=>String(p.id)!==String(id));
-  localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));
   if(window.firebaseDelete)await window.firebaseDelete('kytos_gallery',String(id));
   renderPlaylistsAndGallery();updateLiveSyncTime();
 }
@@ -2670,7 +2618,7 @@ function handleAdminButtonClick(){
       const iconEl=document.getElementById('adminLockIcon');
       if(statusEl) statusEl.innerText="Admin";
       if(iconEl) iconEl.className="fa-solid fa-lock text-yellow-400";
-      ['adminActionBtn','adminActivityAction','adminDocAction','adminGalleryAction','saveButtonMain','homeAdminAction'].forEach(id=>{
+      ['adminActionBtn','adminActivityAction','adminDocAction','adminGalleryAction','saveButtonMain','syncAllCloudBtn','restoreButtonMain','homeAdminAction'].forEach(id=>{
         const el=document.getElementById(id);
         if(el) el.classList.add('hidden');
       });
@@ -2689,7 +2637,7 @@ function handleAdminButtonClick(){
   }
 }
 function closeAdminModal(){document.getElementById('loginModal').classList.add('hidden');}
-function verifyAdminPass(){if(document.getElementById('adminPassInput').value==='admin123'){isAdmin=true; document.getElementById('adminStatusText').innerText="Admin (Unlocked)"; document.getElementById('adminLockIcon').className="fa-solid fa-lock-open text-emerald-400"; document.getElementById('adminActionBtn').classList.remove('hidden'); document.getElementById('adminActivityAction').classList.remove('hidden'); document.getElementById('adminDocAction').classList.remove('hidden'); document.getElementById('adminGalleryAction').classList.remove('hidden'); document.getElementById('saveButtonMain').classList.remove('hidden'); document.getElementById('homeAdminAction').classList.remove('hidden'); closeAdminModal(); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();} else {alert("Incorrect password!");}}
+function verifyAdminPass(){if(document.getElementById('adminPassInput').value==='admin123'){isAdmin=true; document.getElementById('adminStatusText').innerText="Admin (Unlocked)"; document.getElementById('adminLockIcon').className="fa-solid fa-lock-open text-emerald-400"; document.getElementById('adminActionBtn').classList.remove('hidden'); document.getElementById('adminActivityAction').classList.remove('hidden'); document.getElementById('adminDocAction').classList.remove('hidden'); document.getElementById('adminGalleryAction').classList.remove('hidden'); document.getElementById('saveButtonMain').classList.remove('hidden'); document.getElementById('syncAllCloudBtn').classList.remove('hidden'); document.getElementById('restoreButtonMain').classList.remove('hidden'); document.getElementById('homeAdminAction').classList.remove('hidden'); closeAdminModal(); applyFilters(); renderActivities(); renderFoldersAndDocs(); renderPlaylistsAndGallery();} else {alert("Incorrect password!");}}
 function switchTab(tab){
   ['home','parts','activities','documents','gallery'].forEach(v=>{const el=document.getElementById(v==='home'?'homeView':v==='parts'?'partsView':v==='activities'?'activitiesView':v==='documents'?'documentsView':'galleryView');if(el)el.classList.add('hidden');});
   ['Home','Parts','Activities','Docs','Gallery'].forEach(v=>{const map={Home:'tabHomeBtn',Parts:'tabPartsBtn',Activities:'tabActivitiesBtn',Docs:'tabDocsBtn',Gallery:'tabGalleryBtn'};const b=document.getElementById(map[v]);if(b)b.className="tab-btn px-3 py-1.5 rounded-md transition text-slate-300 hover:text-white font-medium";});
@@ -2731,7 +2679,7 @@ function formatKSADate(dateStr) {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDocs, query, where, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig={
@@ -2785,7 +2733,7 @@ try{
 onSnapshot(collection(db,'kytos_parts'),snap=>{
     const live=[];
     snap.forEach(d=>live.push({id:d.id,...d.data()}));
-    if(live.length>0){
+    if(live.length > 0){
       parts = live.map(p=>({
         id:p.id,
         pn:p.pn||p.partNumber||'',
@@ -2794,53 +2742,55 @@ onSnapshot(collection(db,'kytos_parts'),snap=>{
         cat:p.cat||p.category||'General Spares & Hardware',
         rem:p.rem||'Active Reference',
         img:p.img||'',
-        imageSource:p.imageSource||'unknown'
+        imageSource:p.imageSource||'cloud'
       }));
-      try{localStorage.setItem('kytos_parts_fixed',JSON.stringify(parts));}catch(_){}
-      if(typeof applyFilters==='function')applyFilters();
+      // Remove old local cache so browser memory never conflicts with Cloud
+      try{ localStorage.removeItem('kytos_parts_fixed'); }catch(_){}
+      if(typeof applyFilters==='function') applyFilters();
     }
     const el=document.getElementById('lastSyncTime');
-    if(el)el.innerText=`• ${new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})} ${new Date().toLocaleTimeString()} • ${snap.size} parts`;
+    if(el) el.innerText=`• ${new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})} ${new Date().toLocaleTimeString()} • ${parts.length} parts (Firebase Cloud)`;
+    const badge=document.getElementById('headerBadge');
+    if(badge) badge.innerText=`${parts.length} Items`;
   });
-  
-  onSnapshot(collection(db,'kytos_activities'),snap=>{
+onSnapshot(collection(db,'kytos_activities'),snap=>{
     const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
     // Do not wipe the Calendar when Firestore has no activity documents.
     if(live.length>0){
       activities=live;
-      try{localStorage.setItem('kytos_acts_fixed',JSON.stringify(activities));}catch(_){}
+      try{}catch(_){}
     }
     renderActivities(); renderHomeUpcomingEvents();
   });
 
   onSnapshot(collection(db,'kytos_docs'),snap=>{
     const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
-    if(live.length){documents=live;try{localStorage.setItem('kytos_docs_fixed',JSON.stringify(documents));}catch(_){}}
+    if(live.length){documents=live;try{}catch(_){}}
     renderFoldersAndDocs();
   });
 
   onSnapshot(collection(db,'kytos_gallery'),snap=>{
     const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
-    if(live.length){galleryPosts=live;try{localStorage.setItem('kytos_gallery_fixed',JSON.stringify(galleryPosts));}catch(_){}}
+    if(live.length){galleryPosts=live;try{}catch(_){}}
     renderPlaylistsAndGallery();
   });
 
   onSnapshot(collection(db,'kytos_home_slides'),snap=>{
      const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
      homeSlides=live.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
-     try{localStorage.setItem('kytos_home_slides',JSON.stringify(homeSlides));}catch(_){}
+     try{}catch(_){}
      if(homeSlideIndex>=homeSlides.length)homeSlideIndex=0;
      renderHome(); if(isAdmin)renderHomeAdminLists();
    });
    onSnapshot(collection(db,'kytos_home_shortcuts'),snap=>{
      const live=[];snap.forEach(d=>live.push({id:d.id,...d.data()}));
-     if(live.length){homeShortcuts=live;try{localStorage.setItem('kytos_home_shortcuts',JSON.stringify(homeShortcuts));}catch(_){}}
+     if(live.length){homeShortcuts=live;try{}catch(_){}}
      renderHome(); if(isAdmin)renderHomeAdminLists();
    });
    onSnapshot(doc(db,'kytos_home_settings','main'),snap=>{
      if(snap.exists()){
        homeSettings={...homeSettings,...snap.data()};
-       try{localStorage.setItem('kytos_home_settings',JSON.stringify(homeSettings));}catch(_){}
+       try{}catch(_){}
        renderHome();
        const input=document.getElementById('homePurposeInput');if(input&&!document.getElementById('homeEditorModal').classList.contains('hidden'))input.value=homeSettings.purpose||'';
      }
@@ -2849,13 +2799,13 @@ onSnapshot(collection(db,'kytos_parts'),snap=>{
   onSnapshot(collection(db,'kytos_folders'),snap=>{
     const live=[];snap.forEach(d=>live.push(d.data().name));
     if(live.length)folders=['All Documents',...live.filter(n=>n&&n!=='All Documents')];
-    localStorage.setItem('kytos_folders_fixed',JSON.stringify(folders));renderFoldersAndDocs();
+    renderFoldersAndDocs();
   });
 
   onSnapshot(collection(db,'kytos_playlists'),snap=>{
     const live=[];snap.forEach(d=>live.push(d.data().name));
     if(live.length)playlists=['All Playlists',...live.filter(n=>n&&n!=='All Playlists')];
-    localStorage.setItem('kytos_playlists_fixed',JSON.stringify(playlists));renderPlaylistsAndGallery();
+    renderPlaylistsAndGallery();
   });
 
   window.firebaseSetNamed=async(col,name,data={})=>{
@@ -2872,6 +2822,45 @@ function updateLiveSyncTime(){
   const el=document.getElementById('lastSyncTime');if(el)el.innerText='• '+new Date().toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'})+' '+new Date().toLocaleTimeString()+' • Live';
 }
 window.updateLiveSyncTime=updateLiveSyncTime;
+
+  window.pushAllPartsToCloud = async function(){
+    if(!isAdmin){ alert('Admin access required. Please click Admin and unlock first.'); return; }
+    if(!window._db){ alert('Firebase Cloud is not connected. Please check your internet connection.'); return; }
+    if(!confirm(`Upload all ${parts.length} spare parts to Firebase Cloud Database?\n\nThis will make sure all ${parts.length} parts are permanently saved in the cloud and synced to all devices automatically whenever anyone opens this portal.`)) return;
+
+    const btn = document.getElementById('syncAllCloudBtn');
+    if(btn){ btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Syncing to Cloud...'; }
+
+    try {
+      const batchSize = 400;
+      for (let i = 0; i < parts.length; i += batchSize) {
+        const chunk = parts.slice(i, i + batchSize);
+        const batch = writeBatch(window._db);
+        chunk.forEach((p, idx) => {
+          const docId = String(p.id && String(p.id).length > 5 ? p.id : 'part_' + (i + idx + 1));
+          const ref = doc(window._db, 'kytos_parts', docId);
+          batch.set(ref, {
+            pn: p.pn || '',
+            name: p.name || '',
+            model: p.model || 'GENERAL',
+            cat: p.cat || 'General Spares & Hardware',
+            rem: p.rem || 'Active Reference',
+            img: p.img || '',
+            imageSource: p.imageSource || 'cloud',
+            updatedAt: Date.now()
+          }, { merge: true });
+        });
+        await batch.commit();
+      }
+      alert(`✅ Success! All ${parts.length} spare parts are now saved in Firebase Cloud.\n\nKahit saang computer, tablet, o cellphone mo ito buksan, lilitaw na agad ang ${parts.length} items!`);
+    } catch(err) {
+      console.error('Batch sync failed:', err);
+      alert('❌ Cloud sync failed: ' + err.message + '\n\nTip: Paki-check kung naka-publish ang read/write rules sa Firebase Console.');
+    } finally {
+      if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-1"></i> Push to Cloud'; }
+    }
+  };
+
 
 
 /* === HOME BATCH EDITOR: up to 10 images + one Save All button === */
@@ -2941,7 +2930,6 @@ async function saveAllHomeChanges(){
   const btn=document.getElementById('saveAllHomeBtn');if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-1"></i>Saving...';}
   try{
     homeSettings.purpose=document.getElementById('homePurposeInput').value.trim();
-    localStorage.setItem('kytos_home_settings',JSON.stringify(homeSettings));
     if(window.firebaseSetNamed) await window.firebaseSetNamed('kytos_home_settings','main',{purpose:homeSettings.purpose});
 
     const existing=Array.isArray(homeSlides)?homeSlides.slice():[];
@@ -2980,8 +2968,6 @@ async function saveAllHomeChanges(){
       }
     }
     homeSlides=next.slice(0,10);
-    localStorage.setItem('kytos_home_slides',JSON.stringify(homeSlides));
-
     const currentIds=new Set();
     const savedShortcuts=[];
     for(let i=0;i<homeBatchShortcuts.length;i++){
@@ -2996,7 +2982,6 @@ async function saveAllHomeChanges(){
       else{const obj={id:'shortcut_'+Date.now()+'_'+i,...data};if(window.firebaseAdd){const fid=await window.firebaseAdd('kytos_home_shortcuts',data);if(fid)obj.id=fid;}homeShortcuts.push(obj);savedShortcuts.push(obj);currentIds.add(String(obj.id));}
     }
     homeShortcuts=savedShortcuts;
-    localStorage.setItem('kytos_home_shortcuts',JSON.stringify(homeShortcuts));
     homeBatchFiles={};homeSlideIndex=0;renderHome();renderHomeAdminLists();renderHomeBatchEditor();
     alert('All Home changes have been saved and synced.');
   }catch(err){console.error(err);alert('Unable to save Home changes: '+err.message);}
@@ -3100,35 +3085,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
     }
 });
-function filterCatalogSummary(type) {
-    if (type === 'all') {
-        const searchEl = document.getElementById('searchInput');
-        if(searchEl) searchEl.value = '';
-        const catEl = document.getElementById('categoryDropdown') || document.getElementById('categoryFilter');
-        if(catEl) catEl.value = '';
-        const modEl = document.getElementById('modelDropdown') || document.getElementById('modelFilter');
-        if(modEl) modEl.value = '';
-        if(typeof renderSparePartsTable === 'function') renderSparePartsTable();
-    } else if (type === 'images') {
-        if(typeof sparePartsData !== 'undefined') {
-            const filtered = sparePartsData.filter(item => item.imageUrl && item.imageUrl.trim() !== '' && !item.imageUrl.includes('placeholder'));
-            if(typeof renderSparePartsTable === 'function') renderSparePartsTable(filtered);
-        }
-    } else if (type === 'models') {
-        const searchEl = document.getElementById('searchInput');
-        if(searchEl) searchEl.value = '';
-        if(typeof renderSparePartsTable === 'function') renderSparePartsTable();
-    } else if (type === 'categories') {
-        const searchEl = document.getElementById('searchInput');
-        if(searchEl) searchEl.value = '';
-        if(typeof renderSparePartsTable === 'function') renderSparePartsTable();
-    }
-    
-    const targetSec = document.querySelector('.master-catalog-section') || document.getElementById('masterCatalogContainer') || document.querySelector('table');
-    if(targetSec) {
-        targetSec.scrollIntoView({ behavior: 'smooth' });
-    }
-}
 </script>
 
 </body>
